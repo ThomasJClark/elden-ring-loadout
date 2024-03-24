@@ -4,6 +4,7 @@
 #include "../ModUtils.hpp"
 #include "../ParamUtils.hpp"
 #include "../internal/EzState.hpp"
+#include "../messages/LoadoutMessages.hpp"
 #include "CustomEzStates.hpp"
 #include "LoadoutTalkScript.hpp"
 
@@ -24,7 +25,7 @@ OpenShopState apply_loadout_state(68003, 3900100, 3900199, &loadout_menu_state);
 
 // AddTalkListData(68, "Manage loadouts", -1)
 static EzState::IntValue loadout_talk_list_index = 68;
-static EzState::IntValue loadout_menu_text_id = 68000000;
+static EzState::IntValue loadout_menu_text_id = LoadoutMessages::EventTextForTalk::manage_loadouts;
 static EzState::IntValue unk = -1;
 static EzState::CommandArg loadout_arg_list[] = {loadout_talk_list_index, loadout_menu_text_id,
                                                  unk};
@@ -82,12 +83,13 @@ static void ezstate_enter_state_detour(EzState::State *state, EzState::MachineIm
         {
             for (auto &call : state.entry_commands)
             {
-                if (is_add_talk_list_data_call(call, 15000395))
+                if (is_add_talk_list_data_call(call, LoadoutMessages::EventTextForTalk::sort_chest))
                 {
                     add_menu_state = &state;
                     call_iter = &call + 1;
                 }
-                else if (is_add_talk_list_data_call(call, 68000000))
+                else if (is_add_talk_list_data_call(
+                             call, LoadoutMessages::EventTextForTalk::manage_loadouts))
                 {
                     spdlog::debug("Not patching state group x{}, already patched",
                                   0x7fffffff - state_group->id);

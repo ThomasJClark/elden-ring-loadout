@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../internal/EzState.hpp"
+#include "../messages/LoadoutMessages.hpp"
 
 #pragma pack(push, 1)
 
@@ -75,17 +76,17 @@ class LoadoutMenuState : public EzState::State
     EzState::IntValue unk = -1;
 
     EzState::IntValue save_loadout_talk_list_index = 1;
-    EzState::IntValue save_loadout_menu_text_id = 68000001;
+    EzState::IntValue save_loadout_menu_text_id = LoadoutMessages::EventTextForTalk::save_loadout;
     EzState::CommandArg save_loadout_arg_list[3] = {save_loadout_talk_list_index,
                                                     save_loadout_menu_text_id, unk};
 
     EzState::IntValue apply_loadout_talk_list_index = 2;
-    EzState::IntValue apply_loadout_menu_text_id = 68000002;
+    EzState::IntValue apply_loadout_menu_text_id = LoadoutMessages::EventTextForTalk::apply_loadout;
     EzState::CommandArg apply_loadout_arg_list[3] = {apply_loadout_talk_list_index,
                                                      apply_loadout_menu_text_id, unk};
 
     EzState::IntValue cancel_talk_list_index = 99;
-    EzState::IntValue cancel_menu_text_id = 15000372;
+    EzState::IntValue cancel_menu_text_id = LoadoutMessages::EventTextForTalk::cancel;
     EzState::CommandArg cancel_arg_list[3] = {cancel_talk_list_index, cancel_menu_text_id, unk};
 
     EzState::IntValue generic_dialog_shop_message = 0;

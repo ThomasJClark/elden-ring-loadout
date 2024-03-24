@@ -71,7 +71,9 @@ add_library(EldenRingLoadoutMod SHARED
   src/talkscript/CustomEzStates.hpp
   src/talkscript/LoadoutTalkScript.hpp
   src/talkscript/LoadoutTalkScript.cpp
-  src/messages.hpp)
+  src/messages/messages.hpp
+  src/messages/LoadoutMessages.hpp
+  src/messages/LoadoutMessages.cpp)
 
 set_target_properties(EldenRingLoadoutMod PROPERTIES OUTPUT_NAME "erloadout")
 
