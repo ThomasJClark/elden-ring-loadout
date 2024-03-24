@@ -68,6 +68,9 @@ add_library(EldenRingLoadoutMod SHARED
   src/internal/GameMan.hpp
   src/internal/List.hpp
   src/internal/WorldChrMan.hpp
+  src/talkscript/CustomEzStates.hpp
+  src/talkscript/LoadoutTalkScript.hpp
+  src/talkscript/LoadoutTalkScript.cpp
   src/messages.hpp)
 
 set_target_properties(EldenRingLoadoutMod PROPERTIES OUTPUT_NAME "erloadout")

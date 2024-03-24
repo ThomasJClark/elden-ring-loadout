@@ -12,6 +12,7 @@
 #include "ModUtils.hpp"
 #include "ParamUtils.hpp"
 #include "PlayerUtils.hpp"
+#include "talkscript/LoadoutTalkScript.hpp"
 
 using namespace std;
 
@@ -59,6 +60,11 @@ bool WINAPI DllMain(HINSTANCE dll_instance, uint32_t fdw_reason, void *lpv_reser
 
                 ParamUtils::initialize();
                 PlayerUtils::initialize();
+
+                this_thread::sleep_for(chrono::milliseconds(10000));
+
+                spdlog::info("Hooking talk scripts...");
+                LoadoutTalkScript::initialize();
 
                 ModUtils::enable_hooks();
 
