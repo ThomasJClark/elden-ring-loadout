@@ -9,12 +9,12 @@
 #include <thread>
 #include <windows.h>
 
-#include "ModUtils.hpp"
-#include "ParamUtils.hpp"
-#include "PlayerUtils.hpp"
 #include "messages/LoadoutMessages.hpp"
 #include "shop/LoadoutShop.hpp"
 #include "talkscript/LoadoutTalkScript.hpp"
+#include "utils/ModUtils.hpp"
+#include "utils/ParamUtils.hpp"
+#include "utils/PlayerUtils.hpp"
 
 using namespace std;
 
@@ -58,30 +58,29 @@ bool WINAPI DllMain(HINSTANCE dll_instance, uint32_t fdw_reason, void *lpv_reser
         mod_thread = thread([]() {
             try
             {
-                ModUtils::initialize();
-
-                ParamUtils::initialize();
-                PlayerUtils::initialize();
+                modutils::initialize();
+                params::initialize();
+                players::initialize();
 
                 this_thread::sleep_for(chrono::milliseconds(11000));
 
                 spdlog::info("Hooking talk scripts...");
-                LoadoutTalkScript::initialize();
+                erloadout::talkscript::initialize();
 
                 spdlog::info("Hooking loadout messages...");
-                LoadoutMessages::initialize();
+                erloadout::msg::initialize();
 
                 spdlog::info("Adding loadout shops...");
-                LoadoutShop::initialize();
+                erloadout::shop::initialize();
 
-                ModUtils::enable_hooks();
+                modutils::enable_hooks();
 
                 spdlog::info("Initialized loadout mod");
             }
             catch (runtime_error const &e)
             {
                 spdlog::error("Error initializing mod: {}", e.what());
-                ModUtils::deinitialize();
+                modutils::deinitialize();
             }
         });
     }
@@ -90,7 +89,7 @@ bool WINAPI DllMain(HINSTANCE dll_instance, uint32_t fdw_reason, void *lpv_reser
         try
         {
             mod_thread.join();
-            ModUtils::deinitialize();
+            modutils::deinitialize();
             spdlog::info("Deinitialized mod");
         }
         catch (runtime_error const &e)

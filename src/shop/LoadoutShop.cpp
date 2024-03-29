@@ -3,13 +3,13 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "../ModUtils.hpp"
-#include "../ParamUtils.hpp"
-#include "../PlayerUtils.hpp"
 #include "../messages/LoadoutMessages.hpp"
+#include "../utils/ModUtils.hpp"
+#include "../utils/ParamUtils.hpp"
+#include "../utils/PlayerUtils.hpp"
 #include "LoadoutShop.hpp"
 
-using namespace LoadoutShop;
+using namespace erloadout;
 using namespace std;
 
 typedef void AddRemoveItemFn(uint64_t item_type, uint32_t item_id, int32_t quantity);
@@ -42,9 +42,9 @@ struct FindEquipParamGoodsResult
 
 static ShopLineupParam save_loadout_shop_menu = {0};
 static ShopLineupParam apply_loadout_shop_menu = {0};
-static ShopLineupParam save_loadout_shop_lineups[loadout_slots] = {0};
-static ShopLineupParam apply_loadout_shop_lineups[loadout_slots] = {0};
-static EquipParamGoods loadout_slot_goods[loadout_slots] = {0};
+static ShopLineupParam save_loadout_shop_lineups[shop::loadout_slots] = {0};
+static ShopLineupParam apply_loadout_shop_lineups[shop::loadout_slots] = {0};
+static EquipParamGoods loadout_slot_goods[shop::loadout_slots] = {0};
 
 static FindShopMenuResult *(*get_shop_menu)(FindShopMenuResult *result, byte shop_type,
                                             int32_t begin_id, int32_t end_id);
@@ -52,16 +52,16 @@ static FindShopMenuResult *(*get_shop_menu)(FindShopMenuResult *result, byte sho
 FindShopMenuResult *get_shop_menu_detour(FindShopMenuResult *result, byte shop_type,
                                          int32_t begin_id, int32_t end_id)
 {
-    if (begin_id == save_loadout_shop_id)
+    if (begin_id == shop::save_loadout_shop_id)
     {
         result->shop_type = (byte)0;
-        result->id = save_loadout_shop_id;
+        result->id = shop::save_loadout_shop_id;
         result->row = &save_loadout_shop_menu;
     }
-    else if (begin_id == apply_loadout_shop_id)
+    else if (begin_id == shop::apply_loadout_shop_id)
     {
         result->shop_type = (byte)0;
-        result->id = apply_loadout_shop_id;
+        result->id = shop::apply_loadout_shop_id;
         result->row = &apply_loadout_shop_menu;
     }
     else
@@ -77,17 +77,18 @@ static void (*get_shop_lineup_param)(FindShopLineupParamResult *result, byte sho
 static void get_shop_lineup_param_detour(FindShopLineupParamResult *result, byte shop_type,
                                          int32_t id)
 {
-    if (id >= save_loadout_shop_id && id < save_loadout_shop_id + loadout_slots)
+    if (id >= shop::save_loadout_shop_id && id < shop::save_loadout_shop_id + shop::loadout_slots)
     {
-        auto loadout_slot = id - save_loadout_shop_id;
+        auto loadout_slot = id - shop::save_loadout_shop_id;
         result->shop_type = shop_type;
         result->id = id;
         result->row = &save_loadout_shop_lineups[loadout_slot];
         return;
     }
-    else if (id >= apply_loadout_shop_id && id < apply_loadout_shop_id + loadout_slots)
+    else if (id >= shop::apply_loadout_shop_id &&
+             id < shop::apply_loadout_shop_id + shop::loadout_slots)
     {
-        auto loadout_slot = id - apply_loadout_shop_id;
+        auto loadout_slot = id - shop::apply_loadout_shop_id;
         result->shop_type = shop_type;
         result->id = id;
         result->row = &apply_loadout_shop_lineups[loadout_slot];
@@ -101,9 +102,9 @@ static void (*get_equip_param_goods)(FindEquipParamGoodsResult *result, int32_t 
 
 void get_equip_param_goods_detour(FindEquipParamGoodsResult *result, int32_t id)
 {
-    if (id >= loadout_goods_base_id && id < loadout_goods_base_id + loadout_slots)
+    if (id >= shop::loadout_goods_base_id && id < shop::loadout_goods_base_id + shop::loadout_slots)
     {
-        auto loadout_slot = id - loadout_goods_base_id;
+        auto loadout_slot = id - shop::loadout_goods_base_id;
         result->id = id;
         result->row = &loadout_slot_goods[loadout_slot];
         result->unknown = 3;
@@ -117,13 +118,13 @@ static void (*open_regular_shop)(void *, uint64_t, uint64_t);
 
 static void open_regular_shop_detour(void *unk, uint64_t begin_id, uint64_t end_id)
 {
-    if (begin_id == save_loadout_shop_id || begin_id == apply_loadout_shop_id)
+    if (begin_id == shop::save_loadout_shop_id || begin_id == shop::apply_loadout_shop_id)
     {
-        LoadoutMessages::set_active_shop(begin_id);
+        msg::set_active_shop(begin_id);
     }
     else
     {
-        LoadoutMessages::set_active_shop(-1);
+        msg::set_active_shop(-1);
     }
 
     open_regular_shop(unk, begin_id, end_id);
@@ -134,12 +135,13 @@ static bool (*add_inventory_from_shop)(int32_t *new_item_id, int32_t quantity) =
 static bool add_inventory_from_shop_detour(int32_t *item_id_address, int32_t quantity)
 {
     auto item_id = *item_id_address;
-    if (item_id >= item_type_goods_begin && item_id < item_type_goods_end)
+    if (item_id >= shop::item_type_goods_begin && item_id < shop::item_type_goods_end)
     {
-        auto goods_id = item_id - item_type_goods_begin;
-        if (goods_id >= loadout_goods_base_id && goods_id < loadout_goods_base_id + loadout_slots)
+        auto goods_id = item_id - shop::item_type_goods_begin;
+        if (goods_id >= shop::loadout_goods_base_id &&
+            goods_id < shop::loadout_goods_base_id + shop::loadout_slots)
         {
-            auto loadout_slot = goods_id - loadout_goods_base_id;
+            auto loadout_slot = goods_id - shop::loadout_goods_base_id;
 
             spdlog::info("TODO: loadout slot {}", loadout_slot);
 
@@ -150,9 +152,9 @@ static bool add_inventory_from_shop_detour(int32_t *item_id_address, int32_t qua
     return add_inventory_from_shop(item_id_address, quantity);
 }
 
-void LoadoutShop::initialize()
+void erloadout::shop::initialize()
 {
-    add_remove_item = ModUtils::scan<AddRemoveItemFn>({
+    add_remove_item = modutils::scan<AddRemoveItemFn>({
         .aob = "8b 99 90 01 00 00" // mov ebx, [rcx + 0x190] ; param->hostModeCostItemId
                "41 83 c8 ff"       // or r8d, -1
                "8b d3"             // mov edx, ebx
@@ -162,13 +164,13 @@ void LoadoutShop::initialize()
         .relative_offsets = {{1, 5}},
     });
 
-    save_loadout_shop_menu.menuTitleMsgId = LoadoutMessages::MenuText::save_loadout;
+    save_loadout_shop_menu.menuTitleMsgId = msg::menu_text_save_loadout;
     save_loadout_shop_menu.menuIconId = 5;
 
-    apply_loadout_shop_menu.menuTitleMsgId = LoadoutMessages::MenuText::apply_loadout;
+    apply_loadout_shop_menu.menuTitleMsgId = msg::menu_text_apply_loadout;
     apply_loadout_shop_menu.menuIconId = 5;
 
-    ModUtils::hook(
+    modutils::hook(
         {
             // Note - the mov instructions are 44 or 45 depending on if this is the Japanese or
             // international .exe, and the stack offset is either -10 or -08. This pattern works
@@ -236,7 +238,7 @@ void LoadoutShop::initialize()
     }
 
     // Hook get_equip_param_goods() to return the above items
-    ModUtils::hook(
+    modutils::hook(
         {
             .aob = "41 8d 50 03"        // lea edx, [r8 + 3]
                    "e8 ?? ?? ?? ??"     // call SoloParamRepositoryImp::GetParamResCap
@@ -247,7 +249,7 @@ void LoadoutShop::initialize()
         get_equip_param_goods_detour, get_equip_param_goods);
 
     // Hook get_shop_lineup_param() to return the above shop entries
-    ModUtils::hook(
+    modutils::hook(
         {
             .aob = "48 8d 15 ?? ?? ?? ??" // lea rdx, [shop_lineup_param_indexes]
                    "45 33 c0"             // xor r8d, r8d
@@ -260,7 +262,7 @@ void LoadoutShop::initialize()
         get_shop_lineup_param_detour, get_shop_lineup_param);
 
     // Hook add_inventory_from_shop() to save or load a loadout when a shop item is chosen
-    ModUtils::hook(
+    modutils::hook(
         {
             .aob = "8b 93 80 00 00 00" // mov edx, [rbx + 0x80]
                    "0f af d1"          // imul edx, ecx
@@ -272,7 +274,7 @@ void LoadoutShop::initialize()
         add_inventory_from_shop_detour, add_inventory_from_shop);
 
     // Hook OpenRegularShop() to perform some memory hacks when opening up the a shop
-    ModUtils::hook(
+    modutils::hook(
         {
             .aob = "4c 8b 49 18"           // mov    r9, [rcx + 0x18]
                    "48 8b d9"              // mov    rbx,rcx

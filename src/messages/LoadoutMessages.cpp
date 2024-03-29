@@ -3,12 +3,12 @@
 #include <string>
 #include <thread>
 
-#include "../ModUtils.hpp"
 #include "../shop/LoadoutShop.hpp"
+#include "../utils/ModUtils.hpp"
 #include "LoadoutMessages.hpp"
 #include "messages.hpp"
 
-using namespace LoadoutMessages;
+using namespace erloadout;
 using namespace std;
 
 static const uint32_t msgbnd_goods_name = 10;
@@ -49,14 +49,14 @@ static CS::MsgRepository *msg_repository = nullptr;
  * Assigned the list of localized messages based on the player's language preference
  */
 static Messages loadout_messages;
-static u16string loadout_slot_names[LoadoutShop::loadout_slots];
+static u16string loadout_slot_names[shop::loadout_slots];
 
 static int32_t active_shop_id = -1;
 
 inline bool is_loadout_shop_open()
 {
-    return active_shop_id == LoadoutShop::save_loadout_shop_id ||
-           active_shop_id == LoadoutShop::apply_loadout_shop_id;
+    return active_shop_id == shop::save_loadout_shop_id ||
+           active_shop_id == shop::apply_loadout_shop_id;
 }
 
 static const char16_t *(*get_message)(CS::MsgRepository *, uint32_t, uint32_t, int32_t);
@@ -66,31 +66,31 @@ static const char16_t *get_message_detour(CS::MsgRepository *msg_repository, uin
     switch (bnd_id)
     {
     case msgbnd_event_text_for_talk:
-        if (msg_id == EventTextForTalk::manage_loadouts)
+        if (msg_id == msg::event_text_for_talk_manage_loadouts)
             return loadout_messages.manage_loadouts.c_str();
-        else if (msg_id == EventTextForTalk::save_loadout)
+        else if (msg_id == msg::event_text_for_talk_save_loadout)
             return loadout_messages.save_loadout.c_str();
-        else if (msg_id == EventTextForTalk::apply_loadout)
+        else if (msg_id == msg::event_text_for_talk_apply_loadout)
             return loadout_messages.apply_loadout.c_str();
         break;
 
     case msgbnd_menu_text:
-        if (msg_id == MenuText::save_loadout)
+        if (msg_id == msg::menu_text_save_loadout)
             return loadout_messages.save_loadout.c_str();
-        else if (msg_id == MenuText::apply_loadout)
+        else if (msg_id == msg::menu_text_apply_loadout)
             return loadout_messages.apply_loadout.c_str();
 
         if (is_loadout_shop_open())
         {
-            if (msg_id == MenuText::item_effect)
-                return get_message(msg_repository, unknown, bnd_id, MenuText::equipment);
-            else if (msg_id == MenuText::number_held || msg_id == MenuText::stored)
+            if (msg_id == msg::menu_text_item_effect)
+                return get_message(msg_repository, unknown, bnd_id, msg::menu_text_equipment);
+            else if (msg_id == msg::menu_text_number_held || msg_id == msg::menu_text_stored)
                 return u"";
         }
         break;
 
     case msgbnd_line_help:
-        if (msg_id == LineHelp::select_item_for_purchase)
+        if (msg_id == msg::line_help_select_item_for_purchase)
         {
             if (is_loadout_shop_open())
                 return loadout_messages.select_loadout_slot.c_str();
@@ -98,20 +98,20 @@ static const char16_t *get_message_detour(CS::MsgRepository *msg_repository, uin
         break;
 
     case msgbnd_dialogues:
-        if (msg_id == Dialogues::purchase_item_for_runes)
+        if (msg_id == msg::dialogues_purchase_item_for_runes)
         {
-            if (active_shop_id == LoadoutShop::save_loadout_shop_id)
+            if (active_shop_id == shop::save_loadout_shop_id)
                 return loadout_messages.save_loadout.c_str();
-            else if (active_shop_id == LoadoutShop::apply_loadout_shop_id)
+            else if (active_shop_id == shop::apply_loadout_shop_id)
                 return loadout_messages.apply_loadout.c_str();
         }
         break;
 
     case msgbnd_goods_name:
-        if (msg_id >= LoadoutShop::loadout_goods_base_id &&
-            msg_id < LoadoutShop::loadout_goods_base_id + LoadoutShop::loadout_slots)
+        if (msg_id >= shop::loadout_goods_base_id &&
+            msg_id < shop::loadout_goods_base_id + shop::loadout_slots)
         {
-            auto loadout_slot = msg_id - LoadoutShop::loadout_goods_base_id;
+            auto loadout_slot = msg_id - shop::loadout_goods_base_id;
             if (loadout_slot < 4)
             {
                 return loadout_slot_names[loadout_slot].c_str();
@@ -121,10 +121,10 @@ static const char16_t *get_message_detour(CS::MsgRepository *msg_repository, uin
         break;
 
     case msgbnd_goods_caption:
-        if (msg_id >= LoadoutShop::loadout_goods_base_id &&
-            msg_id < LoadoutShop::loadout_goods_base_id + LoadoutShop::loadout_slots)
+        if (msg_id >= shop::loadout_goods_base_id &&
+            msg_id < shop::loadout_goods_base_id + shop::loadout_slots)
         {
-            auto loadout_slot = msg_id - LoadoutShop::loadout_goods_base_id;
+            auto loadout_slot = msg_id - shop::loadout_goods_base_id;
             if (loadout_slot < 4)
             {
                 return u"TODO more info";
@@ -134,10 +134,10 @@ static const char16_t *get_message_detour(CS::MsgRepository *msg_repository, uin
         break;
 
     case msgbnd_goods_info:
-        if (msg_id >= LoadoutShop::loadout_goods_base_id &&
-            msg_id < LoadoutShop::loadout_goods_base_id + LoadoutShop::loadout_slots)
+        if (msg_id >= shop::loadout_goods_base_id &&
+            msg_id < shop::loadout_goods_base_id + shop::loadout_slots)
         {
-            auto loadout_slot = msg_id - LoadoutShop::loadout_goods_base_id;
+            auto loadout_slot = msg_id - shop::loadout_goods_base_id;
             if (loadout_slot == 0)
             {
                 return u"\u2022 Vulgar Militia Helm\n"
@@ -159,14 +159,14 @@ static const char16_t *get_message_detour(CS::MsgRepository *msg_repository, uin
 }
 
 // Set a flag to adjust some UI strings for the loadout shops, but not other shops
-void LoadoutMessages::set_active_shop(int32_t shop_id)
+void erloadout::msg::set_active_shop(int32_t shop_id)
 {
     active_shop_id = shop_id;
 }
 
-void LoadoutMessages::initialize()
+void erloadout::msg::initialize()
 {
-    auto msg_repository_address = ModUtils::scan<CS::MsgRepository *>({
+    auto msg_repository_address = modutils::scan<CS::MsgRepository *>({
         .aob = "48 8B 3D ?? ?? ?? ?? 44 0F B6 30 48 85 FF 75",
         .relative_offsets = {{3, 7}},
     });
@@ -178,7 +178,7 @@ void LoadoutMessages::initialize()
     }
 
     // Hook MsgRepositoryImp::LookupEntry() to return message strings used by the mod
-    ModUtils::hook(
+    modutils::hook(
         {
             .aob = "8B DA 44 8B CA 33 D2 48 8B F9 44 8D 42 6F",
             .offset = 14,
@@ -202,7 +202,7 @@ void LoadoutMessages::initialize()
         loadout_messages = messages_iterator->second;
     }
 
-    for (int loadout_slot = 0; loadout_slot < LoadoutShop::loadout_slots; loadout_slot++)
+    for (int loadout_slot = 0; loadout_slot < shop::loadout_slots; loadout_slot++)
     {
         auto slot_str = std::to_wstring(loadout_slot + 1);
         loadout_slot_names[loadout_slot] =

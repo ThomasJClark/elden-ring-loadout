@@ -1,16 +1,16 @@
 #include <cstdint>
 #include <spdlog/spdlog.h>
 
-#include "../ModUtils.hpp"
-#include "../ParamUtils.hpp"
 #include "../internal/EzState.hpp"
 #include "../messages/LoadoutMessages.hpp"
 #include "../shop/LoadoutShop.hpp"
+#include "../utils/ModUtils.hpp"
+#include "../utils/ParamUtils.hpp"
 #include "CustomEzStates.hpp"
 #include "LoadoutTalkScript.hpp"
 
 using namespace std;
-using namespace LoadoutTalkScript;
+using namespace erloadout;
 
 namespace
 {
@@ -20,18 +20,17 @@ extern OpenShopState apply_loadout_state;
 
 LoadoutMenuState loadout_menu_state(68000, &loadout_menu_next_state);
 LoadoutMenuNextState loadout_menu_next_state(68001, &save_loadout_state, &apply_loadout_state);
-OpenShopState save_loadout_state(68002, LoadoutShop::save_loadout_shop_id,
-                                 LoadoutShop::save_loadout_shop_id + LoadoutShop::loadout_slots - 1,
+OpenShopState save_loadout_state(68002, shop::save_loadout_shop_id,
+                                 shop::save_loadout_shop_id + shop::loadout_slots - 1,
                                  &loadout_menu_state);
-OpenShopState apply_loadout_state(68003, LoadoutShop::apply_loadout_shop_id,
-                                  LoadoutShop::apply_loadout_shop_id + LoadoutShop::loadout_slots -
-                                      1,
+OpenShopState apply_loadout_state(68003, shop::apply_loadout_shop_id,
+                                  shop::apply_loadout_shop_id + shop::loadout_slots - 1,
                                   &loadout_menu_state);
-}; // namespace
+};
 
 // AddTalkListData(68, "Manage loadouts", -1)
 static EzState::IntValue loadout_talk_list_index = 68;
-static EzState::IntValue loadout_menu_text_id = LoadoutMessages::EventTextForTalk::manage_loadouts;
+static EzState::IntValue loadout_menu_text_id = msg::event_text_for_talk_manage_loadouts;
 static EzState::IntValue unk = -1;
 static EzState::CommandArg loadout_arg_list[] = {loadout_talk_list_index, loadout_menu_text_id,
                                                  unk};
@@ -89,13 +88,12 @@ static void ezstate_enter_state_detour(EzState::State *state, EzState::MachineIm
         {
             for (auto &call : state.entry_commands)
             {
-                if (is_add_talk_list_data_call(call, LoadoutMessages::EventTextForTalk::sort_chest))
+                if (is_add_talk_list_data_call(call, msg::event_text_for_talk_sort_chest))
                 {
                     add_menu_state = &state;
                     call_iter = &call + 1;
                 }
-                else if (is_add_talk_list_data_call(
-                             call, LoadoutMessages::EventTextForTalk::manage_loadouts))
+                else if (is_add_talk_list_data_call(call, msg::event_text_for_talk_manage_loadouts))
                 {
                     spdlog::debug("Not patching state group x{}, already patched",
                                   0x7fffffff - state_group->id);
@@ -148,9 +146,9 @@ static void ezstate_enter_state_detour(EzState::State *state, EzState::MachineIm
     ezstate_enter_state(state, machine, unk);
 }
 
-void LoadoutTalkScript::initialize()
+void erloadout::talkscript::initialize()
 {
-    ModUtils::hook(
+    modutils::hook(
         {
             .aob = "80 7e 18 00"     // cmp byte ptr [rsi + 0x18], 0x0
                    "74 15"           // jz end_label

@@ -1,6 +1,9 @@
 #pragma once
 
-namespace LoadoutTalkScript
+namespace erloadout
+{
+namespace talkscript
 {
 void initialize();
-} // namespace LoadoutTalkScript
+}
+}

@@ -57,12 +57,6 @@ set_target_properties(steamapi PROPERTIES
         IMPORTED_LOCATION_DEBUG steam_api64.lib)
 
 add_library(EldenRingLoadoutMod SHARED
-  src/ModUtils.hpp
-  src/ModUtils.cpp
-  src/ParamUtils.hpp
-  src/ParamUtils.cpp
-  src/PlayerUtils.hpp
-  src/PlayerUtils.cpp
   src/dllmain.cpp
   src/internal/EzState.hpp
   src/internal/GameMan.hpp
@@ -71,9 +65,17 @@ add_library(EldenRingLoadoutMod SHARED
   src/talkscript/CustomEzStates.hpp
   src/talkscript/LoadoutTalkScript.hpp
   src/talkscript/LoadoutTalkScript.cpp
+  src/utils/ModUtils.hpp
+  src/utils/ModUtils.cpp
+  src/utils/ParamUtils.hpp
+  src/utils/ParamUtils.cpp
+  src/utils/PlayerUtils.hpp
+  src/utils/PlayerUtils.cpp
   src/messages/messages.hpp
   src/messages/LoadoutMessages.hpp
   src/messages/LoadoutMessages.cpp
+  src/saveslot/LoadoutSaveSlot.hpp
+  src/saveslot/LoadoutSaveSlot.cpp
   src/shop/LoadoutShop.hpp
   src/shop/LoadoutShop.cpp)
 
