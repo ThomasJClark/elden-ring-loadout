@@ -5,6 +5,7 @@
 #include "../ParamUtils.hpp"
 #include "../internal/EzState.hpp"
 #include "../messages/LoadoutMessages.hpp"
+#include "../shop/LoadoutShop.hpp"
 #include "CustomEzStates.hpp"
 #include "LoadoutTalkScript.hpp"
 
@@ -19,8 +20,13 @@ extern OpenShopState apply_loadout_state;
 
 LoadoutMenuState loadout_menu_state(68000, &loadout_menu_next_state);
 LoadoutMenuNextState loadout_menu_next_state(68001, &save_loadout_state, &apply_loadout_state);
-OpenShopState save_loadout_state(68002, 3900000, 3900099, &loadout_menu_state);
-OpenShopState apply_loadout_state(68003, 3900100, 3900199, &loadout_menu_state);
+OpenShopState save_loadout_state(68002, LoadoutShop::save_loadout_shop_id,
+                                 LoadoutShop::save_loadout_shop_id + LoadoutShop::loadout_slots - 1,
+                                 &loadout_menu_state);
+OpenShopState apply_loadout_state(68003, LoadoutShop::apply_loadout_shop_id,
+                                  LoadoutShop::apply_loadout_shop_id + LoadoutShop::loadout_slots -
+                                      1,
+                                  &loadout_menu_state);
 }; // namespace
 
 // AddTalkListData(68, "Manage loadouts", -1)

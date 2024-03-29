@@ -4,6 +4,7 @@
 #include <thread>
 
 #include "../ModUtils.hpp"
+#include "../shop/LoadoutShop.hpp"
 #include "LoadoutMessages.hpp"
 #include "messages.hpp"
 
@@ -48,8 +49,15 @@ static CS::MsgRepository *msg_repository = nullptr;
  * Assigned the list of localized messages based on the player's language preference
  */
 static Messages loadout_messages;
+static u16string loadout_slot_names[LoadoutShop::loadout_slots];
 
 static int32_t active_shop_id = -1;
+
+inline bool is_loadout_shop_open()
+{
+    return active_shop_id == LoadoutShop::save_loadout_shop_id ||
+           active_shop_id == LoadoutShop::apply_loadout_shop_id;
+}
 
 static const char16_t *(*get_message)(CS::MsgRepository *, uint32_t, uint32_t, int32_t);
 static const char16_t *get_message_detour(CS::MsgRepository *msg_repository, uint32_t unknown,
@@ -71,12 +79,20 @@ static const char16_t *get_message_detour(CS::MsgRepository *msg_repository, uin
             return loadout_messages.save_loadout.c_str();
         else if (msg_id == MenuText::apply_loadout)
             return loadout_messages.apply_loadout.c_str();
+
+        if (is_loadout_shop_open())
+        {
+            if (msg_id == MenuText::item_effect)
+                return get_message(msg_repository, unknown, bnd_id, MenuText::equipment);
+            else if (msg_id == MenuText::number_held || msg_id == MenuText::stored)
+                return u"";
+        }
         break;
 
     case msgbnd_line_help:
         if (msg_id == LineHelp::select_item_for_purchase)
         {
-            if (active_shop_id == 3900000 || active_shop_id == 3900100)
+            if (is_loadout_shop_open())
                 return loadout_messages.select_loadout_slot.c_str();
         }
         break;
@@ -84,20 +100,58 @@ static const char16_t *get_message_detour(CS::MsgRepository *msg_repository, uin
     case msgbnd_dialogues:
         if (msg_id == Dialogues::purchase_item_for_runes)
         {
-            if (active_shop_id == 3900000)
+            if (active_shop_id == LoadoutShop::save_loadout_shop_id)
                 return loadout_messages.save_loadout.c_str();
-            else if (active_shop_id == 3900100)
+            else if (active_shop_id == LoadoutShop::apply_loadout_shop_id)
                 return loadout_messages.apply_loadout.c_str();
         }
         break;
 
     case msgbnd_goods_name:
+        if (msg_id >= LoadoutShop::loadout_goods_base_id &&
+            msg_id < LoadoutShop::loadout_goods_base_id + LoadoutShop::loadout_slots)
+        {
+            auto loadout_slot = msg_id - LoadoutShop::loadout_goods_base_id;
+            if (loadout_slot < 4)
+            {
+                return loadout_slot_names[loadout_slot].c_str();
+            }
+            return loadout_messages.empty_slot.c_str();
+        }
         break;
 
     case msgbnd_goods_caption:
+        if (msg_id >= LoadoutShop::loadout_goods_base_id &&
+            msg_id < LoadoutShop::loadout_goods_base_id + LoadoutShop::loadout_slots)
+        {
+            auto loadout_slot = msg_id - LoadoutShop::loadout_goods_base_id;
+            if (loadout_slot < 4)
+            {
+                return u"TODO more info";
+            }
+            return u"";
+        }
         break;
 
     case msgbnd_goods_info:
+        if (msg_id >= LoadoutShop::loadout_goods_base_id &&
+            msg_id < LoadoutShop::loadout_goods_base_id + LoadoutShop::loadout_slots)
+        {
+            auto loadout_slot = msg_id - LoadoutShop::loadout_goods_base_id;
+            if (loadout_slot == 0)
+            {
+                return u"\u2022 Vulgar Militia Helm\n"
+                       u"\u2022 Spellblade's Trousers\n"
+                       u"\u2022 Morningstar\n"
+                       u"\n"
+                       u"Press <?keyicon@31?> to view more info";
+            }
+            if (loadout_slot < 4)
+            {
+                return u"TODO";
+            }
+            return u"";
+        }
         break;
     }
 
@@ -146,5 +200,12 @@ void LoadoutMessages::initialize()
     {
         spdlog::info("Detected game language = {}", language);
         loadout_messages = messages_iterator->second;
+    }
+
+    for (int loadout_slot = 0; loadout_slot < LoadoutShop::loadout_slots; loadout_slot++)
+    {
+        auto slot_str = std::to_wstring(loadout_slot + 1);
+        loadout_slot_names[loadout_slot] =
+            loadout_messages.loadout_slot + u" " + u16string{slot_str.begin(), slot_str.end()};
     }
 }

@@ -17,6 +17,10 @@ namespace MenuText
 {
 static constexpr int32_t save_loadout = 680000;
 static constexpr int32_t apply_loadout = 680001;
+static constexpr int32_t number_held = 11004;
+static constexpr int32_t stored = 11005;
+static constexpr int32_t item_effect = 20006;
+static constexpr int32_t equipment = 20016;
 } // namespace MenuText
 
 namespace LineHelp

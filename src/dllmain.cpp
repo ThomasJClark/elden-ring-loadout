@@ -13,6 +13,7 @@
 #include "ParamUtils.hpp"
 #include "PlayerUtils.hpp"
 #include "messages/LoadoutMessages.hpp"
+#include "shop/LoadoutShop.hpp"
 #include "talkscript/LoadoutTalkScript.hpp"
 
 using namespace std;
@@ -62,13 +63,16 @@ bool WINAPI DllMain(HINSTANCE dll_instance, uint32_t fdw_reason, void *lpv_reser
                 ParamUtils::initialize();
                 PlayerUtils::initialize();
 
-                this_thread::sleep_for(chrono::milliseconds(10000));
+                this_thread::sleep_for(chrono::milliseconds(11000));
 
                 spdlog::info("Hooking talk scripts...");
                 LoadoutTalkScript::initialize();
 
                 spdlog::info("Hooking loadout messages...");
                 LoadoutMessages::initialize();
+
+                spdlog::info("Adding loadout shops...");
+                LoadoutShop::initialize();
 
                 ModUtils::enable_hooks();
 
