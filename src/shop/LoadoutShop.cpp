@@ -4,6 +4,7 @@
 #include <unordered_set>
 
 #include "../messages/LoadoutMessages.hpp"
+#include "../saveslot/LoadoutSaveSlot.hpp"
 #include "../utils/ModUtils.hpp"
 #include "../utils/ParamUtils.hpp"
 #include "../utils/PlayerUtils.hpp"
@@ -40,12 +41,6 @@ struct FindEquipParamGoodsResult
 };
 #pragma pack(pop)
 
-static ShopLineupParam save_loadout_shop_menu = {0};
-static ShopLineupParam apply_loadout_shop_menu = {0};
-static ShopLineupParam save_loadout_shop_lineups[shop::loadout_slots] = {0};
-static ShopLineupParam apply_loadout_shop_lineups[shop::loadout_slots] = {0};
-static EquipParamGoods loadout_slot_goods[shop::loadout_slots] = {0};
-
 static FindShopMenuResult *(*get_shop_menu)(FindShopMenuResult *result, byte shop_type,
                                             int32_t begin_id, int32_t end_id);
 
@@ -54,12 +49,18 @@ FindShopMenuResult *get_shop_menu_detour(FindShopMenuResult *result, byte shop_t
 {
     if (begin_id == shop::save_loadout_shop_id)
     {
+        static ShopLineupParam save_loadout_shop_menu = {
+            .menuTitleMsgId = msg::menu_text_save_loadout, .menuIconId = 5};
+
         result->shop_type = (byte)0;
         result->id = shop::save_loadout_shop_id;
         result->row = &save_loadout_shop_menu;
     }
     else if (begin_id == shop::apply_loadout_shop_id)
     {
+        static ShopLineupParam apply_loadout_shop_menu = {
+            .menuTitleMsgId = msg::menu_text_apply_loadout, .menuIconId = 5};
+
         result->shop_type = (byte)0;
         result->id = shop::apply_loadout_shop_id;
         result->row = &apply_loadout_shop_menu;
@@ -77,21 +78,22 @@ static void (*get_shop_lineup_param)(FindShopLineupParamResult *result, byte sho
 static void get_shop_lineup_param_detour(FindShopLineupParamResult *result, byte shop_type,
                                          int32_t id)
 {
-    if (id >= shop::save_loadout_shop_id && id < shop::save_loadout_shop_id + shop::loadout_slots)
+    if (id >= shop::save_loadout_shop_id &&
+        id < shop::save_loadout_shop_id + saveslots::slots.size())
     {
         auto loadout_slot = id - shop::save_loadout_shop_id;
         result->shop_type = shop_type;
         result->id = id;
-        result->row = &save_loadout_shop_lineups[loadout_slot];
+        result->row = &saveslots::slots[loadout_slot].save_shop_lineup_param;
         return;
     }
     else if (id >= shop::apply_loadout_shop_id &&
-             id < shop::apply_loadout_shop_id + shop::loadout_slots)
+             id < shop::apply_loadout_shop_id + saveslots::slots.size())
     {
         auto loadout_slot = id - shop::apply_loadout_shop_id;
         result->shop_type = shop_type;
         result->id = id;
-        result->row = &apply_loadout_shop_lineups[loadout_slot];
+        result->row = &saveslots::slots[loadout_slot].apply_shop_lineup_param;
         return;
     }
 
@@ -102,12 +104,27 @@ static void (*get_equip_param_goods)(FindEquipParamGoodsResult *result, int32_t 
 
 void get_equip_param_goods_detour(FindEquipParamGoodsResult *result, int32_t id)
 {
-    if (id >= shop::loadout_goods_base_id && id < shop::loadout_goods_base_id + shop::loadout_slots)
+    if (id >= shop::save_loadout_goods_base_id &&
+        id < shop::save_loadout_goods_base_id + saveslots::slots.size())
     {
-        auto loadout_slot = id - shop::loadout_goods_base_id;
+        auto &slot = saveslots::slots[id - shop::save_loadout_goods_base_id];
         result->id = id;
-        result->row = &loadout_slot_goods[loadout_slot];
+        result->row = &slot.save_goods_param;
         result->unknown = 3;
+        return;
+    }
+    if (id >= shop::apply_loadout_goods_base_id &&
+        id < shop::apply_loadout_goods_base_id + saveslots::slots.size())
+    {
+        auto &slot = saveslots::slots[id - shop::apply_loadout_goods_base_id];
+
+        // Only show non-empty slots in the "Apply loadout" menu
+        if (!slot.empty)
+        {
+            result->id = id;
+            result->row = &slot.apply_goods_param;
+            result->unknown = 3;
+        }
         return;
     }
 
@@ -138,13 +155,18 @@ static bool add_inventory_from_shop_detour(int32_t *item_id_address, int32_t qua
     if (item_id >= shop::item_type_goods_begin && item_id < shop::item_type_goods_end)
     {
         auto goods_id = item_id - shop::item_type_goods_begin;
-        if (goods_id >= shop::loadout_goods_base_id &&
-            goods_id < shop::loadout_goods_base_id + shop::loadout_slots)
+        if (goods_id >= shop::save_loadout_goods_base_id &&
+            goods_id < shop::save_loadout_goods_base_id + saveslots::slots.size())
         {
-            auto loadout_slot = goods_id - shop::loadout_goods_base_id;
-
-            spdlog::info("TODO: loadout slot {}", loadout_slot);
-
+            auto &loadout = saveslots::slots[goods_id - shop::save_loadout_goods_base_id];
+            loadout.save_from_player();
+            return false;
+        }
+        if (goods_id >= shop::apply_loadout_goods_base_id &&
+            goods_id < shop::apply_loadout_goods_base_id + saveslots::slots.size())
+        {
+            auto &loadout = saveslots::slots[goods_id - shop::save_loadout_goods_base_id];
+            loadout.apply_to_player();
             return false;
         }
     }
@@ -164,12 +186,6 @@ void erloadout::shop::initialize()
         .relative_offsets = {{1, 5}},
     });
 
-    save_loadout_shop_menu.menuTitleMsgId = msg::menu_text_save_loadout;
-    save_loadout_shop_menu.menuIconId = 5;
-
-    apply_loadout_shop_menu.menuTitleMsgId = msg::menu_text_apply_loadout;
-    apply_loadout_shop_menu.menuIconId = 5;
-
     modutils::hook(
         {
             // Note - the mov instructions are 44 or 45 depending on if this is the Japanese or
@@ -184,58 +200,6 @@ void erloadout::shop::initialize()
             .relative_offsets = {{1, 5}},
         },
         get_shop_menu_detour, get_shop_menu);
-
-    for (int loadout_slot = 0; loadout_slot < loadout_slots; loadout_slot++)
-    {
-        loadout_slot_goods[loadout_slot] = {
-            .refId_default = -1,
-            .sfxVariationId = -1,
-            .weight = 1,
-            .replaceItemId = -1,
-            .sortId = -1,
-            .appearanceReplaceItemId = -1,
-            .yesNoDialogMessageId = -1,
-            .potGroupId = -1,
-            .iconId = loadout_slot < 4 ? uint16_t(250) : uint16_t(249),
-            .compTrophySedId = -1,
-            .trophySeqId = -1,
-            .maxNum = 1,
-            .goodsType = uint8_t(12),
-            .refId_1 = -1,
-            .refVirtualWepId = -1,
-            .castSfxId = -1,
-            .fireSfxId = -1,
-            .effectSfxId = -1,
-            .showLogCondType = 1,
-            .showDialogCondType = 2,
-            .sortGroupId = 0,
-            .isUseNoAttackRegion = 1,
-            .aiUseJudgeId = -1,
-            .reinforceGoodsId = -1,
-            .reinforceMaterialId = -1,
-        };
-
-        save_loadout_shop_lineups[loadout_slot] = {
-            .equipId = loadout_goods_base_id + loadout_slot,
-            .value = -1,
-            .mtrlId = -1,
-            .sellQuantity = -1,
-            .equipType = 3,
-            .setNum = 1,
-            .iconId = -1,
-            .nameMsgId = -1,
-        };
-
-        apply_loadout_shop_lineups[loadout_slot] = {
-            .equipId = loadout_goods_base_id + loadout_slot,
-            .value = -1,
-            .mtrlId = -1,
-            .sellQuantity = loadout_slot < 4 ? int16_t(1) : int16_t(0),
-            .equipType = 3,
-            .iconId = -1,
-            .nameMsgId = -1,
-        };
-    }
 
     // Hook get_equip_param_goods() to return the above items
     modutils::hook(

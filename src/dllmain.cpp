@@ -10,6 +10,7 @@
 #include <windows.h>
 
 #include "messages/LoadoutMessages.hpp"
+#include "saveslot/LoadoutSaveSlot.hpp"
 #include "shop/LoadoutShop.hpp"
 #include "talkscript/LoadoutTalkScript.hpp"
 #include "utils/ModUtils.hpp"
@@ -69,6 +70,8 @@ bool WINAPI DllMain(HINSTANCE dll_instance, uint32_t fdw_reason, void *lpv_reser
 
                 spdlog::info("Hooking loadout messages...");
                 erloadout::msg::initialize();
+
+                erloadout::saveslots::initialize();
 
                 spdlog::info("Adding loadout shops...");
                 erloadout::shop::initialize();
