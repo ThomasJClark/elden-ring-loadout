@@ -10,20 +10,36 @@ namespace saveslots
 {
 static constexpr size_t max_slots = 25;
 
+static constexpr int32_t icon_id_empty_slot = 249;
+static constexpr int32_t icon_id_slot = 250;
+
+static constexpr int32_t bare_head_protector_id = 10000;
+static constexpr int32_t bare_chest_protector_id = 10100;
+static constexpr int32_t bare_arms_protector_id = 10200;
+static constexpr int32_t bare_legs_protector_id = 10300;
+static constexpr int32_t unarmed_weapon_id = 110000;
+static constexpr int32_t empty_ammo_id = -1;
+static constexpr int32_t empty_accessory_id = -1;
+
 struct SaveSlot
 {
     int index;
 
     // Equipment in this loadout
+    bool empty;
     int right_weapon_ids[3];
     int left_weapon_ids[3];
-    int arrow_ids[2];
-    int bolt_ids[2];
-    int protector_ids[4];
+    int arrow_id1;
+    int arrow_id2;
+    int bolt_id1;
+    int bolt_id2;
+    int head_protector_id;
+    int chest_protector_id;
+    int arms_protector_id;
+    int legs_protector_id;
     int accessory_ids[4];
 
     // Info derived from the above equipment
-    bool empty;
     std::u16string name;
     std::u16string info;
     std::u16string caption;

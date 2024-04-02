@@ -29,11 +29,21 @@ static constexpr int32_t menu_text_number_held = 11004;
 static constexpr int32_t menu_text_stored = 11005;
 static constexpr int32_t menu_text_item_effect = 20006;
 static constexpr int32_t menu_text_equipment = 20016;
+static constexpr int32_t menu_text_tools = 40500;
 static constexpr int32_t menu_text_talismans = 40509;
 static constexpr int32_t menu_text_arrows_bolts = 40511;
+static constexpr int32_t menu_text_bolstering_materials = 40512;
+static constexpr int32_t menu_text_key_items = 40513;
+static constexpr int32_t menu_text_crafting_materials = 40516;
+static constexpr int32_t menu_text_info = 40517;
+static constexpr int32_t menu_text_ashes = 40520;
+static constexpr int32_t menu_text_sorceries = 40521;
+static constexpr int32_t menu_text_incantations = 40522;
+static constexpr int32_t menu_text_ashes_of_war = 40523;
 static constexpr int32_t menu_text_armaments = 40550;
 static constexpr int32_t menu_text_armor = 40551;
 static constexpr int32_t menu_text_all_items = 40560;
+static constexpr int32_t menu_text_none = 297150;
 static constexpr int32_t menu_text_save_loadout = 680000;
 static constexpr int32_t menu_text_apply_loadout = 680001;
 static constexpr int32_t line_help_select_item_for_purchase = 231000;
@@ -44,8 +54,6 @@ struct LoadoutMessages
     std::u16string manage_loadouts;
     std::u16string save_loadout;
     std::u16string apply_loadout;
-    std::u16string loadouts_to_save;
-    std::u16string loadouts_to_apply;
     std::u16string select_loadout_to_save;
     std::u16string select_loadout_to_apply;
     std::u16string save_loadout_prompt;
@@ -53,7 +61,6 @@ struct LoadoutMessages
     std::u16string loadout;
     std::u16string empty_slot;
     std::u16string press_x_to_view;
-    std::u16string loadout_details;
 };
 
 void initialize();

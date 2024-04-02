@@ -29,11 +29,11 @@ struct EquipInventoryData
     uint32_t count_info;
     int32_t start_index;
     std::byte unk2[0x8];
-    int32_t todo1;
+    int32_t tail_data_index;
     std::byte unk3[0x14];
-    PlayerInventoryEntry *entries2; // I think this only includes stackable items? idk
+    PlayerInventoryEntry *entries2;
     std::byte unk4[0x8];
-    PlayerInventoryEntry *key_items; // idk??? why are there three entries lists?
+    PlayerInventoryEntry *entries3;
     std::byte unk5[0x28];
     uint32_t length;
     uint32_t todo2;
@@ -54,15 +54,15 @@ struct ChrAsm
     int32_t bolt_id1;
     int32_t arrow_id2;
     int32_t bolt_id2;
-    int32_t unk2;
-    int32_t unk3;
+    int32_t unused1;
+    int32_t unused2;
     int32_t head_protector_id;
     int32_t chest_protector_id;
     int32_t arms_protector_id;
     int32_t legs_protector_id;
-    int32_t unk4;
+    int32_t unused3;
     int32_t accessory_ids[4];
-    int32_t unused;
+    int32_t unused4;
 };
 
 struct EquipGameData

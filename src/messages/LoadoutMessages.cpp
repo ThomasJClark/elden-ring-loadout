@@ -78,20 +78,11 @@ static const char16_t *get_message_detour(CS::MsgRepository *msg_repository, uin
             return msg::loadout_messages.save_loadout.c_str();
         case msg::menu_text_apply_loadout:
             return msg::loadout_messages.apply_loadout.c_str();
-        case msg::menu_text_item_effect:
-            if (is_loadout_shop_open())
-                return msg::loadout_messages.loadout_details.c_str();
-            break;
         case msg::menu_text_number_held:
         case msg::menu_text_stored:
             if (is_loadout_shop_open())
                 return u"";
             break;
-        case msg::menu_text_all_items:
-            if (is_save_loadout_shop_open())
-                return msg::loadout_messages.loadouts_to_save.c_str();
-            else if (is_apply_loadout_shop_open())
-                return msg::loadout_messages.loadouts_to_apply.c_str();
         }
         break;
 

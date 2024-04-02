@@ -76,6 +76,8 @@ add_library(EldenRingLoadoutMod SHARED
   src/messages/LoadoutMessages.cpp
   src/saveslot/LoadoutSaveSlot.hpp
   src/saveslot/LoadoutSaveSlot.cpp
+  src/saveslot/StringifyLoadout.hpp
+  src/saveslot/StringifyLoadout.cpp
   src/shop/LoadoutShop.hpp
   src/shop/LoadoutShop.cpp)
 

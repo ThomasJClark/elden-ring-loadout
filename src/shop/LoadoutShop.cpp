@@ -165,7 +165,7 @@ static bool add_inventory_from_shop_detour(int32_t *item_id_address, int32_t qua
         if (goods_id >= shop::apply_loadout_goods_base_id &&
             goods_id < shop::apply_loadout_goods_base_id + saveslots::slots.size())
         {
-            auto &loadout = saveslots::slots[goods_id - shop::save_loadout_goods_base_id];
+            auto &loadout = saveslots::slots[goods_id - shop::apply_loadout_goods_base_id];
             loadout.apply_to_player();
             return false;
         }

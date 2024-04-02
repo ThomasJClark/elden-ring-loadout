@@ -1,17 +1,18 @@
 #include <spdlog/spdlog.h>
+#include <sstream>
 
 #include "../messages/LoadoutMessages.hpp"
 #include "../shop/LoadoutShop.hpp"
+#include "../utils/PlayerUtils.hpp"
 #include "LoadoutSaveSlot.hpp"
 #include "StringifyLoadout.hpp"
 
 using namespace std;
 using namespace erloadout;
 
-std::array<saveslots::SaveSlot, saveslots::max_slots> erloadout::saveslots::slots;
+using u16stringstream = basic_stringstream<char16_t>;
 
-static constexpr int32_t icon_id_empty_slot = 249;
-static constexpr int32_t icon_id_slot = 250;
+std::array<saveslots::SaveSlot, saveslots::max_slots> erloadout::saveslots::slots;
 
 void saveslots::initialize()
 {
@@ -53,12 +54,19 @@ void saveslots::initialize()
     {
         slot = {
             .index = index,
-            .right_weapon_ids = {-1, -1, -1},
-            .left_weapon_ids = {-1, -1, -1},
-            .arrow_ids = {-1, -1},
-            .bolt_ids = {-1, -1},
-            .protector_ids = {-1, -1, -1, -1},
-            .accessory_ids = {-1, -1, -1, -1},
+            .empty = true,
+            .right_weapon_ids = {unarmed_weapon_id, unarmed_weapon_id, unarmed_weapon_id},
+            .left_weapon_ids = {unarmed_weapon_id, unarmed_weapon_id, unarmed_weapon_id},
+            .arrow_id1 = empty_ammo_id,
+            .arrow_id2 = empty_ammo_id,
+            .bolt_id1 = empty_ammo_id,
+            .bolt_id2 = empty_ammo_id,
+            .head_protector_id = bare_head_protector_id,
+            .chest_protector_id = bare_chest_protector_id,
+            .arms_protector_id = bare_arms_protector_id,
+            .legs_protector_id = bare_legs_protector_id,
+            .accessory_ids = {empty_accessory_id, empty_accessory_id, empty_accessory_id,
+                              empty_accessory_id},
             .save_goods_param = initial_goods_param,
             .apply_goods_param = initial_goods_param,
             .save_shop_lineup_param = initial_shop_lineup_param,
@@ -71,15 +79,16 @@ void saveslots::initialize()
 #if _DEBUG
         if (index == 0)
         {
+            slot.empty = false;
             slot.right_weapon_ids[0] = 11050000; // Morning Star
             slot.left_weapon_ids[0] = 31340000;  // Black Leather Shield
-            slot.arrow_ids[0] = 50020000;        // Serpent Arrow
-            slot.arrow_ids[1] = 50040000;        // St. Trina's Arrow
-            slot.bolt_ids[0] = 52030000;         // Black-Key Bolt
-            slot.protector_ids[0] = 1840000;     // Foot Soldier Helm
-            slot.protector_ids[1] = 290100;      // Nox Monk Armor
-            slot.protector_ids[2] = 630200;      // Astrologer Gloves
-            slot.protector_ids[3] = 740300;      // Noble's Trousers
+            slot.arrow_id1 = 50020000;           // Serpent Arrow
+            slot.arrow_id2 = 50040000;           // St. Trina's Arrow
+            slot.bolt_id1 = 52030000;            // Black-Key Bolt
+            slot.head_protector_id = 1840000;    // Foot Soldier Helm
+            slot.chest_protector_id = 290100;    // Nox Monk Armor
+            slot.arms_protector_id = 630200;     // Astrologer Gloves
+            slot.legs_protector_id = 740300;     // Noble's Trousers
             slot.accessory_ids[0] = 1150;        // Green Turtle Talisman
             slot.accessory_ids[1] = 2160;        // Lord of Blood's Exultation
             slot.accessory_ids[2] = 2170;        // Kindred of Rot's Exultation
@@ -95,9 +104,6 @@ void saveslots::initialize()
 
 void saveslots::SaveSlot::refresh()
 {
-    empty =
-        all_of(begin(right_weapon_ids), end(accessory_ids), [](int value) { return value == -1; });
-
     if (empty)
     {
         name = msg::loadout_messages.empty_slot;
@@ -114,9 +120,7 @@ void saveslots::SaveSlot::refresh()
                     << u16string{id_str.begin(), id_str.end()};
         name = name_stream.str();
 
-        u16stringstream caption_stream;
-        stringify_loadout(caption_stream, *this);
-        caption = caption_stream.str();
+        caption = stringify_loadout(*this);
 
         u16stringstream info_stream;
         info_stream << u"TODO slot info\n";
@@ -131,8 +135,41 @@ void saveslots::SaveSlot::refresh()
 
 void saveslots::SaveSlot::save_from_player()
 {
-    // TODO
+    auto main_player = players::get_main_player();
+    if (main_player == nullptr)
+    {
+        spdlog::error("Can't save loadout, main player is null");
+        return;
+    }
+
+    auto &chr_asm = main_player->player_game_data->equip_game_data.chr_asm;
+
+    auto value_or_default = [](int value, int default_value) {
+        return value == default_value ? -1 : value;
+    };
+
+    empty = false;
+    right_weapon_ids[0] = value_or_default(chr_asm.right_weapon_id1, unarmed_weapon_id);
+    right_weapon_ids[1] = value_or_default(chr_asm.right_weapon_id2, unarmed_weapon_id);
+    right_weapon_ids[2] = value_or_default(chr_asm.right_weapon_id3, unarmed_weapon_id);
+    left_weapon_ids[0] = value_or_default(chr_asm.left_weapon_id1, unarmed_weapon_id);
+    left_weapon_ids[1] = value_or_default(chr_asm.left_weapon_id2, unarmed_weapon_id);
+    left_weapon_ids[2] = value_or_default(chr_asm.left_weapon_id3, unarmed_weapon_id);
+    arrow_id1 = chr_asm.arrow_id1;
+    arrow_id2 = chr_asm.arrow_id2;
+    bolt_id1 = chr_asm.bolt_id1;
+    bolt_id2 = chr_asm.bolt_id2;
+    head_protector_id = value_or_default(chr_asm.head_protector_id, bare_head_protector_id);
+    chest_protector_id = value_or_default(chr_asm.chest_protector_id, bare_chest_protector_id);
+    arms_protector_id = value_or_default(chr_asm.arms_protector_id, bare_arms_protector_id);
+    legs_protector_id = value_or_default(chr_asm.legs_protector_id, bare_legs_protector_id);
+    accessory_ids[0] = chr_asm.accessory_ids[0];
+    accessory_ids[1] = chr_asm.accessory_ids[1];
+    accessory_ids[2] = chr_asm.accessory_ids[2];
+    accessory_ids[3] = chr_asm.accessory_ids[3];
+
     spdlog::info("TODO: save slot {}", index);
+
     refresh();
 }
 
