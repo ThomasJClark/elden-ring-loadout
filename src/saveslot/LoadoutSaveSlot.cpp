@@ -110,7 +110,7 @@ void saveslots::SaveSlot::refresh()
     {
         u16stringstream name_stream;
         auto id_str = std::to_wstring(index + 1);
-        name_stream << msg::loadout_messages.loadout_slot << u" "
+        name_stream << msg::loadout_messages.loadout << u" "
                     << u16string{id_str.begin(), id_str.end()};
         name = name_stream.str();
 

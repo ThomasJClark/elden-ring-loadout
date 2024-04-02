@@ -38,10 +38,19 @@ static CS::MsgRepository *msg_repository = nullptr;
 
 static int32_t active_shop_id = -1;
 
+inline bool is_save_loadout_shop_open()
+{
+    return active_shop_id == shop::save_loadout_shop_id;
+}
+
+inline bool is_apply_loadout_shop_open()
+{
+    return active_shop_id == shop::apply_loadout_shop_id;
+}
+
 inline bool is_loadout_shop_open()
 {
-    return active_shop_id == shop::save_loadout_shop_id ||
-           active_shop_id == shop::apply_loadout_shop_id;
+    return is_save_loadout_shop_open() || is_apply_loadout_shop_open();
 }
 
 static const char16_t *(*get_message)(CS::MsgRepository *, uint32_t, uint32_t, int32_t);
@@ -51,44 +60,58 @@ static const char16_t *get_message_detour(CS::MsgRepository *msg_repository, uin
     switch (bnd_id)
     {
     case msg::msgbnd_event_text_for_talk:
-        if (msg_id == msg::event_text_for_talk_manage_loadouts)
+        switch (msg_id)
+        {
+        case msg::event_text_for_talk_manage_loadouts:
             return msg::loadout_messages.manage_loadouts.c_str();
-        else if (msg_id == msg::event_text_for_talk_save_loadout)
+        case msg::event_text_for_talk_save_loadout:
             return msg::loadout_messages.save_loadout.c_str();
-        else if (msg_id == msg::event_text_for_talk_apply_loadout)
+        case msg::event_text_for_talk_apply_loadout:
             return msg::loadout_messages.apply_loadout.c_str();
+        }
         break;
 
     case msg::msgbnd_menu_text:
-        if (msg_id == msg::menu_text_save_loadout)
-            return msg::loadout_messages.save_loadout.c_str();
-        else if (msg_id == msg::menu_text_apply_loadout)
-            return msg::loadout_messages.apply_loadout.c_str();
-
-        if (is_loadout_shop_open())
+        switch (msg_id)
         {
-            if (msg_id == msg::menu_text_item_effect)
+        case msg::menu_text_save_loadout:
+            return msg::loadout_messages.save_loadout.c_str();
+        case msg::menu_text_apply_loadout:
+            return msg::loadout_messages.apply_loadout.c_str();
+        case msg::menu_text_item_effect:
+            if (is_loadout_shop_open())
                 return msg::loadout_messages.loadout_details.c_str();
-            else if (msg_id == msg::menu_text_number_held || msg_id == msg::menu_text_stored)
+            break;
+        case msg::menu_text_number_held:
+        case msg::menu_text_stored:
+            if (is_loadout_shop_open())
                 return u"";
+            break;
+        case msg::menu_text_all_items:
+            if (is_save_loadout_shop_open())
+                return msg::loadout_messages.loadouts_to_save.c_str();
+            else if (is_apply_loadout_shop_open())
+                return msg::loadout_messages.loadouts_to_apply.c_str();
         }
         break;
 
     case msg::msgbnd_line_help:
         if (msg_id == msg::line_help_select_item_for_purchase)
         {
-            if (is_loadout_shop_open())
-                return msg::loadout_messages.select_loadout_slot.c_str();
+            if (is_save_loadout_shop_open())
+                return msg::loadout_messages.select_loadout_to_save.c_str();
+            else if (is_apply_loadout_shop_open())
+                return msg::loadout_messages.select_loadout_to_apply.c_str();
         }
         break;
 
     case msg::msgbnd_dialogues:
         if (msg_id == msg::dialogues_purchase_item_for_runes)
         {
-            if (active_shop_id == shop::save_loadout_shop_id)
-                return msg::loadout_messages.save_loadout.c_str();
-            else if (active_shop_id == shop::apply_loadout_shop_id)
-                return msg::loadout_messages.apply_loadout.c_str();
+            if (is_save_loadout_shop_open())
+                return msg::loadout_messages.save_loadout_prompt.c_str();
+            else if (is_apply_loadout_shop_open())
+                return msg::loadout_messages.apply_loadout_prompt.c_str();
         }
         break;
 
