@@ -8,7 +8,6 @@
 #include "../shop/LoadoutShop.hpp"
 #include "../utils/ModUtils.hpp"
 #include "LoadoutMessages.hpp"
-#include "Messages.hpp"
 
 using namespace erloadout;
 using namespace std;
@@ -179,18 +178,27 @@ void erloadout::msg::initialize()
 
     // Pick the messages to use based on the player's selected language for the game in Steam
     auto language = get_steam_language();
-
-    auto messages_iterator = loadout_messages_by_lang.find(language);
-    if (messages_iterator == loadout_messages_by_lang.end())
+    auto localized_messages = loadout_messages_by_lang.find(language);
+    if (localized_messages != loadout_messages_by_lang.end())
     {
-        spdlog::warn("Detected game language = {} (not supported, defaulting to English)",
-                     language);
-        loadout_messages = loadout_messages_by_lang.at("english");
+        spdlog::info("Detected language \"{}\"", language);
+        loadout_messages = localized_messages->second;
     }
     else
     {
-        spdlog::info("Detected game language = {}", language);
-        loadout_messages = messages_iterator->second;
+        spdlog::warn("Unknown language \"{}\", defaulting to English", language);
+    }
+
+    // Default untranslated messages to English
+    auto default_messages = loadout_messages_by_lang.at("english");
+    for (int i = 0; i < sizeof(LoadoutMessages) / sizeof(const wchar_t *); i++)
+    {
+        auto &str = (&loadout_messages.all_messages)[i];
+        auto &default_str = (&default_messages.all_messages)[i];
+        if (str == nullptr)
+        {
+            str = default_str;
+        }
     }
 }
 

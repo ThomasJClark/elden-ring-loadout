@@ -71,7 +71,7 @@ add_library(EldenRingLoadoutMod SHARED
   src/utils/ParamUtils.cpp
   src/utils/PlayerUtils.hpp
   src/utils/PlayerUtils.cpp
-  src/messages/Messages.hpp
+  src/messages/Messages.cpp
   src/messages/LoadoutMessages.hpp
   src/messages/LoadoutMessages.cpp
   src/saveslot/LoadoutSaveSlot.hpp

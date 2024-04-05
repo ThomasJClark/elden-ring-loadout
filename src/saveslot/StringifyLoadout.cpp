@@ -79,13 +79,13 @@ wstring saveslots::stringify_loadout(saveslots::SaveSlot const &slot)
     wstringstream stream;
     stream << L"<font size=\"16\">";
 
-    // "Armaments"
-    write_header(stream, msg::get_message(msg::msgbnd_menu_text, msg::menu_text_armaments));
+    // Armaments
+    write_header(stream, msg::loadout_messages.armaments);
     bool any_right_weapons = write_weapons(stream, slot.right_weapon_ids);
     bool any_left_weapons = write_weapons(stream, slot.left_weapon_ids);
     if (!any_right_weapons && !any_left_weapons)
     {
-        // "Unarmed"
+        // * Unarmed
         stream << begin_bullet
                << msg::get_message(msg::msgbnd_weapon_name, saveslots::unarmed_weapon_id)
                << end_bullet;
@@ -99,25 +99,24 @@ wstring saveslots::stringify_loadout(saveslots::SaveSlot const &slot)
         int arrow_ids[] = {slot.arrow_id1, slot.arrow_id2};
         int bolt_ids[] = {slot.bolt_id1, slot.bolt_id2};
 
-        // "Arrows/Bolts"
-        write_header(stream, msg::get_message(msg::msgbnd_menu_text, msg::menu_text_arrows_bolts));
+        // Arrows/Bolts
+        write_header(stream, msg::loadout_messages.arrows_bolts);
         write_weapons(stream, arrow_ids);
         write_weapons(stream, bolt_ids);
 
         stream << L"\n";
     }
 
-    // "Armor"
-    write_header(stream, msg::get_message(msg::msgbnd_menu_text, msg::menu_text_armor));
+    // Armor
+    write_header(stream, msg::loadout_messages.armor);
     bool any_head_protector = write_protector(stream, slot.head_protector_id);
     bool any_chest_protector = write_protector(stream, slot.chest_protector_id);
     bool any_arms_protector = write_protector(stream, slot.arms_protector_id);
     bool any_legs_protector = write_protector(stream, slot.legs_protector_id);
     if (!any_head_protector && !any_chest_protector && !any_arms_protector && !any_legs_protector)
     {
-        // "None"
-        stream << begin_bullet << msg::get_message(msg::msgbnd_menu_text, msg::menu_text_none)
-               << end_bullet;
+        // * None
+        stream << begin_bullet << msg::loadout_messages.none << end_bullet;
     }
 
     stream << L"\n";
@@ -125,8 +124,8 @@ wstring saveslots::stringify_loadout(saveslots::SaveSlot const &slot)
     if (slot.accessory_ids[0] != -1 || slot.accessory_ids[1] != -1 || slot.accessory_ids[2] != -1 ||
         slot.accessory_ids[3] != -1)
     {
-        // "Talismans"
-        write_header(stream, msg::get_message(msg::msgbnd_menu_text, msg::menu_text_talismans));
+        // Talismans
+        write_header(stream, msg::loadout_messages.talismans);
         write_accessory(stream, slot.accessory_ids[0]);
         write_accessory(stream, slot.accessory_ids[1]);
         write_accessory(stream, slot.accessory_ids[2]);

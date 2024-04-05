@@ -13,11 +13,9 @@ static const uint32_t msgbnd_protector_name = 12;
 static const uint32_t msgbnd_accessory_name = 13;
 static const uint32_t msgbnd_goods_info = 20;
 static const uint32_t msgbnd_goods_caption = 24;
-static const uint32_t msgbnd_protector_caption = 26;
 static const uint32_t msgbnd_event_text_for_talk = 33;
 static const uint32_t msgbnd_menu_text = 200;
 static const uint32_t msgbnd_line_help = 201;
-static const uint32_t msgbnd_system_message_win64 = 203;
 static const uint32_t msgbnd_dialogues = 204;
 
 static constexpr int32_t event_text_for_talk_manage_loadouts = 68000000;
@@ -27,40 +25,32 @@ static constexpr int32_t event_text_for_talk_cancel = 15000372;
 static constexpr int32_t event_text_for_talk_sort_chest = 15000395;
 static constexpr int32_t menu_text_number_held = 11004;
 static constexpr int32_t menu_text_stored = 11005;
-static constexpr int32_t menu_text_item_effect = 20006;
-static constexpr int32_t menu_text_equipment = 20016;
-static constexpr int32_t menu_text_tools = 40500;
-static constexpr int32_t menu_text_talismans = 40509;
-static constexpr int32_t menu_text_arrows_bolts = 40511;
-static constexpr int32_t menu_text_bolstering_materials = 40512;
-static constexpr int32_t menu_text_key_items = 40513;
-static constexpr int32_t menu_text_crafting_materials = 40516;
-static constexpr int32_t menu_text_info = 40517;
-static constexpr int32_t menu_text_ashes = 40520;
-static constexpr int32_t menu_text_sorceries = 40521;
-static constexpr int32_t menu_text_incantations = 40522;
-static constexpr int32_t menu_text_ashes_of_war = 40523;
-static constexpr int32_t menu_text_armaments = 40550;
-static constexpr int32_t menu_text_armor = 40551;
-static constexpr int32_t menu_text_all_items = 40560;
-static constexpr int32_t menu_text_none = 297150;
 static constexpr int32_t menu_text_save_loadout = 680000;
 static constexpr int32_t menu_text_apply_loadout = 680001;
 static constexpr int32_t line_help_select_item_for_purchase = 231000;
 static constexpr int32_t dialogues_purchase_item_for_runes = 231000;
 
-struct LoadoutMessages
-{
-    const wchar_t *manage_loadouts;
-    const wchar_t *save_loadout;
-    const wchar_t *apply_loadout;
-    const wchar_t *select_loadout_to_save;
-    const wchar_t *select_loadout_to_apply;
-    const wchar_t *save_loadout_prompt;
-    const wchar_t *apply_loadout_prompt;
-    const wchar_t *loadout;
-    const wchar_t *empty_slot;
-    const wchar_t *press_x_to_view;
+union LoadoutMessages {
+    struct
+    {
+        const wchar_t *manage_loadouts;
+        const wchar_t *save_loadout;
+        const wchar_t *apply_loadout;
+        const wchar_t *select_loadout_to_save;
+        const wchar_t *select_loadout_to_apply;
+        const wchar_t *save_loadout_prompt;
+        const wchar_t *apply_loadout_prompt;
+        const wchar_t *loadout;
+        const wchar_t *empty_slot;
+        const wchar_t *press_x_to_view;
+        const wchar_t *armaments;
+        const wchar_t *arrows_bolts;
+        const wchar_t *armor;
+        const wchar_t *talismans;
+        const wchar_t *unarmed;
+        const wchar_t *none;
+    };
+    const wchar_t *all_messages;
 };
 
 void initialize();

@@ -113,7 +113,7 @@ void saveslots::SaveSlot::refresh()
     {
         name = msg::loadout_messages.loadout;
         name += L" ";
-        name += index + 1;
+        name += to_wstring(index + 1);
 
         caption = stringify_loadout(*this);
 
