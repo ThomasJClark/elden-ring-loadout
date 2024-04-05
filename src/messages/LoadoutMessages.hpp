@@ -51,23 +51,23 @@ static constexpr int32_t dialogues_purchase_item_for_runes = 231000;
 
 struct LoadoutMessages
 {
-    std::u16string manage_loadouts;
-    std::u16string save_loadout;
-    std::u16string apply_loadout;
-    std::u16string select_loadout_to_save;
-    std::u16string select_loadout_to_apply;
-    std::u16string save_loadout_prompt;
-    std::u16string apply_loadout_prompt;
-    std::u16string loadout;
-    std::u16string empty_slot;
-    std::u16string press_x_to_view;
+    const wchar_t *manage_loadouts;
+    const wchar_t *save_loadout;
+    const wchar_t *apply_loadout;
+    const wchar_t *select_loadout_to_save;
+    const wchar_t *select_loadout_to_apply;
+    const wchar_t *save_loadout_prompt;
+    const wchar_t *apply_loadout_prompt;
+    const wchar_t *loadout;
+    const wchar_t *empty_slot;
+    const wchar_t *press_x_to_view;
 };
 
 void initialize();
 
 void set_active_shop(int32_t shop_id);
 
-const char16_t *get_message(int32_t msgbnd_id, int32_t id);
+const wchar_t *get_message(int32_t msgbnd_id, int32_t id);
 
 /**
  * Map of Steam language names to messages used by the mod

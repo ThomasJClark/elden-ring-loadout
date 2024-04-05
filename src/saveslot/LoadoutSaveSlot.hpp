@@ -40,9 +40,9 @@ struct SaveSlot
     int accessory_ids[4];
 
     // Info derived from the above equipment
-    std::u16string name;
-    std::u16string info;
-    std::u16string caption;
+    std::wstring name;
+    std::wstring info;
+    std::wstring caption;
 
     // Params used for the loadout shop
     EquipParamGoods save_goods_param;

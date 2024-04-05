@@ -1,5 +1,4 @@
 #include <spdlog/spdlog.h>
-#include <sstream>
 
 #include "../messages/LoadoutMessages.hpp"
 #include "../shop/LoadoutShop.hpp"
@@ -9,8 +8,6 @@
 
 using namespace std;
 using namespace erloadout;
-
-using u16stringstream = basic_stringstream<char16_t>;
 
 std::array<saveslots::SaveSlot, saveslots::max_slots> erloadout::saveslots::slots;
 
@@ -107,26 +104,21 @@ void saveslots::SaveSlot::refresh()
     if (empty)
     {
         name = msg::loadout_messages.empty_slot;
-        info = u"-";
-        caption = u"-";
+        info = L"-";
+        caption = L"-";
         save_goods_param.iconId = icon_id_empty_slot;
         apply_goods_param.iconId = icon_id_empty_slot;
     }
     else
     {
-        u16stringstream name_stream;
-        auto id_str = std::to_wstring(index + 1);
-        name_stream << msg::loadout_messages.loadout << u" "
-                    << u16string{id_str.begin(), id_str.end()};
-        name = name_stream.str();
+        name = msg::loadout_messages.loadout;
+        name += L" ";
+        name += index + 1;
 
         caption = stringify_loadout(*this);
 
-        u16stringstream info_stream;
-        info_stream << u"TODO slot info\n";
-        info_stream << u"\n";
-        info_stream << msg::loadout_messages.press_x_to_view;
-        info = info_stream.str();
+        info = L"TODO slot info\n\n";
+        info += msg::loadout_messages.press_x_to_view;
 
         save_goods_param.iconId = icon_id_slot;
         apply_goods_param.iconId = icon_id_slot;

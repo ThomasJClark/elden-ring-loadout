@@ -8,6 +8,6 @@ namespace erloadout
 {
 namespace saveslots
 {
-std::u16string stringify_loadout(SaveSlot const &);
+std::wstring stringify_loadout(SaveSlot const &);
 }
 }

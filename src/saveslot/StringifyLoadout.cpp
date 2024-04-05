@@ -9,17 +9,15 @@
 using namespace std;
 using namespace erloadout;
 
-using u16stringstream = basic_stringstream<char16_t>;
+static const wstring begin_bullet = L"\u2022 ";
+static const wstring end_bullet = L"\n";
 
-static const u16string begin_bullet = u"\u2022 ";
-static const u16string end_bullet = u"\n";
-
-static void write_header(u16stringstream &stream, u16string_view str)
+static void write_header(wstringstream &stream, wstring_view str)
 {
-    stream << u"<font color=\"#c0b194\" size=\"20\">" << str << u"</font>\n";
+    stream << L"<font color=\"#c0b194\" size=\"20\">" << str << L"</font>\n";
 }
 
-static bool write_weapons(u16stringstream &stream, span<const int> weapon_ids)
+static bool write_weapons(wstringstream &stream, span<const int> weapon_ids)
 {
     bool is_first = true;
     for (auto weapon_id : weapon_ids)
@@ -29,7 +27,7 @@ static bool write_weapons(u16stringstream &stream, span<const int> weapon_ids)
             if (is_first)
                 stream << begin_bullet;
             else
-                stream << u", ";
+                stream << L", ";
 
             auto upgrade_level = weapon_id % 100;
             auto name = msg::get_message(msg::msgbnd_weapon_name, weapon_id - upgrade_level);
@@ -39,8 +37,7 @@ static bool write_weapons(u16stringstream &stream, span<const int> weapon_ids)
 
             if (upgrade_level != 0)
             {
-                auto upgrade_level_str = std::to_wstring(upgrade_level);
-                stream << u" +" << u16string{upgrade_level_str.begin(), upgrade_level_str.end()};
+                stream << L" +" << upgrade_level;
             }
 
             is_first = false;
@@ -53,7 +50,7 @@ static bool write_weapons(u16stringstream &stream, span<const int> weapon_ids)
     return !is_first;
 }
 
-static bool write_protector(u16stringstream &stream, int protector_id)
+static bool write_protector(wstringstream &stream, int protector_id)
 {
     if (protector_id != saveslots::bare_head_protector_id &&
         protector_id != saveslots::bare_chest_protector_id &&
@@ -67,7 +64,7 @@ static bool write_protector(u16stringstream &stream, int protector_id)
     return false;
 }
 
-static void write_accessory(u16stringstream &stream, int accessory_id)
+static void write_accessory(wstringstream &stream, int accessory_id)
 {
     if (accessory_id != -1)
     {
@@ -77,10 +74,10 @@ static void write_accessory(u16stringstream &stream, int accessory_id)
 }
 
 // Generates a string with a list of equipment in the given loadout
-u16string saveslots::stringify_loadout(saveslots::SaveSlot const &slot)
+wstring saveslots::stringify_loadout(saveslots::SaveSlot const &slot)
 {
-    u16stringstream stream;
-    stream << u"<font size=\"16\">";
+    wstringstream stream;
+    stream << L"<font size=\"16\">";
 
     // "Armaments"
     write_header(stream, msg::get_message(msg::msgbnd_menu_text, msg::menu_text_armaments));
@@ -94,7 +91,7 @@ u16string saveslots::stringify_loadout(saveslots::SaveSlot const &slot)
                << end_bullet;
     }
 
-    stream << u"\n";
+    stream << L"\n";
 
     if (slot.arrow_id1 != saveslots::empty_ammo_id || slot.arrow_id2 != saveslots::empty_ammo_id ||
         slot.bolt_id1 != saveslots::empty_ammo_id || slot.bolt_id2 != saveslots::empty_ammo_id)
@@ -107,7 +104,7 @@ u16string saveslots::stringify_loadout(saveslots::SaveSlot const &slot)
         write_weapons(stream, arrow_ids);
         write_weapons(stream, bolt_ids);
 
-        stream << u"\n";
+        stream << L"\n";
     }
 
     // "Armor"
@@ -123,7 +120,7 @@ u16string saveslots::stringify_loadout(saveslots::SaveSlot const &slot)
                << end_bullet;
     }
 
-    stream << u"\n";
+    stream << L"\n";
 
     if (slot.accessory_ids[0] != -1 || slot.accessory_ids[1] != -1 || slot.accessory_ids[2] != -1 ||
         slot.accessory_ids[3] != -1)
@@ -134,9 +131,9 @@ u16string saveslots::stringify_loadout(saveslots::SaveSlot const &slot)
         write_accessory(stream, slot.accessory_ids[1]);
         write_accessory(stream, slot.accessory_ids[2]);
         write_accessory(stream, slot.accessory_ids[3]);
-        stream << u"\n";
+        stream << L"\n";
     }
 
-    stream << u"</font>";
+    stream << L"</font>";
     return stream.str();
 }

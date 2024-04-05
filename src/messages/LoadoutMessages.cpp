@@ -53,9 +53,9 @@ inline bool is_loadout_shop_open()
     return is_save_loadout_shop_open() || is_apply_loadout_shop_open();
 }
 
-static const char16_t *(*get_message)(CS::MsgRepository *, uint32_t, uint32_t, int32_t);
-static const char16_t *get_message_detour(CS::MsgRepository *msg_repository, uint32_t unknown,
-                                          uint32_t bnd_id, int32_t msg_id)
+static const wchar_t *(*get_message)(CS::MsgRepository *, uint32_t, uint32_t, int32_t);
+static const wchar_t *get_message_detour(CS::MsgRepository *msg_repository, uint32_t unknown,
+                                         uint32_t bnd_id, int32_t msg_id)
 {
     switch (bnd_id)
     {
@@ -63,11 +63,11 @@ static const char16_t *get_message_detour(CS::MsgRepository *msg_repository, uin
         switch (msg_id)
         {
         case msg::event_text_for_talk_manage_loadouts:
-            return msg::loadout_messages.manage_loadouts.c_str();
+            return msg::loadout_messages.manage_loadouts;
         case msg::event_text_for_talk_save_loadout:
-            return msg::loadout_messages.save_loadout.c_str();
+            return msg::loadout_messages.save_loadout;
         case msg::event_text_for_talk_apply_loadout:
-            return msg::loadout_messages.apply_loadout.c_str();
+            return msg::loadout_messages.apply_loadout;
         }
         break;
 
@@ -75,13 +75,13 @@ static const char16_t *get_message_detour(CS::MsgRepository *msg_repository, uin
         switch (msg_id)
         {
         case msg::menu_text_save_loadout:
-            return msg::loadout_messages.save_loadout.c_str();
+            return msg::loadout_messages.save_loadout;
         case msg::menu_text_apply_loadout:
-            return msg::loadout_messages.apply_loadout.c_str();
+            return msg::loadout_messages.apply_loadout;
         case msg::menu_text_number_held:
         case msg::menu_text_stored:
             if (is_loadout_shop_open())
-                return u"";
+                return L"";
             break;
         }
         break;
@@ -90,9 +90,9 @@ static const char16_t *get_message_detour(CS::MsgRepository *msg_repository, uin
         if (msg_id == msg::line_help_select_item_for_purchase)
         {
             if (is_save_loadout_shop_open())
-                return msg::loadout_messages.select_loadout_to_save.c_str();
+                return msg::loadout_messages.select_loadout_to_save;
             else if (is_apply_loadout_shop_open())
-                return msg::loadout_messages.select_loadout_to_apply.c_str();
+                return msg::loadout_messages.select_loadout_to_apply;
         }
         break;
 
@@ -100,9 +100,9 @@ static const char16_t *get_message_detour(CS::MsgRepository *msg_repository, uin
         if (msg_id == msg::dialogues_purchase_item_for_runes)
         {
             if (is_save_loadout_shop_open())
-                return msg::loadout_messages.save_loadout_prompt.c_str();
+                return msg::loadout_messages.save_loadout_prompt;
             else if (is_apply_loadout_shop_open())
-                return msg::loadout_messages.apply_loadout_prompt.c_str();
+                return msg::loadout_messages.apply_loadout_prompt;
         }
         break;
 
@@ -194,7 +194,7 @@ void erloadout::msg::initialize()
     }
 }
 
-const char16_t *msg::get_message(int32_t msgbnd_id, int32_t id)
+const wchar_t *msg::get_message(int32_t msgbnd_id, int32_t id)
 {
     return ::get_message(msg_repository, 0, msgbnd_id, id);
 }
