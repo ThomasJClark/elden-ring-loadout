@@ -2,6 +2,7 @@
 
 #include "../messages/LoadoutMessages.hpp"
 #include "../shop/LoadoutShop.hpp"
+#include "../utils/ParamUtils.hpp"
 #include "../utils/PlayerUtils.hpp"
 #include "LoadoutSaveSlot.hpp"
 #include "StringifyLoadout.hpp"
@@ -22,7 +23,7 @@ void saveslots::initialize()
                                                  .nameMsgId = -1};
 
     EquipParamAccessory initial_accessory_param = {.sfxVariationId = -1,
-                                                   .weight = 1,
+                                                   .weight = 0,
                                                    .shopLv = -1,
                                                    .trophySGradeId = -1,
                                                    .trophySeqId = -1,
@@ -127,6 +128,8 @@ void saveslots::SaveSlot::refresh()
         caption = L"-";
         save_accessory_param.iconId = icon_id_empty_slot;
         apply_accessory_param.iconId = icon_id_empty_slot;
+        save_accessory_param.weight = 0;
+        apply_accessory_param.weight = 0;
     }
     else
     {
@@ -142,6 +145,32 @@ void saveslots::SaveSlot::refresh()
 
         save_accessory_param.iconId = icon_id_slot;
         apply_accessory_param.iconId = icon_id_slot;
+
+        auto weight = 0.0f;
+
+        auto equip_param_weapon = params::get_param<EquipParamWeapon>(L"EquipParamWeapon");
+        for (auto weapon_id : {gear.left_weapon1_id, gear.right_weapon1_id, gear.left_weapon2_id,
+                               gear.right_weapon2_id, gear.left_weapon3_id, gear.right_weapon3_id})
+        {
+            weight += equip_param_weapon[weapon_id - (weapon_id % 100)].weight;
+        }
+
+        auto equip_param_protector = params::get_param<EquipParamProtector>(L"EquipParamProtector");
+        for (auto protector_id : {gear.head_protector_id, gear.chest_protector_id,
+                                  gear.arms_protector_id, gear.legs_protector_id})
+        {
+            weight += equip_param_protector[protector_id].weight;
+        }
+
+        auto equip_param_accessory = params::get_param<EquipParamAccessory>(L"EquipParamAccessory");
+        for (auto accessory_id :
+             {gear.accessory1_id, gear.accessory2_id, gear.accessory3_id, gear.accessory4_id})
+        {
+            weight += equip_param_accessory[accessory_id].weight;
+        }
+
+        save_accessory_param.weight = weight;
+        apply_accessory_param.weight = weight;
     }
 }
 
