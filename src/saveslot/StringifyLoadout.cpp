@@ -1,7 +1,6 @@
 #include <algorithm>
 #include <format>
 #include <iomanip>
-#include <span>
 #include <sstream>
 
 #include "../messages/LoadoutMessages.hpp"
@@ -24,7 +23,7 @@ static void write_header(wstringstream &stream, wstring_view str)
     stream << L"<font color='#c0b194' size='22'>" << str << L"</font>\n";
 }
 
-static bool write_weapons(wstringstream &stream, span<const int> weapon_ids)
+static bool write_weapons(wstringstream &stream, initializer_list<const int> weapon_ids)
 {
     bool is_first = true;
     for (auto weapon_id : weapon_ids)
@@ -57,7 +56,7 @@ static bool write_weapons(wstringstream &stream, span<const int> weapon_ids)
     return !is_first;
 }
 
-static bool write_protectors(wstringstream &stream, span<const int> protector_ids)
+static bool write_protectors(wstringstream &stream, initializer_list<const int> protector_ids)
 {
     bool is_first = true;
     for (auto protector_id : protector_ids)
@@ -86,7 +85,7 @@ static bool write_protectors(wstringstream &stream, span<const int> protector_id
     return !is_first;
 }
 
-static bool write_accessories(wstringstream &stream, span<const int> accessory_ids)
+static bool write_accessories(wstringstream &stream, initializer_list<const int> accessory_ids)
 {
     bool is_first = true;
     for (auto accessory_id : accessory_ids)
@@ -125,40 +124,38 @@ static void write_icon(wstringstream &stream, int icon_id)
 {
     wstringstream ss;
     ss << setw(5) << setfill(L'0') << icon_id;
-    stream << L"<img src='img://MENU_ItemIcon_" << ss.str() << L".png' width='32' height='32'/>";
+    stream << L"<img src='img://MENU_ItemIcon_" << ss.str() << L".png' width='48' height='48'/>";
 }
 
-// Generates a string with a list of equipment in the given loadout
-wstring saveslots::stringify_loadout(saveslots::SaveSlot const &slot)
+wstring saveslots::iconify_loadout(saveslots::SaveSlot const &slot)
 {
-    auto equip_param_weapon = params::get_param<EquipParamWeapon>(L"EquipParamWeapon");
-    auto equip_param_protector = params::get_param<EquipParamProtector>(L"EquipParamProtector");
-    auto equip_param_accessory = params::get_param<EquipParamAccessory>(L"EquipParamAccessory");
-
     auto &gear = slot.gear;
 
     wstringstream stream;
 
-    int right_weapon_ids[] = {gear.right_weapon1_id, gear.right_weapon2_id, gear.right_weapon3_id};
-    int left_weapon_ids[] = {gear.left_weapon1_id, gear.left_weapon2_id, gear.left_weapon3_id};
-    int arrow_bolt_ids[] = {gear.arrow1_id, gear.arrow2_id, gear.bolt1_id, gear.bolt2_id};
-    int protector_ids[] = {gear.head_protector_id, gear.chest_protector_id, gear.arms_protector_id,
-                           gear.legs_protector_id};
-    int accessory_ids[] = {gear.accessory1_id, gear.accessory2_id, gear.accessory3_id,
-                           gear.accessory4_id};
+    auto equip_param_weapon = params::get_param<EquipParamWeapon>(L"EquipParamWeapon");
+    auto equip_param_protector = params::get_param<EquipParamProtector>(L"EquipParamProtector");
+    auto equip_param_accessory = params::get_param<EquipParamAccessory>(L"EquipParamAccessory");
 
-    // Display icons for every equipped piece of gear
-    for (auto weapon_id : right_weapon_ids)
+    for (auto weapon_id : {gear.right_weapon1_id, gear.right_weapon2_id, gear.right_weapon3_id})
         if (weapon_id != unarmed_weapon_id)
             write_icon(stream, equip_param_weapon[weapon_id - (weapon_id % 100)].iconId);
 
-    for (auto weapon_id : left_weapon_ids)
-        if (weapon_id != unarmed_weapon_id)
-            write_icon(stream, equip_param_weapon[weapon_id - (weapon_id % 100)].iconId);
-
-    for (auto weapon_id : arrow_bolt_ids)
+    for (auto weapon_id : {gear.arrow1_id, gear.arrow2_id})
         if (weapon_id != empty_ammo_id)
             write_icon(stream, equip_param_weapon[weapon_id].iconId);
+
+    stream << L"\n";
+
+    for (auto weapon_id : {gear.left_weapon1_id, gear.left_weapon2_id, gear.left_weapon3_id})
+        if (weapon_id != unarmed_weapon_id)
+            write_icon(stream, equip_param_weapon[weapon_id - (weapon_id % 100)].iconId);
+
+    for (auto weapon_id : {gear.bolt1_id, gear.bolt2_id})
+        if (weapon_id != empty_ammo_id)
+            write_icon(stream, equip_param_weapon[weapon_id].iconId);
+
+    stream << L"\n";
 
     if (gear.head_protector_id != bare_head_protector_id)
         write_icon(stream, equip_param_protector[gear.head_protector_id].iconIdM);
@@ -172,11 +169,22 @@ wstring saveslots::stringify_loadout(saveslots::SaveSlot const &slot)
     if (gear.legs_protector_id != bare_legs_protector_id)
         write_icon(stream, equip_param_protector[gear.legs_protector_id].iconIdM);
 
-    for (auto accessory_id : accessory_ids)
+    stream << L"\n";
+
+    for (auto accessory_id :
+         {gear.accessory1_id, gear.accessory2_id, gear.accessory3_id, gear.accessory4_id})
         if (accessory_id != empty_accessory_id)
             write_icon(stream, equip_param_accessory[accessory_id].iconId);
 
-    stream << L"\n";
+    return stream.str();
+}
+
+// Generates a string with a list of equipment in the given loadout
+wstring saveslots::stringify_loadout(saveslots::SaveSlot const &slot)
+{
+    auto &gear = slot.gear;
+
+    wstringstream stream;
 
     // Also display a categorized list of names of each piece of gear
     stream << L"<font size='18'>";
@@ -184,8 +192,10 @@ wstring saveslots::stringify_loadout(saveslots::SaveSlot const &slot)
     // Armaments
     stream << L"<img src='img://MENU_Tab_Weapon.png' width='22' height='25' vspace='-25'/>";
     write_header(stream, msg::loadout_messages.armaments);
-    bool any_right_weapons = write_weapons(stream, right_weapon_ids);
-    bool any_left_weapons = write_weapons(stream, left_weapon_ids);
+    bool any_right_weapons = write_weapons(
+        stream, {gear.right_weapon1_id, gear.right_weapon2_id, gear.right_weapon3_id});
+    bool any_left_weapons =
+        write_weapons(stream, {gear.left_weapon1_id, gear.left_weapon2_id, gear.left_weapon3_id});
     if (!any_right_weapons && !any_left_weapons)
     {
         // Unarmed
@@ -202,15 +212,17 @@ wstring saveslots::stringify_loadout(saveslots::SaveSlot const &slot)
         // Arrows/Bolts
         stream << L"<img src='img://MENU_Tab_14.png' width='22' height='30' vspace='-25'/>";
         write_header(stream, msg::loadout_messages.arrows_bolts);
-        write_weapons(stream, arrow_bolt_ids);
+        write_weapons(stream, {gear.arrow1_id, gear.arrow2_id, gear.bolt1_id, gear.bolt2_id});
         stream << vertical_spacer;
     }
 
     // Armor
     stream << L"<img src='img://MENU_Tab_Armor.png' width='22' height='27' vspace='-25'/>";
     write_header(stream, msg::loadout_messages.armor);
-    bool any_head_chest_protectors = write_protectors(stream, span(&protector_ids[0], 2));
-    bool any_arms_legs_protectors = write_protectors(stream, span(&protector_ids[2], 2));
+    bool any_head_chest_protectors =
+        write_protectors(stream, {gear.head_protector_id, gear.chest_protector_id});
+    bool any_arms_legs_protectors =
+        write_protectors(stream, {gear.arms_protector_id, gear.legs_protector_id});
     if (!any_head_chest_protectors && !any_arms_legs_protectors)
     {
         // None
@@ -222,8 +234,10 @@ wstring saveslots::stringify_loadout(saveslots::SaveSlot const &slot)
     // Talismans
     stream << L"<img src='img://MENU_Tab_15.png' width='22' height='24' vspace='-25'/>";
     write_header(stream, msg::loadout_messages.talismans);
-    bool any_first_two_accessories = write_accessories(stream, span(&accessory_ids[0], 2));
-    bool any_second_two_accessories = write_accessories(stream, span(&accessory_ids[2], 2));
+    bool any_first_two_accessories =
+        write_accessories(stream, {gear.accessory1_id, gear.accessory2_id});
+    bool any_second_two_accessories =
+        write_accessories(stream, {gear.accessory3_id, gear.accessory4_id});
     if (!any_first_two_accessories && !any_second_two_accessories)
     {
         // None

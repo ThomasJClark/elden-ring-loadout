@@ -144,7 +144,8 @@ void saveslots::SaveSlot::refresh()
 
         caption = stringify_loadout(*this);
 
-        info = L"TODO slot info\n\n";
+        info = iconify_loadout(*this);
+        info += L"\n";
         info += msg::loadout_messages.press_x_to_view;
 
         save_goods_param.iconId = icon_id_slot;
