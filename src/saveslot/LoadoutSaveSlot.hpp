@@ -4,6 +4,8 @@
 #include <string>
 #include <tga/paramdefs.h>
 
+#include "../internal/WorldChrMan.hpp"
+
 namespace erloadout
 {
 namespace saveslots
@@ -24,20 +26,8 @@ static constexpr int32_t empty_accessory_id = -1;
 struct SaveSlot
 {
     int index;
-
-    // Equipment in this loadout
     bool empty;
-    int right_weapon_ids[3];
-    int left_weapon_ids[3];
-    int arrow_id1;
-    int arrow_id2;
-    int bolt_id1;
-    int bolt_id2;
-    int head_protector_id;
-    int chest_protector_id;
-    int arms_protector_id;
-    int legs_protector_id;
-    int accessory_ids[4];
+    CS::ChrAsmGear gear;
 
     // Info derived from the above equipment
     std::wstring name;

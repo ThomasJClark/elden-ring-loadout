@@ -52,18 +52,24 @@ void saveslots::initialize()
         slot = {
             .index = index,
             .empty = true,
-            .right_weapon_ids = {unarmed_weapon_id, unarmed_weapon_id, unarmed_weapon_id},
-            .left_weapon_ids = {unarmed_weapon_id, unarmed_weapon_id, unarmed_weapon_id},
-            .arrow_id1 = empty_ammo_id,
-            .arrow_id2 = empty_ammo_id,
-            .bolt_id1 = empty_ammo_id,
-            .bolt_id2 = empty_ammo_id,
-            .head_protector_id = bare_head_protector_id,
-            .chest_protector_id = bare_chest_protector_id,
-            .arms_protector_id = bare_arms_protector_id,
-            .legs_protector_id = bare_legs_protector_id,
-            .accessory_ids = {empty_accessory_id, empty_accessory_id, empty_accessory_id,
-                              empty_accessory_id},
+            .gear = {.left_weapon1_id = -1,
+                     .right_weapon1_id = -1,
+                     .left_weapon2_id = -1,
+                     .right_weapon2_id = -1,
+                     .left_weapon3_id = -1,
+                     .right_weapon3_id = -1,
+                     .arrow1_id = -1,
+                     .bolt1_id = -1,
+                     .arrow2_id = -1,
+                     .bolt2_id = -1,
+                     .head_protector_id = -1,
+                     .chest_protector_id = -1,
+                     .arms_protector_id = -1,
+                     .legs_protector_id = -1,
+                     .accessory1_id = -1,
+                     .accessory2_id = -1,
+                     .accessory3_id = -1,
+                     .accessory4_id = -1},
             .save_goods_param = initial_goods_param,
             .apply_goods_param = initial_goods_param,
             .save_shop_lineup_param = initial_shop_lineup_param,
@@ -77,19 +83,19 @@ void saveslots::initialize()
         if (index == 0)
         {
             slot.empty = false;
-            slot.right_weapon_ids[0] = 11050000; // Morning Star
-            slot.left_weapon_ids[0] = 31340000;  // Black Leather Shield
-            slot.arrow_id1 = 50020000;           // Serpent Arrow
-            slot.arrow_id2 = 50040000;           // St. Trina's Arrow
-            slot.bolt_id1 = 52030000;            // Black-Key Bolt
-            slot.head_protector_id = 1840000;    // Foot Soldier Helm
-            slot.chest_protector_id = 290100;    // Nox Monk Armor
-            slot.arms_protector_id = 630200;     // Astrologer Gloves
-            slot.legs_protector_id = 740300;     // Noble's Trousers
-            slot.accessory_ids[0] = 1150;        // Green Turtle Talisman
-            slot.accessory_ids[1] = 2160;        // Lord of Blood's Exultation
-            slot.accessory_ids[2] = 2170;        // Kindred of Rot's Exultation
-            slot.accessory_ids[3] = 1210;        // Bull-Goat's Talisman
+            slot.gear.right_weapon1_id = 11050000; // Morning Star
+            slot.gear.left_weapon1_id = 31340000;  // Black Leather Shield
+            slot.gear.arrow1_id = 50020000;        // Serpent Arrow
+            slot.gear.arrow2_id = 50040000;        // St. Trina's Arrow
+            slot.gear.bolt1_id = 52030000;         // Black-Key Bolt
+            slot.gear.head_protector_id = 1840000; // Foot Soldier Helm
+            slot.gear.chest_protector_id = 290100; // Nox Monk Armor
+            slot.gear.arms_protector_id = 630200;  // Astrologer Gloves
+            slot.gear.legs_protector_id = 740300;  // Noble's Trousers
+            slot.gear.accessory1_id = 1150;        // Green Turtle Talisman
+            slot.gear.accessory2_id = 2160;        // Lord of Blood's Exultation
+            slot.gear.accessory3_id = 2170;        // Kindred of Rot's Exultation
+            slot.gear.accessory4_id = 1210;        // Bull-Goat's Talisman
         }
 #endif
 
@@ -101,6 +107,27 @@ void saveslots::initialize()
 
 void saveslots::SaveSlot::refresh()
 {
+    if (gear.right_weapon1_id == -1)
+        gear.right_weapon1_id = unarmed_weapon_id;
+    if (gear.right_weapon2_id == -1)
+        gear.right_weapon2_id = unarmed_weapon_id;
+    if (gear.right_weapon3_id == -1)
+        gear.right_weapon3_id = unarmed_weapon_id;
+    if (gear.left_weapon1_id == -1)
+        gear.left_weapon1_id = unarmed_weapon_id;
+    if (gear.left_weapon2_id == -1)
+        gear.left_weapon2_id = unarmed_weapon_id;
+    if (gear.left_weapon3_id == -1)
+        gear.left_weapon3_id = unarmed_weapon_id;
+    if (gear.head_protector_id == -1)
+        gear.head_protector_id = bare_head_protector_id;
+    if (gear.chest_protector_id == -1)
+        gear.chest_protector_id = bare_chest_protector_id;
+    if (gear.arms_protector_id == -1)
+        gear.arms_protector_id = bare_arms_protector_id;
+    if (gear.legs_protector_id == -1)
+        gear.legs_protector_id = bare_legs_protector_id;
+
     if (empty)
     {
         name = msg::loadout_messages.empty_slot;
@@ -135,30 +162,8 @@ void saveslots::SaveSlot::save_from_player()
     }
 
     auto &chr_asm = main_player->player_game_data->equip_game_data.chr_asm;
-
-    auto value_or_default = [](int value, int default_value) {
-        return value == default_value ? -1 : value;
-    };
-
+    gear = chr_asm.gear;
     empty = false;
-    right_weapon_ids[0] = value_or_default(chr_asm.right_weapon_id1, unarmed_weapon_id);
-    right_weapon_ids[1] = value_or_default(chr_asm.right_weapon_id2, unarmed_weapon_id);
-    right_weapon_ids[2] = value_or_default(chr_asm.right_weapon_id3, unarmed_weapon_id);
-    left_weapon_ids[0] = value_or_default(chr_asm.left_weapon_id1, unarmed_weapon_id);
-    left_weapon_ids[1] = value_or_default(chr_asm.left_weapon_id2, unarmed_weapon_id);
-    left_weapon_ids[2] = value_or_default(chr_asm.left_weapon_id3, unarmed_weapon_id);
-    arrow_id1 = chr_asm.arrow_id1;
-    arrow_id2 = chr_asm.arrow_id2;
-    bolt_id1 = chr_asm.bolt_id1;
-    bolt_id2 = chr_asm.bolt_id2;
-    head_protector_id = value_or_default(chr_asm.head_protector_id, bare_head_protector_id);
-    chest_protector_id = value_or_default(chr_asm.chest_protector_id, bare_chest_protector_id);
-    arms_protector_id = value_or_default(chr_asm.arms_protector_id, bare_arms_protector_id);
-    legs_protector_id = value_or_default(chr_asm.legs_protector_id, bare_legs_protector_id);
-    accessory_ids[0] = chr_asm.accessory_ids[0];
-    accessory_ids[1] = chr_asm.accessory_ids[1];
-    accessory_ids[2] = chr_asm.accessory_ids[2];
-    accessory_ids[3] = chr_asm.accessory_ids[3];
 
     spdlog::info("TODO: save slot {}", index);
 

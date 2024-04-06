@@ -89,16 +89,21 @@ static void write_icon(wstringstream &stream, int icon_id)
 // Generates a string with a list of equipment in the given loadout
 wstring saveslots::stringify_loadout(saveslots::SaveSlot const &slot)
 {
+    auto &gear = slot.gear;
+
     wstringstream stream;
     stream << L"<img src='img://MENU_ItemIcon_14683.png' width='40' "
               L"height='40'/>\n";
     stream << L"<font size='16'>";
 
+    int right_weapon_ids[] = {gear.right_weapon1_id, gear.right_weapon2_id, gear.right_weapon3_id};
+    int left_weapon_ids[] = {gear.left_weapon1_id, gear.left_weapon2_id, gear.left_weapon3_id};
+
     // Armaments
     stream << L"<img src='img://MENU_Tab_Weapon.png' width='22' height='25' vspace='-25'/>";
     write_header(stream, msg::loadout_messages.armaments);
-    bool any_right_weapons = write_weapons(stream, slot.right_weapon_ids);
-    bool any_left_weapons = write_weapons(stream, slot.left_weapon_ids);
+    bool any_right_weapons = write_weapons(stream, right_weapon_ids);
+    bool any_left_weapons = write_weapons(stream, left_weapon_ids);
     if (!any_right_weapons && !any_left_weapons)
     {
         // Unarmed
@@ -109,11 +114,11 @@ wstring saveslots::stringify_loadout(saveslots::SaveSlot const &slot)
 
     stream << vertical_spacer;
 
-    if (slot.arrow_id1 != saveslots::empty_ammo_id || slot.arrow_id2 != saveslots::empty_ammo_id ||
-        slot.bolt_id1 != saveslots::empty_ammo_id || slot.bolt_id2 != saveslots::empty_ammo_id)
+    if (gear.arrow1_id != saveslots::empty_ammo_id || gear.arrow2_id != saveslots::empty_ammo_id ||
+        gear.bolt1_id != saveslots::empty_ammo_id || gear.bolt2_id != saveslots::empty_ammo_id)
     {
-        int arrow_ids[] = {slot.arrow_id1, slot.arrow_id2};
-        int bolt_ids[] = {slot.bolt_id1, slot.bolt_id2};
+        int arrow_ids[] = {gear.arrow1_id, gear.arrow2_id};
+        int bolt_ids[] = {gear.bolt1_id, gear.bolt2_id};
 
         // Arrows/Bolts
         stream << L"<img src='img://MENU_Tab_14.png' width='22' height='30' vspace='-25'/> ";
@@ -126,10 +131,10 @@ wstring saveslots::stringify_loadout(saveslots::SaveSlot const &slot)
     // Armor
     stream << L"<img src='img://MENU_Tab_Armor.png' width='22' height='27' vspace='-25'/> ";
     write_header(stream, msg::loadout_messages.armor);
-    bool any_head_protector = write_protector(stream, slot.head_protector_id);
-    bool any_chest_protector = write_protector(stream, slot.chest_protector_id);
-    bool any_arms_protector = write_protector(stream, slot.arms_protector_id);
-    bool any_legs_protector = write_protector(stream, slot.legs_protector_id);
+    bool any_head_protector = write_protector(stream, gear.head_protector_id);
+    bool any_chest_protector = write_protector(stream, gear.chest_protector_id);
+    bool any_arms_protector = write_protector(stream, gear.arms_protector_id);
+    bool any_legs_protector = write_protector(stream, gear.legs_protector_id);
     if (!any_head_protector && !any_chest_protector && !any_arms_protector && !any_legs_protector)
     {
         // None
@@ -138,16 +143,16 @@ wstring saveslots::stringify_loadout(saveslots::SaveSlot const &slot)
 
     stream << vertical_spacer;
 
-    if (slot.accessory_ids[0] != -1 || slot.accessory_ids[1] != -1 || slot.accessory_ids[2] != -1 ||
-        slot.accessory_ids[3] != -1)
+    if (gear.accessory1_id != -1 || gear.accessory2_id != -1 || gear.accessory3_id != -1 ||
+        gear.accessory4_id != -1)
     {
         // Talismans
         stream << L"<img src='img://MENU_Tab_15.png' width='22' height='24' vspace='-25'/> ";
         write_header(stream, msg::loadout_messages.talismans);
-        write_accessory(stream, slot.accessory_ids[0]);
-        write_accessory(stream, slot.accessory_ids[1]);
-        write_accessory(stream, slot.accessory_ids[2]);
-        write_accessory(stream, slot.accessory_ids[3]);
+        write_accessory(stream, gear.accessory1_id);
+        write_accessory(stream, gear.accessory2_id);
+        write_accessory(stream, gear.accessory3_id);
+        write_accessory(stream, gear.accessory4_id);
     }
 
     stream << L"</font>";

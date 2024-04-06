@@ -40,20 +40,18 @@ struct EquipInventoryData
     std::byte unk6[0x1a];
 };
 
-struct ChrAsm
+struct ChrAsmGear
 {
-    void **vftable;
-    std::byte unk1[0x74];
-    int32_t left_weapon_id1;
-    int32_t right_weapon_id1;
-    int32_t left_weapon_id2;
-    int32_t right_weapon_id2;
-    int32_t left_weapon_id3;
-    int32_t right_weapon_id3;
-    int32_t arrow_id1;
-    int32_t bolt_id1;
-    int32_t arrow_id2;
-    int32_t bolt_id2;
+    int32_t left_weapon1_id;
+    int32_t right_weapon1_id;
+    int32_t left_weapon2_id;
+    int32_t right_weapon2_id;
+    int32_t left_weapon3_id;
+    int32_t right_weapon3_id;
+    int32_t arrow1_id;
+    int32_t bolt1_id;
+    int32_t arrow2_id;
+    int32_t bolt2_id;
     int32_t unused1;
     int32_t unused2;
     int32_t head_protector_id;
@@ -61,8 +59,18 @@ struct ChrAsm
     int32_t arms_protector_id;
     int32_t legs_protector_id;
     int32_t unused3;
-    int32_t accessory_ids[4];
+    int32_t accessory1_id;
+    int32_t accessory2_id;
+    int32_t accessory3_id;
+    int32_t accessory4_id;
     int32_t unused4;
+};
+
+struct ChrAsm
+{
+    void **vftable;
+    std::byte unk1[0x74];
+    ChrAsmGear gear;
 };
 
 struct EquipGameData
