@@ -36,7 +36,7 @@ static bool write_weapons(wstringstream &stream, initializer_list<const int> wea
                 stream << L", ";
 
             auto upgrade_level = weapon_id % 100;
-            auto name = msg::get_message(msg::msgbnd_weapon_name, weapon_id - upgrade_level);
+            auto name = msg::get_message(msgbnd::weapon_name, weapon_id - upgrade_level);
 
             if (name != nullptr)
                 stream << name;
@@ -71,7 +71,7 @@ static bool write_protectors(wstringstream &stream, initializer_list<const int> 
             else
                 stream << L", ";
 
-            auto name = msg::get_message(msg::msgbnd_protector_name, protector_id);
+            auto name = msg::get_message(msgbnd::protector_name, protector_id);
             if (name != nullptr)
                 stream << name;
 
@@ -97,7 +97,7 @@ static bool write_accessories(wstringstream &stream, initializer_list<const int>
             else
                 stream << L", ";
 
-            auto name = msg::get_message(msg::msgbnd_accessory_name, accessory_id);
+            auto name = msg::get_message(msgbnd::accessory_name, accessory_id);
             if (name != nullptr)
                 stream << name;
 
@@ -115,8 +115,7 @@ static void write_accessory(wstringstream &stream, int accessory_id)
 {
     if (accessory_id != -1)
     {
-        stream << begin_line << msg::get_message(msg::msgbnd_accessory_name, accessory_id)
-               << end_line;
+        stream << begin_line << msg::get_message(msgbnd::accessory_name, accessory_id) << end_line;
     }
 }
 
@@ -199,8 +198,7 @@ wstring saveslots::stringify_loadout(saveslots::SaveSlot const &slot)
     if (!any_right_weapons && !any_left_weapons)
     {
         // Unarmed
-        stream << begin_line
-               << msg::get_message(msg::msgbnd_weapon_name, saveslots::unarmed_weapon_id)
+        stream << begin_line << msg::get_message(msgbnd::weapon_name, saveslots::unarmed_weapon_id)
                << end_line;
     }
 

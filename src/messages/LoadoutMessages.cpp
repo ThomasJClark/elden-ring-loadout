@@ -52,13 +52,13 @@ inline bool is_loadout_shop_open()
     return is_save_loadout_shop_open() || is_apply_loadout_shop_open();
 }
 
-static const wchar_t *(*get_message)(CS::MsgRepository *, uint32_t, uint32_t, int32_t);
+static const wchar_t *(*get_message)(CS::MsgRepository *, uint32_t, msgbnd, int32_t);
 static const wchar_t *get_message_detour(CS::MsgRepository *msg_repository, uint32_t unknown,
-                                         uint32_t bnd_id, int32_t msg_id)
+                                         msgbnd bnd_id, int32_t msg_id)
 {
     switch (bnd_id)
     {
-    case msg::msgbnd_event_text_for_talk:
+    case msgbnd::event_text_for_talk:
         switch (msg_id)
         {
         case msg::event_text_for_talk_manage_loadouts:
@@ -70,7 +70,7 @@ static const wchar_t *get_message_detour(CS::MsgRepository *msg_repository, uint
         }
         break;
 
-    case msg::msgbnd_menu_text:
+    case msgbnd::menu_text:
         switch (msg_id)
         {
         case msg::menu_text_save_loadout:
@@ -85,7 +85,7 @@ static const wchar_t *get_message_detour(CS::MsgRepository *msg_repository, uint
         }
         break;
 
-    case msg::msgbnd_line_help:
+    case msgbnd::line_help:
         if (msg_id == msg::line_help_select_item_for_purchase)
         {
             if (is_save_loadout_shop_open())
@@ -95,7 +95,7 @@ static const wchar_t *get_message_detour(CS::MsgRepository *msg_repository, uint
         }
         break;
 
-    case msg::msgbnd_dialogues:
+    case msgbnd::dialogues:
         if (msg_id == msg::dialogues_purchase_item_for_runes)
         {
             if (is_save_loadout_shop_open())
@@ -105,42 +105,42 @@ static const wchar_t *get_message_detour(CS::MsgRepository *msg_repository, uint
         }
         break;
 
-    case msg::msgbnd_goods_name:
-        if (msg_id >= shop::save_loadout_goods_base_id &&
-            msg_id < shop::save_loadout_goods_base_id + saveslots::slots.size())
+    case msgbnd::accessory_name:
+        if (msg_id >= shop::save_loadout_accessory_base_id &&
+            msg_id < shop::save_loadout_accessory_base_id + saveslots::slots.size())
         {
-            return saveslots::slots[msg_id - shop::save_loadout_goods_base_id].name.c_str();
+            return saveslots::slots[msg_id - shop::save_loadout_accessory_base_id].name.c_str();
         }
-        if (msg_id >= shop::apply_loadout_goods_base_id &&
-            msg_id < shop::apply_loadout_goods_base_id + saveslots::slots.size())
+        if (msg_id >= shop::apply_loadout_accessory_base_id &&
+            msg_id < shop::apply_loadout_accessory_base_id + saveslots::slots.size())
         {
-            return saveslots::slots[msg_id - shop::apply_loadout_goods_base_id].name.c_str();
-        }
-        break;
-
-    case msg::msgbnd_goods_caption:
-        if (msg_id >= shop::save_loadout_goods_base_id &&
-            msg_id < shop::save_loadout_goods_base_id + saveslots::slots.size())
-        {
-            return saveslots::slots[msg_id - shop::save_loadout_goods_base_id].caption.c_str();
-        }
-        if (msg_id >= shop::apply_loadout_goods_base_id &&
-            msg_id < shop::apply_loadout_goods_base_id + saveslots::slots.size())
-        {
-            return saveslots::slots[msg_id - shop::apply_loadout_goods_base_id].caption.c_str();
+            return saveslots::slots[msg_id - shop::apply_loadout_accessory_base_id].name.c_str();
         }
         break;
 
-    case msg::msgbnd_goods_info:
-        if (msg_id >= shop::save_loadout_goods_base_id &&
-            msg_id < shop::save_loadout_goods_base_id + saveslots::slots.size())
+    case msgbnd::accessory_caption:
+        if (msg_id >= shop::save_loadout_accessory_base_id &&
+            msg_id < shop::save_loadout_accessory_base_id + saveslots::slots.size())
         {
-            return saveslots::slots[msg_id - shop::save_loadout_goods_base_id].info.c_str();
+            return saveslots::slots[msg_id - shop::save_loadout_accessory_base_id].caption.c_str();
         }
-        if (msg_id >= shop::apply_loadout_goods_base_id &&
-            msg_id < shop::apply_loadout_goods_base_id + saveslots::slots.size())
+        if (msg_id >= shop::apply_loadout_accessory_base_id &&
+            msg_id < shop::apply_loadout_accessory_base_id + saveslots::slots.size())
         {
-            return saveslots::slots[msg_id - shop::apply_loadout_goods_base_id].info.c_str();
+            return saveslots::slots[msg_id - shop::apply_loadout_accessory_base_id].caption.c_str();
+        }
+        break;
+
+    case msgbnd::accessory_info:
+        if (msg_id >= shop::save_loadout_accessory_base_id &&
+            msg_id < shop::save_loadout_accessory_base_id + saveslots::slots.size())
+        {
+            return saveslots::slots[msg_id - shop::save_loadout_accessory_base_id].info.c_str();
+        }
+        if (msg_id >= shop::apply_loadout_accessory_base_id &&
+            msg_id < shop::apply_loadout_accessory_base_id + saveslots::slots.size())
+        {
+            return saveslots::slots[msg_id - shop::apply_loadout_accessory_base_id].info.c_str();
         }
         break;
     }
@@ -202,7 +202,7 @@ void erloadout::msg::initialize()
     }
 }
 
-const wchar_t *msg::get_message(int32_t msgbnd_id, int32_t id)
+const wchar_t *msg::get_message(msgbnd msgbnd_id, int32_t id)
 {
     return ::get_message(msg_repository, 0, msgbnd_id, id);
 }

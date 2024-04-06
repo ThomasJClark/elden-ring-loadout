@@ -16,35 +16,25 @@ void saveslots::initialize()
     ShopLineupParam initial_shop_lineup_param = {.value = -1,
                                                  .mtrlId = -1,
                                                  .sellQuantity = -1,
-                                                 .equipType = 3,
+                                                 .equipType = 2, // accessory
                                                  .setNum = 1,
                                                  .iconId = -1,
                                                  .nameMsgId = -1};
 
-    EquipParamGoods initial_goods_param = {.refId_default = -1,
-                                           .sfxVariationId = -1,
-                                           .weight = 1,
-                                           .replaceItemId = -1,
-                                           .sortId = -1,
-                                           .appearanceReplaceItemId = -1,
-                                           .yesNoDialogMessageId = -1,
-                                           .potGroupId = -1,
-                                           .compTrophySedId = -1,
-                                           .trophySeqId = -1,
-                                           .maxNum = 1,
-                                           .goodsType = 12,
-                                           .refId_1 = -1,
-                                           .refVirtualWepId = -1,
-                                           .castSfxId = -1,
-                                           .fireSfxId = -1,
-                                           .effectSfxId = -1,
-                                           .showLogCondType = 1,
-                                           .showDialogCondType = 2,
-                                           .sortGroupId = 0,
-                                           .isUseNoAttackRegion = 1,
-                                           .aiUseJudgeId = -1,
-                                           .reinforceGoodsId = -1,
-                                           .reinforceMaterialId = -1};
+    EquipParamAccessory initial_accessory_param = {.sfxVariationId = -1,
+                                                   .weight = 1,
+                                                   .shopLv = -1,
+                                                   .trophySGradeId = -1,
+                                                   .trophySeqId = -1,
+                                                   .vagrantItemLotId = -1,
+                                                   .vagrantBonusEneDropItemLotId = -1,
+                                                   .vagrantItemEneDropItemLotId = -1,
+                                                   .isDeposit = 1,
+                                                   .isDiscard = 1,
+                                                   .isDrop = 1,
+                                                   .showLogCondType = 1,
+                                                   .showDialogCondType = 2,
+                                                   .compTrophySedId = -1};
 
     int index = 0;
     for (auto &slot : slots)
@@ -70,20 +60,22 @@ void saveslots::initialize()
                      .accessory2_id = -1,
                      .accessory3_id = -1,
                      .accessory4_id = -1},
-            .save_goods_param = initial_goods_param,
-            .apply_goods_param = initial_goods_param,
+            .save_accessory_param = initial_accessory_param,
+            .apply_accessory_param = initial_accessory_param,
             .save_shop_lineup_param = initial_shop_lineup_param,
             .apply_shop_lineup_param = initial_shop_lineup_param,
         };
 
-        slot.save_shop_lineup_param.equipId = shop::save_loadout_goods_base_id + index;
-        slot.apply_shop_lineup_param.equipId = shop::apply_loadout_goods_base_id + index;
+        slot.save_shop_lineup_param.equipId = shop::save_loadout_accessory_base_id + index;
+        slot.save_shop_lineup_param.nameMsgId = shop::save_loadout_accessory_base_id + index;
+        slot.apply_shop_lineup_param.equipId = shop::apply_loadout_accessory_base_id + index;
+        slot.apply_shop_lineup_param.equipId = shop::apply_loadout_accessory_base_id + index;
 
 #if _DEBUG
-        if (index == 0)
+        // if (index == 0)
         {
             slot.empty = false;
-            slot.gear.right_weapon1_id = 11050000; // Morning Star
+            slot.gear.right_weapon1_id = 11050025; // Morning Star +25
             slot.gear.left_weapon1_id = 31340000;  // Black Leather Shield
             slot.gear.arrow1_id = 50020000;        // Serpent Arrow
             slot.gear.arrow2_id = 50040000;        // St. Trina's Arrow
@@ -133,8 +125,8 @@ void saveslots::SaveSlot::refresh()
         name = msg::loadout_messages.empty_slot;
         info = L"-";
         caption = L"-";
-        save_goods_param.iconId = icon_id_empty_slot;
-        apply_goods_param.iconId = icon_id_empty_slot;
+        save_accessory_param.iconId = icon_id_empty_slot;
+        apply_accessory_param.iconId = icon_id_empty_slot;
     }
     else
     {
@@ -148,8 +140,8 @@ void saveslots::SaveSlot::refresh()
         info += L"\n";
         info += msg::loadout_messages.press_x_to_view;
 
-        save_goods_param.iconId = icon_id_slot;
-        apply_goods_param.iconId = icon_id_slot;
+        save_accessory_param.iconId = icon_id_slot;
+        apply_accessory_param.iconId = icon_id_slot;
     }
 }
 

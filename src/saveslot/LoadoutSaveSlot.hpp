@@ -35,8 +35,8 @@ struct SaveSlot
     std::wstring caption;
 
     // Params used for the loadout shop
-    EquipParamGoods save_goods_param;
-    EquipParamGoods apply_goods_param;
+    EquipParamAccessory save_accessory_param;
+    EquipParamAccessory apply_accessory_param;
     ShopLineupParam save_shop_lineup_param;
     ShopLineupParam apply_shop_lineup_param;
 

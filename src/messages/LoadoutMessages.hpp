@@ -5,19 +5,24 @@
 
 namespace erloadout
 {
+enum class msgbnd : uint32_t
+{
+    goods_name = 10,
+    weapon_name = 11,
+    protector_name = 12,
+    accessory_name = 13,
+    goods_info = 20,
+    accessory_info = 23,
+    goods_caption = 24,
+    accessory_caption = 27,
+    event_text_for_talk = 33,
+    menu_text = 200,
+    line_help = 201,
+    dialogues = 204,
+};
+
 namespace msg
 {
-static const uint32_t msgbnd_goods_name = 10;
-static const uint32_t msgbnd_weapon_name = 11;
-static const uint32_t msgbnd_protector_name = 12;
-static const uint32_t msgbnd_accessory_name = 13;
-static const uint32_t msgbnd_goods_info = 20;
-static const uint32_t msgbnd_goods_caption = 24;
-static const uint32_t msgbnd_event_text_for_talk = 33;
-static const uint32_t msgbnd_menu_text = 200;
-static const uint32_t msgbnd_line_help = 201;
-static const uint32_t msgbnd_dialogues = 204;
-
 static constexpr int32_t event_text_for_talk_manage_loadouts = 68000000;
 static constexpr int32_t event_text_for_talk_save_loadout = 68000001;
 static constexpr int32_t event_text_for_talk_apply_loadout = 68000002;
@@ -57,7 +62,7 @@ void initialize();
 
 void set_active_shop(int32_t shop_id);
 
-const wchar_t *get_message(int32_t msgbnd_id, int32_t id);
+const wchar_t *get_message(msgbnd msgbnd_id, int32_t id);
 
 /**
  * Map of Steam language names to messages used by the mod

@@ -33,11 +33,11 @@ struct FindShopLineupParamResult
     ShopLineupParam *row;
 };
 
-struct FindEquipParamGoodsResult
+struct FindEquipParamAccessoryResult
 {
     int32_t id;
     int32_t unknown;
-    EquipParamGoods *row;
+    EquipParamAccessory *row;
 };
 #pragma pack(pop)
 
@@ -100,35 +100,35 @@ static void get_shop_lineup_param_detour(FindShopLineupParamResult *result, byte
     get_shop_lineup_param(result, shop_type, id);
 }
 
-static void (*get_equip_param_goods)(FindEquipParamGoodsResult *result, int32_t id);
+static void (*get_equip_param_accessory)(FindEquipParamAccessoryResult *result, int32_t id);
 
-void get_equip_param_goods_detour(FindEquipParamGoodsResult *result, int32_t id)
+static void get_equip_param_accessory_detour(FindEquipParamAccessoryResult *result, int32_t id)
 {
-    if (id >= shop::save_loadout_goods_base_id &&
-        id < shop::save_loadout_goods_base_id + saveslots::slots.size())
+    if (id >= shop::save_loadout_accessory_base_id &&
+        id < shop::save_loadout_accessory_base_id + saveslots::slots.size())
     {
-        auto &slot = saveslots::slots[id - shop::save_loadout_goods_base_id];
+        auto &slot = saveslots::slots[id - shop::save_loadout_accessory_base_id];
         result->id = id;
-        result->row = &slot.save_goods_param;
+        result->row = &slot.save_accessory_param;
         result->unknown = 3;
         return;
     }
-    if (id >= shop::apply_loadout_goods_base_id &&
-        id < shop::apply_loadout_goods_base_id + saveslots::slots.size())
+    if (id >= shop::apply_loadout_accessory_base_id &&
+        id < shop::apply_loadout_accessory_base_id + saveslots::slots.size())
     {
-        auto &slot = saveslots::slots[id - shop::apply_loadout_goods_base_id];
+        auto &slot = saveslots::slots[id - shop::apply_loadout_accessory_base_id];
 
         // Only show non-empty slots in the "Apply loadout" menu
         if (!slot.empty)
         {
             result->id = id;
-            result->row = &slot.apply_goods_param;
+            result->row = &slot.apply_accessory_param;
             result->unknown = 3;
         }
         return;
     }
 
-    get_equip_param_goods(result, id);
+    get_equip_param_accessory(result, id);
 }
 
 static void (*open_regular_shop)(void *, uint64_t, uint64_t);
@@ -152,20 +152,20 @@ static bool (*add_inventory_from_shop)(int32_t *new_item_id, int32_t quantity) =
 static bool add_inventory_from_shop_detour(int32_t *item_id_address, int32_t quantity)
 {
     auto item_id = *item_id_address;
-    if (item_id >= shop::item_type_goods_begin && item_id < shop::item_type_goods_end)
+    if (item_id >= shop::item_type_accessory_begin && item_id < shop::item_type_accessory_end)
     {
-        auto goods_id = item_id - shop::item_type_goods_begin;
-        if (goods_id >= shop::save_loadout_goods_base_id &&
-            goods_id < shop::save_loadout_goods_base_id + saveslots::slots.size())
+        auto accessory_id = item_id - shop::item_type_accessory_begin;
+        if (accessory_id >= shop::save_loadout_accessory_base_id &&
+            accessory_id < shop::save_loadout_accessory_base_id + saveslots::slots.size())
         {
-            auto &loadout = saveslots::slots[goods_id - shop::save_loadout_goods_base_id];
+            auto &loadout = saveslots::slots[accessory_id - shop::save_loadout_accessory_base_id];
             loadout.save_from_player();
             return false;
         }
-        if (goods_id >= shop::apply_loadout_goods_base_id &&
-            goods_id < shop::apply_loadout_goods_base_id + saveslots::slots.size())
+        if (accessory_id >= shop::apply_loadout_accessory_base_id &&
+            accessory_id < shop::apply_loadout_accessory_base_id + saveslots::slots.size())
         {
-            auto &loadout = saveslots::slots[goods_id - shop::apply_loadout_goods_base_id];
+            auto &loadout = saveslots::slots[accessory_id - shop::apply_loadout_accessory_base_id];
             loadout.apply_to_player();
             return false;
         }
@@ -201,16 +201,12 @@ void erloadout::shop::initialize()
         },
         get_shop_menu_detour, get_shop_menu);
 
-    // Hook get_equip_param_goods() to return the above items
+    // Hook get_equip_param_accessory() to return the above items
     modutils::hook(
         {
-            .aob = "41 8d 50 03"        // lea edx, [r8 + 3]
-                   "e8 ?? ?? ?? ??"     // call SoloParamRepositoryImp::GetParamResCap
-                   "48 85 c0"           // test rax rax
-                   "0f 84 ?? ?? ?? ??", // jz end_lbl
-            .offset = -106,
+            .offset = 0xcef040,
         },
-        get_equip_param_goods_detour, get_equip_param_goods);
+        get_equip_param_accessory_detour, get_equip_param_accessory);
 
     // Hook get_shop_lineup_param() to return the above shop entries
     modutils::hook(
