@@ -170,7 +170,8 @@ void saveslots::SaveSlot::refresh()
         for (auto accessory_id :
              {gear.accessory1_id, gear.accessory2_id, gear.accessory3_id, gear.accessory4_id})
         {
-            weight += equip_param_accessory[accessory_id].weight;
+            if (accessory_id != empty_accessory_id)
+                weight += equip_param_accessory[accessory_id].weight;
         }
 
         save_accessory_param.weight = weight;

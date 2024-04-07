@@ -13,10 +13,52 @@ using namespace erloadout;
 static const wstring begin_line =
     L"<img src='img://MENU_DummyTransparent.dds' width='22' height='1'/>";
 
-static const wstring end_line = L"\n";
-
 static const wstring vertical_spacer =
-    L"<font size='1'><img src='img://MENU_DummyTransparent.dds' width='1' height='24'/>\n</font>";
+    L"<font size='1'><img src='img://MENU_DummyTransparent.dds' width='1' height='16'/>\n</font>";
+
+static const wstring right_weapon_placeholder =
+    L"<img src='img://MENU_DummyTransparent.dds' width='2' height='48'/>"
+    L"<img src='img://MENU_SL_R_Weapon' width='40' height='48'/>"
+    L"<img src='img://MENU_DummyTransparent.dds' width='2' height='48'/>";
+
+static const wstring left_weapon_placeholder =
+    L"<img src='img://MENU_DummyTransparent.dds' width='8' height='48'/>"
+    L"<img src='img://MENU_SL_L_Weapon' width='27' height='48'/>"
+    L"<img src='img://MENU_DummyTransparent.dds' width='9' height='48'/>";
+
+static const wstring arrow_placeholder =
+    L"<img src='img://MENU_DummyTransparent.dds' width='5' height='48'/>"
+    L"<img src='img://MENU_SL_Arrow' width='33' height='48'/>"
+    L"<img src='img://MENU_DummyTransparent.dds' width='6' height='48'/>";
+
+static const wstring bolt_placeholder =
+    L"<img src='img://MENU_DummyTransparent.dds' width='8' height='48'/>"
+    L"<img src='img://MENU_SL_Bolt' width='28' height='48'/>"
+    L"<img src='img://MENU_DummyTransparent.dds' width='8' height='48'/>";
+
+static const wstring head_placeholder =
+    L"<img src='img://MENU_DummyTransparent.dds' width='5' height='48'/>"
+    L"<img src='img://MENU_SL_Head' width='33' height='48'/>"
+    L"<img src='img://MENU_DummyTransparent.dds' width='6' height='48'/>";
+
+static const wstring body_placeholder =
+    L"<img src='img://MENU_DummyTransparent.dds' width='5' height='48'/>"
+    L"<img src='img://MENU_SL_Body' width='33' height='48'/>"
+    L"<img src='img://MENU_DummyTransparent.dds' width='6' height='48'/>";
+
+static const wstring hand_placeholder =
+    L"<img src='img://MENU_DummyTransparent.dds' width='7' height='48'/>"
+    L"<img src='img://MENU_SL_Hand' width='29' height='48'/>"
+    L"<img src='img://MENU_DummyTransparent.dds' width='8' height='48'/>";
+
+static const wstring foot_placeholder =
+    L"<img src='img://MENU_DummyTransparent.dds' width='13' height='48'/>"
+    L"<img src='img://MENU_SL_Foot' width='18' height='48'/>"
+    L"<img src='img://MENU_DummyTransparent.dds' width='13' height='48'/>";
+
+static const wstring talisman_placeholder =
+    L"<img src='img://MENU_SL_Talisman' width='44' height='48'/>"
+    L"<img src='img://MENU_DummyTransparent.dds' width='2' height='48'/>";
 
 static void write_header(wstringstream &stream, wstring_view str)
 {
@@ -51,7 +93,7 @@ static bool write_weapons(wstringstream &stream, initializer_list<const int> wea
     }
     if (!is_first)
     {
-        stream << end_line;
+        stream << L"\n";
     }
     return !is_first;
 }
@@ -80,7 +122,7 @@ static bool write_protectors(wstringstream &stream, initializer_list<const int> 
     }
     if (!is_first)
     {
-        stream << end_line;
+        stream << L"\n";
     }
     return !is_first;
 }
@@ -106,7 +148,7 @@ static bool write_accessories(wstringstream &stream, initializer_list<const int>
     }
     if (!is_first)
     {
-        stream << end_line;
+        stream << L"\n";
     }
     return !is_first;
 }
@@ -115,20 +157,16 @@ static void write_accessory(wstringstream &stream, int accessory_id)
 {
     if (accessory_id != -1)
     {
-        stream << begin_line << msg::get_message(msgbnd::accessory_name, accessory_id) << end_line;
+        stream << begin_line << msg::get_message(msgbnd::accessory_name, accessory_id) << L"\n";
     }
 }
 
-static void write_item_icon(wstringstream &stream, int icon_id)
+static wstring item_icon(int icon_id)
 {
     wstringstream ss;
-    ss << setw(5) << setfill(L'0') << icon_id;
-    stream << L"<img src='img://MENU_ItemIcon_" << ss.str() << L".png' width='48' height='48'/>";
-}
-
-static void write_placeholder_icon(wstringstream &stream, wstring placeholder)
-{
-    stream << L"<img src='img://MENU_SL_" << placeholder << L"' width='48' height='48'/>";
+    ss << setw(5) << setfill(L'0');
+    ss << L"<img src='img://MENU_ItemIcon_" << icon_id << L".png' width='48' height='48'/>";
+    return ss.str();
 }
 
 wstring saveslots::iconify_loadout(saveslots::SaveSlot const &slot)
@@ -137,66 +175,68 @@ wstring saveslots::iconify_loadout(saveslots::SaveSlot const &slot)
 
     wstringstream stream;
 
+    stream << L"<font size='4'>\n</font>";
+
     auto equip_param_weapon = params::get_param<EquipParamWeapon>(L"EquipParamWeapon");
     auto equip_param_protector = params::get_param<EquipParamProtector>(L"EquipParamProtector");
     auto equip_param_accessory = params::get_param<EquipParamAccessory>(L"EquipParamAccessory");
 
     for (auto weapon_id : {gear.right_weapon1_id, gear.right_weapon2_id, gear.right_weapon3_id})
         if (weapon_id != unarmed_weapon_id)
-            write_item_icon(stream, equip_param_weapon[weapon_id - (weapon_id % 100)].iconId);
+            stream << item_icon(equip_param_weapon[weapon_id - (weapon_id % 100)].iconId);
         else
-            write_placeholder_icon(stream, L"R_Weapon"); // 142x176
+            stream << right_weapon_placeholder;
 
     for (auto weapon_id : {gear.arrow1_id, gear.arrow2_id})
         if (weapon_id != empty_ammo_id)
-            write_item_icon(stream, equip_param_weapon[weapon_id].iconId);
+            stream << item_icon(equip_param_weapon[weapon_id].iconId);
         else
-            write_placeholder_icon(stream, L"Arrow"); // 130x190
+            stream << arrow_placeholder;
 
     stream << L"\n";
 
     for (auto weapon_id : {gear.left_weapon1_id, gear.left_weapon2_id, gear.left_weapon3_id})
         if (weapon_id != unarmed_weapon_id)
-            write_item_icon(stream, equip_param_weapon[weapon_id - (weapon_id % 100)].iconId);
+            stream << item_icon(equip_param_weapon[weapon_id - (weapon_id % 100)].iconId);
         else
-            write_placeholder_icon(stream, L"L_Weapon"); // 102x184
+            stream << left_weapon_placeholder;
 
     for (auto weapon_id : {gear.bolt1_id, gear.bolt2_id})
         if (weapon_id != empty_ammo_id)
-            write_item_icon(stream, equip_param_weapon[weapon_id].iconId);
+            stream << item_icon(equip_param_weapon[weapon_id].iconId);
         else
-            write_placeholder_icon(stream, L"Bolt"); // 88x150
+            stream << bolt_placeholder;
 
     stream << L"\n";
 
     if (gear.head_protector_id != bare_head_protector_id)
-        write_item_icon(stream, equip_param_protector[gear.head_protector_id].iconIdM);
+        stream << item_icon(equip_param_protector[gear.head_protector_id].iconIdM);
     else
-        write_placeholder_icon(stream, L"Head"); // 122x180
+        stream << head_placeholder;
 
     if (gear.chest_protector_id != bare_chest_protector_id)
-        write_item_icon(stream, equip_param_protector[gear.chest_protector_id].iconIdM);
+        stream << item_icon(equip_param_protector[gear.chest_protector_id].iconIdM);
     else
-        write_placeholder_icon(stream, L"Body"); // 122x180
+        stream << body_placeholder;
 
     if (gear.arms_protector_id != bare_arms_protector_id)
-        write_item_icon(stream, equip_param_protector[gear.arms_protector_id].iconIdM);
+        stream << item_icon(equip_param_protector[gear.arms_protector_id].iconIdM);
     else
-        write_placeholder_icon(stream, L"Hand"); // 110x184
+        stream << hand_placeholder;
 
     if (gear.legs_protector_id != bare_legs_protector_id)
-        write_item_icon(stream, equip_param_protector[gear.legs_protector_id].iconIdM);
+        stream << item_icon(equip_param_protector[gear.legs_protector_id].iconIdM);
     else
-        write_placeholder_icon(stream, L"Foot"); // 74x198
+        stream << foot_placeholder;
 
     stream << L"\n";
 
     for (auto accessory_id :
          {gear.accessory1_id, gear.accessory2_id, gear.accessory3_id, gear.accessory4_id})
         if (accessory_id != empty_accessory_id)
-            write_item_icon(stream, equip_param_accessory[accessory_id].iconId);
+            stream << item_icon(equip_param_accessory[accessory_id].iconId);
         else
-            write_placeholder_icon(stream, L"Talisman"); // 140x154
+            stream << talisman_placeholder;
 
     return stream.str();
 }
@@ -208,7 +248,6 @@ wstring saveslots::stringify_loadout(saveslots::SaveSlot const &slot)
 
     wstringstream stream;
 
-    // Also display a categorized list of names of each piece of gear
     stream << L"<font size='18'>";
 
     // Armaments
@@ -222,7 +261,7 @@ wstring saveslots::stringify_loadout(saveslots::SaveSlot const &slot)
     {
         // Unarmed
         stream << begin_line << msg::get_message(msgbnd::weapon_name, saveslots::unarmed_weapon_id)
-               << end_line;
+               << L"\n";
     }
 
     stream << vertical_spacer;
@@ -247,7 +286,7 @@ wstring saveslots::stringify_loadout(saveslots::SaveSlot const &slot)
     if (!any_head_chest_protectors && !any_arms_legs_protectors)
     {
         // None
-        stream << begin_line << msg::loadout_messages.none << end_line;
+        stream << begin_line << msg::loadout_messages.none << L"\n";
     }
 
     stream << vertical_spacer;
@@ -262,7 +301,7 @@ wstring saveslots::stringify_loadout(saveslots::SaveSlot const &slot)
     if (!any_first_two_accessories && !any_second_two_accessories)
     {
         // None
-        stream << begin_line << msg::loadout_messages.none << end_line;
+        stream << begin_line << msg::loadout_messages.none << L"\n";
     }
 
     stream << L"</font>";
