@@ -73,7 +73,7 @@ void saveslots::initialize()
         slot.apply_shop_lineup_param.equipId = shop::apply_loadout_accessory_base_id + index;
 
 #if _DEBUG
-        // if (index == 0)
+        if (index == 0)
         {
             slot.empty = false;
             slot.gear.right_weapon1_id = 11050025; // Morning Star +25
@@ -126,6 +126,7 @@ void saveslots::SaveSlot::refresh()
         name = msg::loadout_messages.empty_slot;
         info = L"-";
         caption = L"-";
+
         save_accessory_param.iconId = icon_id_empty_slot;
         apply_accessory_param.iconId = icon_id_empty_slot;
         save_accessory_param.weight = 0;
@@ -133,15 +134,9 @@ void saveslots::SaveSlot::refresh()
     }
     else
     {
-        name = msg::loadout_messages.loadout;
-        name += L" ";
-        name += to_wstring(index + 1);
-
+        name = wstring(msg::loadout_messages.loadout) + L" " + to_wstring(index + 1);
         caption = stringify_loadout(*this);
-
         info = iconify_loadout(*this);
-        info += L"\n";
-        info += msg::loadout_messages.press_x_to_view;
 
         save_accessory_param.iconId = icon_id_slot;
         apply_accessory_param.iconId = icon_id_slot;
