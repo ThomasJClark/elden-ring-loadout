@@ -10,7 +10,16 @@
 using namespace std;
 using namespace erloadout;
 
-std::array<saveslots::SaveSlot, saveslots::max_slots> erloadout::saveslots::slots;
+array<saveslots::SaveSlot, saveslots::max_slots> erloadout::saveslots::slots;
+
+static constexpr array<uint16_t, saveslots::max_slots> icon_ids = {
+    361, 362, 363, 364, 365, 366, 367, 368,  369,  370,  371,  372,  373,
+    374, 375, 377, 378, 379, 380, 359, 3504, 3505, 3508, 3531, 3538,
+};
+
+static constexpr array<uint16_t, saveslots::max_slots> empty_icon_ids = {
+    653, 654, 655, 656, 657, 658, 659, 660,  661,  662,  663,  664, 665,
+    666, 667, 669, 670, 671, 672, 651, 3704, 3705, 3708, 3732, 3739};
 
 void saveslots::initialize()
 {
@@ -127,8 +136,8 @@ void saveslots::SaveSlot::refresh()
         info = L"-";
         caption = L"-";
 
-        save_accessory_param.iconId = icon_id_empty_slot;
-        apply_accessory_param.iconId = icon_id_empty_slot;
+        save_accessory_param.iconId = empty_icon_ids[index];
+        apply_accessory_param.iconId = empty_icon_ids[index];
         save_accessory_param.weight = 0;
         apply_accessory_param.weight = 0;
     }
@@ -138,8 +147,8 @@ void saveslots::SaveSlot::refresh()
         caption = stringify_loadout(*this);
         info = iconify_loadout(*this);
 
-        save_accessory_param.iconId = icon_id_slot;
-        apply_accessory_param.iconId = icon_id_slot;
+        save_accessory_param.iconId = icon_ids[index];
+        apply_accessory_param.iconId = icon_ids[index];
 
         auto weight = 0.0f;
 

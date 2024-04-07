@@ -12,9 +12,6 @@ namespace saveslots
 {
 static constexpr size_t max_slots = 25;
 
-static constexpr int32_t icon_id_empty_slot = 249;
-static constexpr int32_t icon_id_slot = 250;
-
 static constexpr int32_t bare_head_protector_id = 10000;
 static constexpr int32_t bare_chest_protector_id = 10100;
 static constexpr int32_t bare_arms_protector_id = 10200;
