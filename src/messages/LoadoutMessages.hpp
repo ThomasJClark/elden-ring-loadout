@@ -47,7 +47,6 @@ union LoadoutMessages {
         const wchar_t *apply_loadout_prompt;
         const wchar_t *loadout;
         const wchar_t *empty_slot;
-        const wchar_t *press_x_to_view;
         const wchar_t *armaments;
         const wchar_t *arrows_bolts;
         const wchar_t *armor;

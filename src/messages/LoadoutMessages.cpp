@@ -47,11 +47,6 @@ inline bool is_apply_loadout_shop_open()
     return active_shop_id == shop::apply_loadout_shop_id;
 }
 
-inline bool is_loadout_shop_open()
-{
-    return is_save_loadout_shop_open() || is_apply_loadout_shop_open();
-}
-
 static const wchar_t *(*get_message)(CS::MsgRepository *, uint32_t, msgbnd, int32_t);
 static const wchar_t *get_message_detour(CS::MsgRepository *msg_repository, uint32_t unknown,
                                          msgbnd bnd_id, int32_t msg_id)
@@ -77,11 +72,8 @@ static const wchar_t *get_message_detour(CS::MsgRepository *msg_repository, uint
             return msg::loadout_messages.save_loadout;
         case msg::menu_text_apply_loadout:
             return msg::loadout_messages.apply_loadout;
-        case msg::menu_text_number_held:
-        case msg::menu_text_stored:
-            if (is_loadout_shop_open())
-                return L"";
-            break;
+        case 20006:
+            return L"Equipment";
         }
         break;
 
