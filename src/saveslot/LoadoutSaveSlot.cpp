@@ -133,7 +133,7 @@ void saveslots::SaveSlot::refresh()
     if (empty)
     {
         name = msg::loadout_messages.empty_slot;
-        info = L"-";
+        info = L"<img src='img://MENU_FL_Box.png' width='246' height='232'/>";
         caption = L"-";
 
         save_accessory_param.iconId = empty_icon_ids[index];
