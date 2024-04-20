@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <spdlog/spdlog.h>
 
 #include "../messages/LoadoutMessages.hpp"
@@ -199,6 +200,55 @@ void saveslots::SaveSlot::save_from_player()
 
 void saveslots::SaveSlot::apply_to_player()
 {
-    // TODO
-    spdlog::info("TODO: apply slot {}", index);
+    auto main_player = players::get_main_player();
+    if (main_player == nullptr || main_player->player_game_data == nullptr)
+    {
+        return;
+    }
+
+    auto &equip_game_data = main_player->player_game_data->equip_game_data;
+    auto &inventory_entries = equip_game_data.equip_inventory_data.entries;
+
+    auto find_inventory_index = [&inventory_entries](players::ItemType item_type, int32_t id) {
+        for (int32_t i = 0; i < inventory_entries.count; i++)
+            if (inventory_entries[i].item_id == (int32_t)item_type + id)
+                return i;
+
+        return -1;
+    };
+
+    auto equip_gear = [&equip_game_data, &inventory_entries,
+                       find_inventory_index](players::EquipGearSlot slot, int32_t id) {
+        auto item_type = players::get_item_type(slot);
+        auto inventory_index = find_inventory_index(item_type, id);
+        if (inventory_index == -1)
+        {
+            spdlog::info("Item type={:x} id={} not in player inventory", (int32_t)item_type, id);
+            return;
+        }
+
+        auto ga_item_id = inventory_entries[inventory_index].ga_item_id;
+        auto index = equip_game_data.equip_inventory_data.start_index + inventory_index;
+
+        players::equip_gear(&equip_game_data, slot, &ga_item_id, index, true, true, false);
+    };
+
+    equip_gear(players::EquipGearSlot::left_weapon1_id, gear.left_weapon1_id);
+    equip_gear(players::EquipGearSlot::right_weapon1_id, gear.right_weapon1_id);
+    equip_gear(players::EquipGearSlot::left_weapon2_id, gear.left_weapon2_id);
+    equip_gear(players::EquipGearSlot::right_weapon2_id, gear.right_weapon2_id);
+    equip_gear(players::EquipGearSlot::left_weapon3_id, gear.left_weapon3_id);
+    equip_gear(players::EquipGearSlot::right_weapon3_id, gear.right_weapon3_id);
+    equip_gear(players::EquipGearSlot::arrow1_id, gear.arrow1_id);
+    equip_gear(players::EquipGearSlot::bolt1_id, gear.bolt1_id);
+    equip_gear(players::EquipGearSlot::arrow2_id, gear.arrow2_id);
+    equip_gear(players::EquipGearSlot::bolt2_id, gear.bolt2_id);
+    equip_gear(players::EquipGearSlot::head_protector_id, gear.head_protector_id);
+    equip_gear(players::EquipGearSlot::chest_protector_id, gear.chest_protector_id);
+    equip_gear(players::EquipGearSlot::arms_protector_id, gear.arms_protector_id);
+    equip_gear(players::EquipGearSlot::legs_protector_id, gear.legs_protector_id);
+    equip_gear(players::EquipGearSlot::accessory1_id, gear.accessory1_id);
+    equip_gear(players::EquipGearSlot::accessory2_id, gear.accessory2_id);
+    equip_gear(players::EquipGearSlot::accessory3_id, gear.accessory3_id);
+    equip_gear(players::EquipGearSlot::accessory4_id, gear.accessory4_id);
 }

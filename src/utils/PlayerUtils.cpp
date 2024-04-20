@@ -1,13 +1,11 @@
 #pragma once
 
 #include "PlayerUtils.hpp"
-#include "../internal/GameMan.hpp"
 #include "ModUtils.hpp"
 
 using namespace std;
 
 static CS::WorldChrManImp **world_chr_man_addr = nullptr;
-static CS::GameMan **game_man_addr = nullptr;
 
 typedef int GetInventoryIdFn(CS::EquipInventoryData *, int32_t *item_id);
 static GetInventoryIdFn *get_inventory_id = nullptr;
@@ -15,6 +13,8 @@ static GetInventoryIdFn *get_inventory_id = nullptr;
 players::ApplySpEffectFn *players::apply_speffect = nullptr;
 players::ClearSpEffectFn *players::clear_speffect = nullptr;
 players::SpawnOneShotVFXOnChrFn *players::spawn_one_shot_sfx_on_chr = nullptr;
+players::EquipGearFn *players::equip_gear;
+players::EquipGoodsFn *players::equip_goods;
 
 void players::initialize()
 {
@@ -23,12 +23,6 @@ void players::initialize()
                "48 85 c0"              // test rax, rax
                "74 0f"                 // jz end_label
                "48 39 88 08 e5 01 00", // cmp [rax + 0x1e508], rcx
-        .relative_offsets = {{3, 7}},
-    });
-
-    game_man_addr = modutils::scan<CS::GameMan *>({
-        .aob = "48 8B 05 ?? ?? ?? ??" // mov rax, [GameDataMan]
-               "80 B8 ?? ?? ?? ?? 0D 0F 94 C0 C3",
         .relative_offsets = {{3, 7}},
     });
 
@@ -81,6 +75,23 @@ void players::initialize()
         .offset = 10,
         .relative_offsets = {{1, 5}},
     });
+
+    equip_gear = modutils::scan<EquipGearFn>({
+        .aob = "?? 8b f1"  // mov        esi, index
+               "?? 8b d8"  // mov        rbx, item_id
+               "?? 63 ea"  // movsxd     rbp, slot
+               "?? 8b f9", // mov        rdi, equip_game_data
+        .offset = -23,
+    });
+
+    equip_goods = modutils::scan<EquipGoodsFn>({
+        .aob =
+            "?? fa 0a"             // cmp slot, 10
+            "?? 0f"                // jnc lab_140248d74
+            "?? 81 c1 70 02 00 00" // add equip_game_data, 0x270 ; equip_game_data->equip_item_data
+            "?? 8b c1"             // mov item_id, index
+            "e9 ?? ?? ?? ??",      // jmp ???
+    });
 }
 
 CS::PlayerIns *players::get_main_player()
@@ -94,25 +105,16 @@ CS::PlayerIns *players::get_main_player()
     return nullptr;
 }
 
-CS::NetPlayer *players::get_net_players()
+bool players::has_item_in_inventory(ItemType item_type, int32_t id)
 {
-    auto world_chr_man = *world_chr_man_addr;
-    if (world_chr_man != nullptr)
-    {
-        return world_chr_man->net_players;
-    }
-
-    return nullptr;
-}
-
-bool players::has_item_in_inventory(CS::PlayerIns *player, int32_t item_id)
-{
+    auto player = get_main_player();
     if (player == nullptr)
     {
         return false;
     }
 
     auto &equip_game_data = player->player_game_data->equip_game_data;
+    auto item_id = (int32_t)item_type + id;
     return get_inventory_id(&equip_game_data.equip_inventory_data, &item_id) != -1;
 }
 
@@ -132,15 +134,4 @@ bool players::has_speffect(CS::PlayerIns *player, int32_t speffect_id)
     }
 
     return false;
-}
-
-byte players::get_ceremony_type()
-{
-    auto game_man = *game_man_addr;
-    if (game_man == nullptr)
-    {
-        return byte(0);
-    }
-
-    return game_man->ceremony_type;
 }

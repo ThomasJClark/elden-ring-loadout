@@ -24,8 +24,9 @@ struct MachineImpl
 struct StateGroup
 {
     int32_t id;
-    std::byte pad[4];
+    std::byte pad1[4];
     CS::List<State> states;
+    std::byte pad2[4];
     State *initial_state;
 };
 
@@ -33,8 +34,11 @@ struct Transition
 {
     State *target_state;
     CS::List<Call> pass_commands;
+    std::byte pad1[4];
     CS::List<Transition *> sub_transitions;
+    std::byte pad2[4];
     CS::List<std::byte> evaluator;
+    std::byte pad3[4];
 
     template <size_t evaluator_chars>
     inline Transition(State *target_state, const char (&evaluator_string)[evaluator_chars],
@@ -98,16 +102,21 @@ struct Call
 {
     Command command;
     CS::List<CommandArg> args;
+    std::byte pad[4];
 };
 
 struct State
 {
     int32_t id;
-    std::byte pad[4];
+    std::byte pad1[4];
     CS::List<Transition *> transitions;
+    std::byte pad2[4];
     CS::List<Call> entry_commands;
+    std::byte pad3[4];
     CS::List<Call> exit_commands;
+    std::byte pad4[4];
     CS::List<Call> while_commands;
+    std::byte pad5[4];
 };
 };
 

@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <tga/paramdefs.h>
 
+#include "List.hpp"
+
 #pragma pack(push, 1)
 
 namespace CS
@@ -25,19 +27,13 @@ struct EquipInventoryData
 {
     void **vftable;
     std::byte unk1[0x8];
-    PlayerInventoryEntry *entries1;
-    uint32_t count_info;
+    List<PlayerInventoryEntry> entries;
     int32_t start_index;
     std::byte unk2[0x8];
     int32_t tail_data_index;
-    std::byte unk3[0x14];
-    PlayerInventoryEntry *entries2;
-    std::byte unk4[0x8];
-    PlayerInventoryEntry *entries3;
-    std::byte unk5[0x28];
+    std::byte unk3[0x54];
     uint32_t length;
-    uint32_t todo2;
-    std::byte unk6[0x1a];
+    std::byte unk6[0x1e];
 };
 
 struct ChrAsmGear

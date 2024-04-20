@@ -59,7 +59,6 @@ set_target_properties(steamapi PROPERTIES
 add_library(EldenRingLoadoutMod SHARED
   src/dllmain.cpp
   src/internal/EzState.hpp
-  src/internal/GameMan.hpp
   src/internal/List.hpp
   src/internal/WorldChrMan.hpp
   src/talkscript/CustomEzStates.hpp

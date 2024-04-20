@@ -10,7 +10,6 @@ template <typename T> struct List
 {
     T *elements;
     uint32_t count;
-    std::byte pad[4];
 
     inline List() : count(0), elements(nullptr)
     {
