@@ -266,4 +266,7 @@ void saveslots::SaveSlot::apply_to_player()
     equip_gear(gear_slot::accessory2_id, gear[gear_slot::accessory2_id]);
     equip_gear(gear_slot::accessory3_id, gear[gear_slot::accessory3_id]);
     equip_gear(gear_slot::accessory4_id, gear[gear_slot::accessory4_id]);
+
+    // Show a cool effect on the player
+    players::spawn_one_shot_sfx_on_chr(main_player, 900, 8020, nullptr);
 }
