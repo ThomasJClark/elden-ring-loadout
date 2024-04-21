@@ -138,6 +138,9 @@ static void open_regular_shop_detour(void *unk, uint64_t begin_id, uint64_t end_
     if (begin_id == shop::save_loadout_shop_id || begin_id == shop::apply_loadout_shop_id)
     {
         msg::set_active_shop(begin_id);
+
+        for (auto &slot : saveslots::slots)
+            slot.refresh();
     }
     else
     {
