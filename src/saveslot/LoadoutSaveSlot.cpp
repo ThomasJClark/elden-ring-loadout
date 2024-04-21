@@ -11,7 +11,7 @@
 using namespace std;
 using namespace erloadout;
 
-array<saveslots::SaveSlot, saveslots::max_slots> erloadout::saveslots::slots;
+array<saveslots::SaveSlot, saveslots::max_slots> saveslots::slots;
 
 static constexpr array<uint16_t, saveslots::max_slots> icon_ids = {
     361, 362, 363, 364, 365, 366, 367, 368,  369,  370,  371,  372,  373,
@@ -21,6 +21,8 @@ static constexpr array<uint16_t, saveslots::max_slots> icon_ids = {
 static constexpr array<uint16_t, saveslots::max_slots> empty_icon_ids = {
     653, 654, 655, 656, 657, 658, 659, 660,  661,  662,  663,  664, 665,
     666, 667, 669, 670, 671, 672, 651, 3704, 3705, 3708, 3732, 3739};
+
+array<int32_t, gear_slot::count> saveslots::default_gear;
 
 void saveslots::initialize()
 {
@@ -47,30 +49,36 @@ void saveslots::initialize()
                                                    .showDialogCondType = 2,
                                                    .compTrophySedId = -1};
 
+    default_gear[gear_slot::right_weapon1_id] = unarmed_weapon_id;
+    default_gear[gear_slot::right_weapon2_id] = unarmed_weapon_id;
+    default_gear[gear_slot::right_weapon3_id] = unarmed_weapon_id;
+    default_gear[gear_slot::left_weapon1_id] = unarmed_weapon_id;
+    default_gear[gear_slot::left_weapon2_id] = unarmed_weapon_id;
+    default_gear[gear_slot::left_weapon3_id] = unarmed_weapon_id;
+    default_gear[gear_slot::arrow1_id] = empty_ammo_id;
+    default_gear[gear_slot::arrow2_id] = empty_ammo_id;
+    default_gear[gear_slot::bolt1_id] = empty_ammo_id;
+    default_gear[gear_slot::bolt2_id] = empty_ammo_id;
+    default_gear[gear_slot::head_protector_id] = bare_head_protector_id;
+    default_gear[gear_slot::chest_protector_id] = bare_chest_protector_id;
+    default_gear[gear_slot::arms_protector_id] = bare_arms_protector_id;
+    default_gear[gear_slot::legs_protector_id] = bare_legs_protector_id;
+    default_gear[gear_slot::accessory1_id] = empty_accessory_id;
+    default_gear[gear_slot::accessory2_id] = empty_accessory_id;
+    default_gear[gear_slot::accessory3_id] = empty_accessory_id;
+    default_gear[gear_slot::accessory4_id] = empty_accessory_id;
+    default_gear[gear_slot::unk1] = -1;
+    default_gear[gear_slot::unk2] = -1;
+    default_gear[gear_slot::unk3] = -1;
+    default_gear[gear_slot::unk4] = -1;
+
     int index = 0;
     for (auto &slot : slots)
     {
         slot = {
             .index = index,
             .empty = true,
-            .gear = {.left_weapon1_id = -1,
-                     .right_weapon1_id = -1,
-                     .left_weapon2_id = -1,
-                     .right_weapon2_id = -1,
-                     .left_weapon3_id = -1,
-                     .right_weapon3_id = -1,
-                     .arrow1_id = -1,
-                     .bolt1_id = -1,
-                     .arrow2_id = -1,
-                     .bolt2_id = -1,
-                     .head_protector_id = -1,
-                     .chest_protector_id = -1,
-                     .arms_protector_id = -1,
-                     .legs_protector_id = -1,
-                     .accessory1_id = -1,
-                     .accessory2_id = -1,
-                     .accessory3_id = -1,
-                     .accessory4_id = -1},
+            .gear = {0},
             .save_accessory_param = initial_accessory_param,
             .apply_accessory_param = initial_accessory_param,
             .save_shop_lineup_param = initial_shop_lineup_param,
@@ -86,19 +94,19 @@ void saveslots::initialize()
         if (index == 0)
         {
             slot.empty = false;
-            slot.gear.right_weapon1_id = 11050025; // Morning Star +25
-            slot.gear.left_weapon1_id = 31340000;  // Black Leather Shield
-            slot.gear.arrow1_id = 50020000;        // Serpent Arrow
-            slot.gear.arrow2_id = 50040000;        // St. Trina's Arrow
-            slot.gear.bolt1_id = 52030000;         // Black-Key Bolt
-            slot.gear.head_protector_id = 1840000; // Foot Soldier Helm
-            slot.gear.chest_protector_id = 290100; // Nox Monk Armor
-            slot.gear.arms_protector_id = 630200;  // Astrologer Gloves
-            slot.gear.legs_protector_id = 740300;  // Noble's Trousers
-            slot.gear.accessory1_id = 1150;        // Green Turtle Talisman
-            slot.gear.accessory2_id = 2160;        // Lord of Blood's Exultation
-            slot.gear.accessory3_id = 2170;        // Kindred of Rot's Exultation
-            slot.gear.accessory4_id = 1210;        // Bull-Goat's Talisman
+            slot.gear[gear_slot::right_weapon1_id] = 11050025; // Morning Star +25
+            slot.gear[gear_slot::left_weapon1_id] = 31340000;  // Black Leather Shield
+            slot.gear[gear_slot::arrow1_id] = 50020000;        // Serpent Arrow
+            slot.gear[gear_slot::arrow2_id] = 50040000;        // St. Trina's Arrow
+            slot.gear[gear_slot::bolt1_id] = 52030000;         // Black-Key Bolt
+            slot.gear[gear_slot::head_protector_id] = 1840000; // Foot Soldier Helm
+            slot.gear[gear_slot::chest_protector_id] = 290100; // Nox Monk Armor
+            slot.gear[gear_slot::arms_protector_id] = 630200;  // Astrologer Gloves
+            slot.gear[gear_slot::legs_protector_id] = 740300;  // Noble's Trousers
+            slot.gear[gear_slot::accessory1_id] = 1150;        // Green Turtle Talisman
+            slot.gear[gear_slot::accessory2_id] = 2160;        // Lord of Blood's Exultation
+            slot.gear[gear_slot::accessory3_id] = 2170;        // Kindred of Rot's Exultation
+            slot.gear[gear_slot::accessory4_id] = 1210;        // Bull-Goat's Talisman
         }
 #endif
 
@@ -110,29 +118,26 @@ void saveslots::initialize()
 
 void saveslots::SaveSlot::refresh()
 {
-    if (gear.right_weapon1_id == -1)
-        gear.right_weapon1_id = unarmed_weapon_id;
-    if (gear.right_weapon2_id == -1)
-        gear.right_weapon2_id = unarmed_weapon_id;
-    if (gear.right_weapon3_id == -1)
-        gear.right_weapon3_id = unarmed_weapon_id;
-    if (gear.left_weapon1_id == -1)
-        gear.left_weapon1_id = unarmed_weapon_id;
-    if (gear.left_weapon2_id == -1)
-        gear.left_weapon2_id = unarmed_weapon_id;
-    if (gear.left_weapon3_id == -1)
-        gear.left_weapon3_id = unarmed_weapon_id;
-    if (gear.head_protector_id == -1)
-        gear.head_protector_id = bare_head_protector_id;
-    if (gear.chest_protector_id == -1)
-        gear.chest_protector_id = bare_chest_protector_id;
-    if (gear.arms_protector_id == -1)
-        gear.arms_protector_id = bare_arms_protector_id;
-    if (gear.legs_protector_id == -1)
-        gear.legs_protector_id = bare_legs_protector_id;
+    empty = true;
+
+    // Set any empty gear to the default ID for that gear slot (e.g. bare fist for weapon slots)
+    // and check if the save slot is empty overall
+    for (auto i = 0; i < gear.size(); i++)
+    {
+        if (gear[i] <= 0)
+        {
+            gear[i] = default_gear[i];
+        }
+
+        if (gear[i] != default_gear[i])
+        {
+            empty = false;
+        }
+    }
 
     if (empty)
     {
+        // If there's no gear saved to this slot, set a default empty name and caption
         name = msg::loadout_messages.empty_slot;
         info = L"<img src='img://MENU_FL_Box.png' width='246' height='232'/>";
         caption = L"-";
@@ -144,6 +149,8 @@ void saveslots::SaveSlot::refresh()
     }
     else
     {
+        // Otherwise, set the name based on the slot number, and the caption and info based on
+        // the saved gear
         name = wstring(msg::loadout_messages.loadout) + L" " + to_wstring(index + 1);
         caption = stringify_loadout(*this);
         info = iconify_loadout(*this);
@@ -151,26 +158,31 @@ void saveslots::SaveSlot::refresh()
         save_accessory_param.iconId = icon_ids[index];
         apply_accessory_param.iconId = icon_ids[index];
 
+        // Count the total weight of the gear in this save slot, to display in the loadout shop
         auto weight = 0.0f;
 
         auto equip_param_weapon = params::get_param<EquipParamWeapon>(L"EquipParamWeapon");
-        for (auto weapon_id : {gear.left_weapon1_id, gear.right_weapon1_id, gear.left_weapon2_id,
-                               gear.right_weapon2_id, gear.left_weapon3_id, gear.right_weapon3_id})
+        for (auto gear_slot :
+             {gear_slot::left_weapon1_id, gear_slot::right_weapon1_id, gear_slot::left_weapon2_id,
+              gear_slot::right_weapon2_id, gear_slot::left_weapon3_id, gear_slot::right_weapon3_id})
         {
+            auto weapon_id = gear[gear_slot];
             weight += equip_param_weapon[weapon_id - (weapon_id % 100)].weight;
         }
 
         auto equip_param_protector = params::get_param<EquipParamProtector>(L"EquipParamProtector");
-        for (auto protector_id : {gear.head_protector_id, gear.chest_protector_id,
-                                  gear.arms_protector_id, gear.legs_protector_id})
+        for (auto gear_slot : {gear_slot::head_protector_id, gear_slot::chest_protector_id,
+                               gear_slot::arms_protector_id, gear_slot::legs_protector_id})
         {
+            auto protector_id = gear[gear_slot];
             weight += equip_param_protector[protector_id].weight;
         }
 
         auto equip_param_accessory = params::get_param<EquipParamAccessory>(L"EquipParamAccessory");
-        for (auto accessory_id :
-             {gear.accessory1_id, gear.accessory2_id, gear.accessory3_id, gear.accessory4_id})
+        for (auto gear_slot : {gear_slot::accessory1_id, gear_slot::accessory2_id,
+                               gear_slot::accessory3_id, gear_slot::accessory4_id})
         {
+            auto accessory_id = gear[gear_slot];
             if (accessory_id != empty_accessory_id)
                 weight += equip_param_accessory[accessory_id].weight;
         }
@@ -190,10 +202,10 @@ void saveslots::SaveSlot::save_from_player()
     }
 
     auto &chr_asm = main_player->player_game_data->equip_game_data.chr_asm;
-    gear = chr_asm.gear;
+    copy(begin(chr_asm.gear), end(chr_asm.gear), begin(gear));
     empty = false;
 
-    spdlog::info("TODO: save slot {}", index);
+    spdlog::info("TODO: save slot {}", index + 1);
 
     refresh();
 }
@@ -203,8 +215,11 @@ void saveslots::SaveSlot::apply_to_player()
     auto main_player = players::get_main_player();
     if (main_player == nullptr || main_player->player_game_data == nullptr)
     {
+        spdlog::error("Can't apply loadout, main player is null");
         return;
     }
+
+    // spdlog::info("Applying [{}] to player", name);
 
     auto &equip_game_data = main_player->player_game_data->equip_game_data;
     auto &inventory_entries = equip_game_data.equip_inventory_data.entries;
@@ -217,13 +232,13 @@ void saveslots::SaveSlot::apply_to_player()
         return -1;
     };
 
-    auto equip_gear = [&equip_game_data, &inventory_entries,
-                       find_inventory_index](players::EquipGearSlot slot, int32_t id) {
+    auto equip_gear = [&equip_game_data, &inventory_entries, find_inventory_index](uint32_t slot,
+                                                                                   int32_t id) {
         auto item_type = players::get_item_type(slot);
         auto inventory_index = find_inventory_index(item_type, id);
         if (inventory_index == -1)
         {
-            spdlog::info("Item type={:x} id={} not in player inventory", (int32_t)item_type, id);
+            spdlog::info("Item type {:x} id {} not in player inventory", (int32_t)item_type, id);
             return;
         }
 
@@ -233,22 +248,22 @@ void saveslots::SaveSlot::apply_to_player()
         players::equip_gear(&equip_game_data, slot, &ga_item_id, index, true, true, false);
     };
 
-    equip_gear(players::EquipGearSlot::left_weapon1_id, gear.left_weapon1_id);
-    equip_gear(players::EquipGearSlot::right_weapon1_id, gear.right_weapon1_id);
-    equip_gear(players::EquipGearSlot::left_weapon2_id, gear.left_weapon2_id);
-    equip_gear(players::EquipGearSlot::right_weapon2_id, gear.right_weapon2_id);
-    equip_gear(players::EquipGearSlot::left_weapon3_id, gear.left_weapon3_id);
-    equip_gear(players::EquipGearSlot::right_weapon3_id, gear.right_weapon3_id);
-    equip_gear(players::EquipGearSlot::arrow1_id, gear.arrow1_id);
-    equip_gear(players::EquipGearSlot::bolt1_id, gear.bolt1_id);
-    equip_gear(players::EquipGearSlot::arrow2_id, gear.arrow2_id);
-    equip_gear(players::EquipGearSlot::bolt2_id, gear.bolt2_id);
-    equip_gear(players::EquipGearSlot::head_protector_id, gear.head_protector_id);
-    equip_gear(players::EquipGearSlot::chest_protector_id, gear.chest_protector_id);
-    equip_gear(players::EquipGearSlot::arms_protector_id, gear.arms_protector_id);
-    equip_gear(players::EquipGearSlot::legs_protector_id, gear.legs_protector_id);
-    equip_gear(players::EquipGearSlot::accessory1_id, gear.accessory1_id);
-    equip_gear(players::EquipGearSlot::accessory2_id, gear.accessory2_id);
-    equip_gear(players::EquipGearSlot::accessory3_id, gear.accessory3_id);
-    equip_gear(players::EquipGearSlot::accessory4_id, gear.accessory4_id);
+    equip_gear(gear_slot::left_weapon1_id, gear[gear_slot::left_weapon1_id]);
+    equip_gear(gear_slot::right_weapon1_id, gear[gear_slot::right_weapon1_id]);
+    equip_gear(gear_slot::left_weapon2_id, gear[gear_slot::left_weapon2_id]);
+    equip_gear(gear_slot::right_weapon2_id, gear[gear_slot::right_weapon2_id]);
+    equip_gear(gear_slot::left_weapon3_id, gear[gear_slot::left_weapon3_id]);
+    equip_gear(gear_slot::right_weapon3_id, gear[gear_slot::right_weapon3_id]);
+    equip_gear(gear_slot::arrow1_id, gear[gear_slot::arrow1_id]);
+    equip_gear(gear_slot::bolt1_id, gear[gear_slot::bolt1_id]);
+    equip_gear(gear_slot::arrow2_id, gear[gear_slot::arrow2_id]);
+    equip_gear(gear_slot::bolt2_id, gear[gear_slot::bolt2_id]);
+    equip_gear(gear_slot::head_protector_id, gear[gear_slot::head_protector_id]);
+    equip_gear(gear_slot::chest_protector_id, gear[gear_slot::chest_protector_id]);
+    equip_gear(gear_slot::arms_protector_id, gear[gear_slot::arms_protector_id]);
+    equip_gear(gear_slot::legs_protector_id, gear[gear_slot::legs_protector_id]);
+    equip_gear(gear_slot::accessory1_id, gear[gear_slot::accessory1_id]);
+    equip_gear(gear_slot::accessory2_id, gear[gear_slot::accessory2_id]);
+    equip_gear(gear_slot::accessory3_id, gear[gear_slot::accessory3_id]);
+    equip_gear(gear_slot::accessory4_id, gear[gear_slot::accessory4_id]);
 }

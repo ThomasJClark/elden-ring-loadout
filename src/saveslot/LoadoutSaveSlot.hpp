@@ -5,6 +5,7 @@
 #include <tga/paramdefs.h>
 
 #include "../internal/WorldChrMan.hpp"
+#include "../utils/PlayerUtils.hpp"
 
 namespace erloadout
 {
@@ -20,11 +21,13 @@ static constexpr int32_t unarmed_weapon_id = 110000;
 static constexpr int32_t empty_ammo_id = -1;
 static constexpr int32_t empty_accessory_id = -1;
 
+extern std::array<int32_t, gear_slot::count> default_gear;
+
 struct SaveSlot
 {
     int index;
     bool empty;
-    CS::ChrAsmGear gear;
+    std::array<int32_t, gear_slot::count> gear;
 
     // Info derived from the above equipment
     std::wstring name;

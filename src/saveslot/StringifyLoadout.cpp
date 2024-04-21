@@ -183,62 +183,79 @@ wstring saveslots::iconify_loadout(saveslots::SaveSlot const &slot)
     auto equip_param_protector = params::get_param<EquipParamProtector>(L"EquipParamProtector");
     auto equip_param_accessory = params::get_param<EquipParamAccessory>(L"EquipParamAccessory");
 
-    for (auto weapon_id : {gear.right_weapon1_id, gear.right_weapon2_id, gear.right_weapon3_id})
+    for (auto gear_slot :
+         {gear_slot::right_weapon1_id, gear_slot::right_weapon2_id, gear_slot::right_weapon3_id})
+    {
+        auto weapon_id = gear[gear_slot];
         if (weapon_id != unarmed_weapon_id)
             stream << item_icon(equip_param_weapon[weapon_id - (weapon_id % 100)].iconId);
         else
             stream << right_weapon_placeholder;
+    }
 
-    for (auto weapon_id : {gear.arrow1_id, gear.arrow2_id})
+    for (auto gear_slot : {gear_slot::arrow1_id, gear_slot::arrow2_id})
+    {
+        auto weapon_id = gear[gear_slot];
         if (weapon_id != empty_ammo_id)
             stream << item_icon(equip_param_weapon[weapon_id].iconId);
         else
             stream << arrow_placeholder;
+    }
 
     stream << L"\n";
 
-    for (auto weapon_id : {gear.left_weapon1_id, gear.left_weapon2_id, gear.left_weapon3_id})
+    for (auto gear_slot :
+         {gear_slot::left_weapon1_id, gear_slot::left_weapon2_id, gear_slot::left_weapon3_id})
+    {
+        auto weapon_id = gear[gear_slot];
         if (weapon_id != unarmed_weapon_id)
             stream << item_icon(equip_param_weapon[weapon_id - (weapon_id % 100)].iconId);
         else
             stream << left_weapon_placeholder;
+    }
 
-    for (auto weapon_id : {gear.bolt1_id, gear.bolt2_id})
+    for (auto gear_slot : {gear_slot::bolt1_id, gear_slot::bolt2_id})
+    {
+        auto weapon_id = gear[gear_slot];
         if (weapon_id != empty_ammo_id)
             stream << item_icon(equip_param_weapon[weapon_id].iconId);
         else
             stream << bolt_placeholder;
+    }
 
     stream << L"\n";
 
-    if (gear.head_protector_id != bare_head_protector_id)
-        stream << item_icon(equip_param_protector[gear.head_protector_id].iconIdM);
+    if (gear[gear_slot::head_protector_id] != bare_head_protector_id)
+        stream << item_icon(equip_param_protector[gear[gear_slot::head_protector_id]].iconIdM);
     else
         stream << head_placeholder;
 
-    if (gear.chest_protector_id != bare_chest_protector_id)
-        stream << item_icon(equip_param_protector[gear.chest_protector_id].iconIdM);
+    if (gear[gear_slot::chest_protector_id] != bare_chest_protector_id)
+        stream << item_icon(equip_param_protector[gear[gear_slot::chest_protector_id]].iconIdM);
     else
         stream << body_placeholder;
 
-    if (gear.arms_protector_id != bare_arms_protector_id)
-        stream << item_icon(equip_param_protector[gear.arms_protector_id].iconIdM);
+    if (gear[gear_slot::arms_protector_id] != bare_arms_protector_id)
+        stream << item_icon(equip_param_protector[gear[gear_slot::arms_protector_id]].iconIdM);
     else
         stream << hand_placeholder;
 
-    if (gear.legs_protector_id != bare_legs_protector_id)
-        stream << item_icon(equip_param_protector[gear.legs_protector_id].iconIdM);
+    if (gear[gear_slot::legs_protector_id] != bare_legs_protector_id)
+        stream << item_icon(equip_param_protector[gear[gear_slot::legs_protector_id]].iconIdM);
     else
         stream << foot_placeholder;
 
     stream << L"\n";
 
-    for (auto accessory_id :
-         {gear.accessory1_id, gear.accessory2_id, gear.accessory3_id, gear.accessory4_id})
+    for (auto gear_slot : {gear_slot::accessory1_id, gear_slot::accessory2_id,
+                           gear_slot::accessory3_id, gear_slot::accessory4_id})
+    {
+        auto accessory_id = gear[gear_slot];
         if (accessory_id != empty_accessory_id)
             stream << item_icon(equip_param_accessory[accessory_id].iconId);
         else
             stream << talisman_placeholder;
+    }
 
     return stream.str();
 }
@@ -255,10 +272,12 @@ wstring saveslots::stringify_loadout(saveslots::SaveSlot const &slot)
     // Armaments
     stream << L"<img src='img://MENU_Tab_Weapon.png' width='22' height='25' vspace='-25'/>";
     write_header(stream, msg::loadout_messages.armaments);
-    bool any_right_weapons = write_weapons(
-        stream, {gear.right_weapon1_id, gear.right_weapon2_id, gear.right_weapon3_id});
+    bool any_right_weapons =
+        write_weapons(stream, {gear[gear_slot::right_weapon1_id], gear[gear_slot::right_weapon2_id],
+                               gear[gear_slot::right_weapon3_id]});
     bool any_left_weapons =
-        write_weapons(stream, {gear.left_weapon1_id, gear.left_weapon2_id, gear.left_weapon3_id});
+        write_weapons(stream, {gear[gear_slot::left_weapon1_id], gear[gear_slot::left_weapon2_id],
+                               gear[gear_slot::left_weapon3_id]});
     if (!any_right_weapons && !any_left_weapons)
     {
         // Unarmed
@@ -268,23 +287,25 @@ wstring saveslots::stringify_loadout(saveslots::SaveSlot const &slot)
 
     stream << vertical_spacer;
 
-    if (gear.arrow1_id != empty_ammo_id || gear.arrow2_id != empty_ammo_id ||
-        gear.bolt1_id != empty_ammo_id || gear.bolt2_id != empty_ammo_id)
+    if (gear[gear_slot::arrow1_id] != empty_ammo_id ||
+        gear[gear_slot::arrow2_id] != empty_ammo_id || gear[gear_slot::bolt1_id] != empty_ammo_id ||
+        gear[gear_slot::bolt2_id] != empty_ammo_id)
     {
         // Arrows/Bolts
         stream << L"<img src='img://MENU_Tab_14.png' width='22' height='30' vspace='-25'/>";
         write_header(stream, msg::loadout_messages.arrows_bolts);
-        write_weapons(stream, {gear.arrow1_id, gear.arrow2_id, gear.bolt1_id, gear.bolt2_id});
+        write_weapons(stream, {gear[gear_slot::arrow1_id], gear[gear_slot::arrow2_id],
+                               gear[gear_slot::bolt1_id], gear[gear_slot::bolt2_id]});
         stream << vertical_spacer;
     }
 
     // Armor
     stream << L"<img src='img://MENU_Tab_Armor.png' width='22' height='27' vspace='-25'/>";
     write_header(stream, msg::loadout_messages.armor);
-    bool any_head_chest_protectors =
-        write_protectors(stream, {gear.head_protector_id, gear.chest_protector_id});
-    bool any_arms_legs_protectors =
-        write_protectors(stream, {gear.arms_protector_id, gear.legs_protector_id});
+    bool any_head_chest_protectors = write_protectors(
+        stream, {gear[gear_slot::head_protector_id], gear[gear_slot::chest_protector_id]});
+    bool any_arms_legs_protectors = write_protectors(
+        stream, {gear[gear_slot::arms_protector_id], gear[gear_slot::legs_protector_id]});
     if (!any_head_chest_protectors && !any_arms_legs_protectors)
     {
         // None
@@ -297,9 +318,9 @@ wstring saveslots::stringify_loadout(saveslots::SaveSlot const &slot)
     stream << L"<img src='img://MENU_Tab_15.png' width='22' height='24' vspace='-25'/>";
     write_header(stream, msg::loadout_messages.talismans);
     bool any_first_two_accessories =
-        write_accessories(stream, {gear.accessory1_id, gear.accessory2_id});
+        write_accessories(stream, {gear[gear_slot::accessory1_id], gear[gear_slot::accessory2_id]});
     bool any_second_two_accessories =
-        write_accessories(stream, {gear.accessory3_id, gear.accessory4_id});
+        write_accessories(stream, {gear[gear_slot::accessory3_id], gear[gear_slot::accessory4_id]});
     if (!any_first_two_accessories && !any_second_two_accessories)
     {
         // None

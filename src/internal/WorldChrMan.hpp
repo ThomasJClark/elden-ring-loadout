@@ -8,6 +8,33 @@
 
 #pragma pack(push, 1)
 
+namespace gear_slot
+{
+static constexpr uint32_t left_weapon1_id = 0;
+static constexpr uint32_t right_weapon1_id = 1;
+static constexpr uint32_t left_weapon2_id = 2;
+static constexpr uint32_t right_weapon2_id = 3;
+static constexpr uint32_t left_weapon3_id = 4;
+static constexpr uint32_t right_weapon3_id = 5;
+static constexpr uint32_t arrow1_id = 6;
+static constexpr uint32_t bolt1_id = 7;
+static constexpr uint32_t arrow2_id = 8;
+static constexpr uint32_t bolt2_id = 9;
+static constexpr uint32_t unk1 = 10;
+static constexpr uint32_t unk2 = 11;
+static constexpr uint32_t head_protector_id = 12;
+static constexpr uint32_t chest_protector_id = 13;
+static constexpr uint32_t arms_protector_id = 14;
+static constexpr uint32_t legs_protector_id = 15;
+static constexpr uint32_t unk3 = 16;
+static constexpr uint32_t accessory1_id = 17;
+static constexpr uint32_t accessory2_id = 18;
+static constexpr uint32_t accessory3_id = 19;
+static constexpr uint32_t accessory4_id = 20;
+static constexpr uint32_t unk4 = 21;
+static constexpr uint32_t count = 22;
+};
+
 namespace CS
 {
 struct EquipMagicData;
@@ -36,37 +63,11 @@ struct EquipInventoryData
     std::byte unk6[0x1e];
 };
 
-struct ChrAsmGear
-{
-    int32_t left_weapon1_id;
-    int32_t right_weapon1_id;
-    int32_t left_weapon2_id;
-    int32_t right_weapon2_id;
-    int32_t left_weapon3_id;
-    int32_t right_weapon3_id;
-    int32_t arrow1_id;
-    int32_t bolt1_id;
-    int32_t arrow2_id;
-    int32_t bolt2_id;
-    int32_t unused1;
-    int32_t unused2;
-    int32_t head_protector_id;
-    int32_t chest_protector_id;
-    int32_t arms_protector_id;
-    int32_t legs_protector_id;
-    int32_t unused3;
-    int32_t accessory1_id;
-    int32_t accessory2_id;
-    int32_t accessory3_id;
-    int32_t accessory4_id;
-    int32_t unused4;
-};
-
 struct ChrAsm
 {
     void **vftable;
     std::byte unk1[0x74];
-    ChrAsmGear gear;
+    int32_t gear[gear_slot::count];
 };
 
 struct EquipGameData
