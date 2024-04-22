@@ -139,30 +139,33 @@ void saveslots::initialize()
         slot.apply_shop_lineup_param.equipId = shop::apply_loadout_accessory_base_id + index;
         slot.apply_shop_lineup_param.equipId = shop::apply_loadout_accessory_base_id + index;
 
-#if _DEBUG
-        if (index == 0)
-        {
-            slot.empty = false;
-            slot.gear[gear_slot::right_weapon1_id] = 11050025; // Morning Star +25
-            slot.gear[gear_slot::left_weapon1_id] = 31340000;  // Black Leather Shield
-            slot.gear[gear_slot::arrow1_id] = 50020000;        // Serpent Arrow
-            slot.gear[gear_slot::arrow2_id] = 50040000;        // St. Trina's Arrow
-            slot.gear[gear_slot::bolt1_id] = 52030000;         // Black-Key Bolt
-            slot.gear[gear_slot::head_protector_id] = 1840000; // Foot Soldier Helm
-            slot.gear[gear_slot::chest_protector_id] = 290100; // Nox Monk Armor
-            slot.gear[gear_slot::arms_protector_id] = 630200;  // Astrologer Gloves
-            slot.gear[gear_slot::legs_protector_id] = 740300;  // Noble's Trousers
-            slot.gear[gear_slot::accessory1_id] = 1150;        // Green Turtle Talisman
-            slot.gear[gear_slot::accessory2_id] = 2160;        // Lord of Blood's Exultation
-            slot.gear[gear_slot::accessory3_id] = 2170;        // Kindred of Rot's Exultation
-            slot.gear[gear_slot::accessory4_id] = 1210;        // Bull-Goat's Talisman
-        }
-#endif
-
         index++;
-
-        slot.refresh();
     }
+
+    slots[0].gear[gear_slot::right_weapon1_id] = 11050025; // Morning Star +25
+    slots[0].gear[gear_slot::left_weapon1_id] = 31340000;  // Black Leather Shield
+    slots[0].gear[gear_slot::arrow1_id] = 50020000;        // Serpent Arrow
+    slots[0].gear[gear_slot::arrow2_id] = 50040000;        // St. Trina's Arrow
+    slots[0].gear[gear_slot::bolt1_id] = 52030000;         // Black-Key Bolt
+    slots[0].gear[gear_slot::head_protector_id] = 1840000; // Foot Soldier Helm
+    slots[0].gear[gear_slot::chest_protector_id] = 290100; // Nox Monk Armor
+    slots[0].gear[gear_slot::arms_protector_id] = 630200;  // Astrologer Gloves
+    slots[0].gear[gear_slot::legs_protector_id] = 740300;  // Noble's Trousers
+    slots[0].gear[gear_slot::accessory1_id] = 1150;        // Green Turtle Talisman
+    slots[0].gear[gear_slot::accessory2_id] = 2160;        // Lord of Blood's Exultation
+    slots[0].gear[gear_slot::accessory3_id] = 2170;        // Kindred of Rot's Exultation
+    slots[0].gear[gear_slot::accessory4_id] = 1210;        // Bull-Goat's Talisman
+
+    slots[1].gear[gear_slot::right_weapon1_id] = 23050010; // Axe of Godfrey +10
+    slots[1].gear[gear_slot::left_weapon1_id] = 32130025;  // Fingerprint Stone Shield +25
+    slots[1].gear[gear_slot::head_protector_id] = 140000;  // Bull-Goat Helm
+    slots[1].gear[gear_slot::chest_protector_id] = 140100; // Bull-Goat Armor
+    slots[1].gear[gear_slot::arms_protector_id] = 140200;  // Bull-Goat Gauntlets
+    slots[1].gear[gear_slot::legs_protector_id] = 140300;  // Bull-Goat Greaves
+    slots[1].gear[gear_slot::accessory1_id] = 4100;        // Greatshield Talisman
+    slots[1].gear[gear_slot::accessory2_id] = 2200;        // Curved Sword Talisman
+    slots[1].gear[gear_slot::accessory3_id] = 2050;        // Ritual Sword Talisman
+    slots[1].gear[gear_slot::accessory4_id] = 4003;        // Dragoncrest Greatshield Talisman
 }
 
 void saveslots::SaveSlot::refresh()
