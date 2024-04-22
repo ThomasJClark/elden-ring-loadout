@@ -95,9 +95,9 @@ static bool write_weapons(wstringstream &stream, initializer_list<const int> wea
         {
             auto upgrade_level = weapon_id % 100;
 
-            begin_item_name(
-                stream, msg::get_message(msgbnd::weapon_name, weapon_id - upgrade_level), is_first,
-                players::has_item_in_inventory(players::ItemType::weapon, weapon_id));
+            begin_item_name(stream,
+                            msg::get_message(msgbnd::weapon_name, weapon_id - upgrade_level),
+                            is_first, players::has_item_in_inventory(item_type::weapon, weapon_id));
 
             if (upgrade_level != 0)
             {
@@ -126,9 +126,9 @@ static bool write_protectors(wstringstream &stream, initializer_list<const int> 
             protector_id != saveslots::bare_arms_protector_id &&
             protector_id != saveslots::bare_legs_protector_id)
         {
-            begin_item_name(
-                stream, msg::get_message(msgbnd::protector_name, protector_id), is_first,
-                players::has_item_in_inventory(players::ItemType::protector, protector_id));
+            begin_item_name(stream, msg::get_message(msgbnd::protector_name, protector_id),
+                            is_first,
+                            players::has_item_in_inventory(item_type::protector, protector_id));
             end_item_name(stream);
 
             is_first = false;
@@ -148,9 +148,9 @@ static bool write_accessories(wstringstream &stream, initializer_list<const int>
     {
         if (accessory_id != saveslots::empty_accessory_id)
         {
-            begin_item_name(
-                stream, msg::get_message(msgbnd::accessory_name, accessory_id), is_first,
-                players::has_item_in_inventory(players::ItemType::accessory, accessory_id));
+            begin_item_name(stream, msg::get_message(msgbnd::accessory_name, accessory_id),
+                            is_first,
+                            players::has_item_in_inventory(item_type::accessory, accessory_id));
             end_item_name(stream);
 
             is_first = false;

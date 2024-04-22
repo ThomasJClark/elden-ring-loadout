@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <tga/paramdefs.h>
+#include <utility>
 
 #include "List.hpp"
 
@@ -34,6 +35,28 @@ static constexpr uint32_t accessory4_id = 20;
 static constexpr uint32_t unk4 = 21;
 static constexpr uint32_t count = 22;
 };
+
+namespace item_type
+{
+static constexpr uint32_t weapon = 0;
+static constexpr uint32_t protector = 0x10000000;
+static constexpr uint32_t accessory = 0x20000000;
+static constexpr uint32_t unused = 0x30000000;
+static constexpr uint32_t goods = 0x40000000;
+static constexpr uint32_t gem = 0x50000000;
+static constexpr uint32_t invalid = 0xfffffff;
+};
+
+static inline uint32_t get_item_type(uint32_t item_id)
+{
+    return item_id & 0x70000000;
+}
+
+static inline std::pair<uint32_t, uint32_t> get_weapon_id_upgrade_level(uint32_t weapon_id)
+{
+    auto upgrade_level = weapon_id % 100;
+    return {weapon_id - upgrade_level, upgrade_level};
+}
 
 namespace CS
 {

@@ -24,6 +24,9 @@ static constexpr array<uint16_t, saveslots::max_slots> empty_icon_ids = {
 
 array<int32_t, gear_slot::count> saveslots::default_gear;
 
+static array<uint32_t, gear_slot::count> gear_item_types;
+static array<string, gear_slot::count> gear_slot_debug_names;
+
 void saveslots::initialize()
 {
     ShopLineupParam initial_shop_lineup_param = {.value = -1,
@@ -71,6 +74,52 @@ void saveslots::initialize()
     default_gear[gear_slot::unk2] = -1;
     default_gear[gear_slot::unk3] = -1;
     default_gear[gear_slot::unk4] = -1;
+
+    gear_item_types[gear_slot::left_weapon1_id] = item_type::weapon;
+    gear_item_types[gear_slot::right_weapon1_id] = item_type::weapon;
+    gear_item_types[gear_slot::left_weapon2_id] = item_type::weapon;
+    gear_item_types[gear_slot::right_weapon2_id] = item_type::weapon;
+    gear_item_types[gear_slot::left_weapon3_id] = item_type::weapon;
+    gear_item_types[gear_slot::right_weapon3_id] = item_type::weapon;
+    gear_item_types[gear_slot::arrow1_id] = item_type::weapon;
+    gear_item_types[gear_slot::bolt1_id] = item_type::weapon;
+    gear_item_types[gear_slot::arrow2_id] = item_type::weapon;
+    gear_item_types[gear_slot::bolt2_id] = item_type::weapon;
+    gear_item_types[gear_slot::head_protector_id] = item_type::protector;
+    gear_item_types[gear_slot::chest_protector_id] = item_type::protector;
+    gear_item_types[gear_slot::arms_protector_id] = item_type::protector;
+    gear_item_types[gear_slot::legs_protector_id] = item_type::protector;
+    gear_item_types[gear_slot::accessory1_id] = item_type::accessory;
+    gear_item_types[gear_slot::accessory2_id] = item_type::accessory;
+    gear_item_types[gear_slot::accessory3_id] = item_type::accessory;
+    gear_item_types[gear_slot::accessory4_id] = item_type::accessory;
+    gear_item_types[gear_slot::unk1] = item_type::invalid;
+    gear_item_types[gear_slot::unk2] = item_type::invalid;
+    gear_item_types[gear_slot::unk3] = item_type::invalid;
+    gear_item_types[gear_slot::unk4] = item_type::invalid;
+
+    gear_slot_debug_names[gear_slot::left_weapon1_id] = "left_weapon1";
+    gear_slot_debug_names[gear_slot::right_weapon1_id] = "right_weapon1";
+    gear_slot_debug_names[gear_slot::left_weapon2_id] = "left_weapon2";
+    gear_slot_debug_names[gear_slot::right_weapon2_id] = "right_weapon2";
+    gear_slot_debug_names[gear_slot::left_weapon3_id] = "left_weapon3";
+    gear_slot_debug_names[gear_slot::right_weapon3_id] = "right_weapon3";
+    gear_slot_debug_names[gear_slot::arrow1_id] = "arrow1";
+    gear_slot_debug_names[gear_slot::bolt1_id] = "bolt1";
+    gear_slot_debug_names[gear_slot::arrow2_id] = "arrow2";
+    gear_slot_debug_names[gear_slot::bolt2_id] = "bolt2";
+    gear_slot_debug_names[gear_slot::head_protector_id] = "head_protector";
+    gear_slot_debug_names[gear_slot::chest_protector_id] = "chest_protector";
+    gear_slot_debug_names[gear_slot::arms_protector_id] = "arms_protector";
+    gear_slot_debug_names[gear_slot::legs_protector_id] = "legs_protector";
+    gear_slot_debug_names[gear_slot::accessory1_id] = "accessory1";
+    gear_slot_debug_names[gear_slot::accessory2_id] = "accessory2";
+    gear_slot_debug_names[gear_slot::accessory3_id] = "accessory3";
+    gear_slot_debug_names[gear_slot::accessory4_id] = "accessory4";
+    gear_slot_debug_names[gear_slot::unk1] = "unk1";
+    gear_slot_debug_names[gear_slot::unk2] = "unk2";
+    gear_slot_debug_names[gear_slot::unk3] = "unk3";
+    gear_slot_debug_names[gear_slot::unk4] = "unk4";
 
     int index = 0;
     for (auto &slot : slots)
@@ -219,53 +268,98 @@ void saveslots::SaveSlot::apply_to_player()
         return;
     }
 
-    // spdlog::info("Applying [{}] to player", name);
+    spdlog::info("Applying loadout {} to player", index + 1);
 
     auto &equip_game_data = main_player->player_game_data->equip_game_data;
     auto &inventory_entries = equip_game_data.equip_inventory_data.entries;
 
-    auto find_inventory_index = [&inventory_entries](players::ItemType item_type, int32_t id) {
-        for (int32_t i = 0; i < inventory_entries.count; i++)
-            if (inventory_entries[i].item_id == (int32_t)item_type + id)
+    auto find_inventory_index = [this, &inventory_entries](uint32_t gear_slot) {
+        auto item_type = gear_item_types[gear_slot];
+        auto item_id = gear[gear_slot];
+
+        if (item_type == item_type::invalid)
+        {
+            return -1;
+        }
+
+        // Look for an item with the same type and ID in the player's inventory
+        for (auto i = 0; i < inventory_entries.count; i++)
+        {
+            if (inventory_entries[i].item_id == item_type + item_id)
+            {
+                spdlog::info("Found {} {} in index {}", gear_slot_debug_names[gear_slot], item_id,
+                             i);
                 return i;
+            }
+        }
+
+        // For weapons, check if there's one at a different upgrade level
+        if (item_type == item_type::weapon)
+        {
+            auto [weapon_id, weapon_upgrade] =
+                get_weapon_id_upgrade_level(item_id - item_type::weapon);
+            auto best_index = -1;
+            auto best_upgrade = 0;
+
+            for (int32_t i = 0; i < inventory_entries.count; i++)
+            {
+                if (get_item_type(inventory_entries[i].item_id) == item_type::weapon)
+                {
+                    auto [entry_weapon_id, entry_weapon_upgrade] = get_weapon_id_upgrade_level(
+                        inventory_entries[i].item_id - item_type::weapon);
+                    if (entry_weapon_id == weapon_id && entry_weapon_upgrade > best_upgrade)
+                    {
+                        best_index = i;
+                        best_upgrade = entry_weapon_upgrade;
+                    }
+                }
+            }
+
+            spdlog::info("Found substitute {} {} in index {} (+{} instead of +{})",
+                         gear_slot_debug_names[gear_slot], item_id, best_index, best_upgrade,
+                         weapon_upgrade);
+
+            return best_index;
+        }
+
+        // If the item wasn't found, equip the default placeholder
+        for (auto i = 0; i < inventory_entries.count; i++)
+        {
+            if (inventory_entries[i].item_id == item_type + default_gear[gear_slot])
+            {
+                spdlog::info("Couldn't find {} {} in inventory, equipping {}",
+                             gear_slot_debug_names[gear_slot], item_id, default_gear[gear_slot]);
+                return i;
+            }
+        }
+
+        spdlog::warn("Couldn't find {} {} or default in inventory",
+                     gear_slot_debug_names[gear_slot], item_id);
 
         return -1;
     };
 
-    auto equip_gear = [&equip_game_data, &inventory_entries, find_inventory_index](uint32_t slot,
-                                                                                   int32_t id) {
-        auto item_type = players::get_item_type(slot);
-        auto inventory_index = find_inventory_index(item_type, id);
-        if (inventory_index == -1)
+    for (uint32_t gear_slot = 0; gear_slot < gear_slot::count; gear_slot++)
+    {
+        auto item_type = gear_item_types[gear_slot];
+        if (item_type == item_type::invalid)
         {
-            spdlog::info("Item type {:x} id {} not in player inventory", (int32_t)item_type, id);
-            return;
+            continue;
         }
 
-        auto ga_item_id = inventory_entries[inventory_index].ga_item_id;
-        auto index = equip_game_data.equip_inventory_data.start_index + inventory_index;
+        auto item_id = gear[gear_slot];
+        auto inventory_index = find_inventory_index(gear_slot);
+        if (inventory_index != -1)
+        {
+            auto inventory_entry = inventory_entries[inventory_index];
+            spdlog::info("Equipping {} {}", gear_slot_debug_names[gear_slot],
+                         inventory_entry.item_id - get_item_type(inventory_entry.item_id));
 
-        players::equip_gear(&equip_game_data, slot, &ga_item_id, index, true, true, false);
-    };
-
-    equip_gear(gear_slot::left_weapon1_id, gear[gear_slot::left_weapon1_id]);
-    equip_gear(gear_slot::right_weapon1_id, gear[gear_slot::right_weapon1_id]);
-    equip_gear(gear_slot::left_weapon2_id, gear[gear_slot::left_weapon2_id]);
-    equip_gear(gear_slot::right_weapon2_id, gear[gear_slot::right_weapon2_id]);
-    equip_gear(gear_slot::left_weapon3_id, gear[gear_slot::left_weapon3_id]);
-    equip_gear(gear_slot::right_weapon3_id, gear[gear_slot::right_weapon3_id]);
-    equip_gear(gear_slot::arrow1_id, gear[gear_slot::arrow1_id]);
-    equip_gear(gear_slot::bolt1_id, gear[gear_slot::bolt1_id]);
-    equip_gear(gear_slot::arrow2_id, gear[gear_slot::arrow2_id]);
-    equip_gear(gear_slot::bolt2_id, gear[gear_slot::bolt2_id]);
-    equip_gear(gear_slot::head_protector_id, gear[gear_slot::head_protector_id]);
-    equip_gear(gear_slot::chest_protector_id, gear[gear_slot::chest_protector_id]);
-    equip_gear(gear_slot::arms_protector_id, gear[gear_slot::arms_protector_id]);
-    equip_gear(gear_slot::legs_protector_id, gear[gear_slot::legs_protector_id]);
-    equip_gear(gear_slot::accessory1_id, gear[gear_slot::accessory1_id]);
-    equip_gear(gear_slot::accessory2_id, gear[gear_slot::accessory2_id]);
-    equip_gear(gear_slot::accessory3_id, gear[gear_slot::accessory3_id]);
-    equip_gear(gear_slot::accessory4_id, gear[gear_slot::accessory4_id]);
+            auto ga_item_id = inventory_entry.ga_item_id;
+            auto index = equip_game_data.equip_inventory_data.start_index + inventory_index;
+            players::equip_gear(&equip_game_data, gear_slot, &ga_item_id, index, true, true, false);
+        }
+    }
 
     // Show a cool effect on the player
     players::spawn_one_shot_sfx_on_chr(main_player, 900, 8020, nullptr);

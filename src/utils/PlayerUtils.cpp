@@ -105,7 +105,7 @@ CS::PlayerIns *players::get_main_player()
     return nullptr;
 }
 
-bool players::has_item_in_inventory(ItemType item_type, int32_t id)
+bool players::has_item_in_inventory(uint32_t item_type, int32_t id)
 {
     auto player = get_main_player();
     if (player == nullptr)
