@@ -66,24 +66,19 @@ static void write_header(wstringstream &stream, wstring_view str)
     stream << L"<font color='#c0b194' size='22'>" << str << L"</font>\n";
 }
 
-static void begin_item_name(wstringstream &stream, const wchar_t *str, bool is_first, bool has_item)
+static void write_item_name(wstringstream &stream, const wchar_t *str, bool is_first, bool has_item)
 {
     if (is_first)
         stream << begin_line;
     else
-        stream << L", ";
+        stream << L",</font> ";
 
     if (str == nullptr)
-        stream << L"<font color='#ff0000'>???";
+        stream << L"<font color='#c5242a'>???";
     else if (has_item)
-        stream << L"<font>" << str;
+        stream << L"<font color='#ffffff'>" << str;
     else
-        stream << L"<font color='#ff0000'>" << str;
-}
-
-static void end_item_name(wstringstream &stream)
-{
-    stream << L"</font>";
+        stream << L"<font color='#c5242a'>" << str;
 }
 
 static bool write_weapons(wstringstream &stream, initializer_list<const int> weapon_ids)
@@ -95,7 +90,7 @@ static bool write_weapons(wstringstream &stream, initializer_list<const int> wea
         {
             auto upgrade_level = weapon_id % 100;
 
-            begin_item_name(stream,
+            write_item_name(stream,
                             msg::get_message(msgbnd::weapon_name, weapon_id - upgrade_level),
                             is_first, players::has_item_in_inventory(item_type::weapon, weapon_id));
 
@@ -104,14 +99,12 @@ static bool write_weapons(wstringstream &stream, initializer_list<const int> wea
                 stream << L" +" << upgrade_level;
             }
 
-            end_item_name(stream);
-
             is_first = false;
         }
     }
     if (!is_first)
     {
-        stream << L"\n";
+        stream << L"</font>\n";
     }
     return !is_first;
 }
@@ -126,17 +119,16 @@ static bool write_protectors(wstringstream &stream, initializer_list<const int> 
             protector_id != saveslots::bare_arms_protector_id &&
             protector_id != saveslots::bare_legs_protector_id)
         {
-            begin_item_name(stream, msg::get_message(msgbnd::protector_name, protector_id),
+            write_item_name(stream, msg::get_message(msgbnd::protector_name, protector_id),
                             is_first,
                             players::has_item_in_inventory(item_type::protector, protector_id));
-            end_item_name(stream);
 
             is_first = false;
         }
     }
     if (!is_first)
     {
-        stream << L"\n";
+        stream << L"</font>\n";
     }
     return !is_first;
 }
@@ -148,17 +140,16 @@ static bool write_accessories(wstringstream &stream, initializer_list<const int>
     {
         if (accessory_id != saveslots::empty_accessory_id)
         {
-            begin_item_name(stream, msg::get_message(msgbnd::accessory_name, accessory_id),
+            write_item_name(stream, msg::get_message(msgbnd::accessory_name, accessory_id),
                             is_first,
                             players::has_item_in_inventory(item_type::accessory, accessory_id));
-            end_item_name(stream);
 
             is_first = false;
         }
     }
     if (!is_first)
     {
-        stream << L"\n";
+        stream << L"</font>\n";
     }
     return !is_first;
 }
