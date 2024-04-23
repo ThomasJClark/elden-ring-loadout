@@ -58,27 +58,27 @@ set_target_properties(steamapi PROPERTIES
 
 add_library(EldenRingLoadoutMod SHARED
   src/dllmain.cpp
+  src/erloadout_messages_by_lang.cpp
+  src/erloadout_messages.cpp
+  src/erloadout_messages.hpp
+  src/erloadout_saveslot.cpp
+  src/erloadout_saveslot.hpp
+  src/erloadout_shop.cpp
+  src/erloadout_shop.hpp
+  src/erloadout_stringify.cpp
+  src/erloadout_stringify.hpp
+  src/erloadout_talkscript_states.hpp
+  src/erloadout_talkscript.cpp
+  src/erloadout_talkscript.hpp
   src/internal/EzState.hpp
   src/internal/List.hpp
   src/internal/WorldChrMan.hpp
-  src/talkscript/CustomEzStates.hpp
-  src/talkscript/LoadoutTalkScript.hpp
-  src/talkscript/LoadoutTalkScript.cpp
-  src/utils/ModUtils.hpp
-  src/utils/ModUtils.cpp
-  src/utils/ParamUtils.hpp
-  src/utils/ParamUtils.cpp
-  src/utils/PlayerUtils.hpp
-  src/utils/PlayerUtils.cpp
-  src/messages/Messages.cpp
-  src/messages/LoadoutMessages.hpp
-  src/messages/LoadoutMessages.cpp
-  src/saveslot/LoadoutSaveSlot.hpp
-  src/saveslot/LoadoutSaveSlot.cpp
-  src/saveslot/StringifyLoadout.hpp
-  src/saveslot/StringifyLoadout.cpp
-  src/shop/LoadoutShop.hpp
-  src/shop/LoadoutShop.cpp)
+  src/utils/modutils.cpp
+  src/utils/modutils.hpp
+  src/utils/params.cpp
+  src/utils/params.hpp
+  src/utils/players.cpp
+  src/utils/players.hpp)
 
 set_target_properties(EldenRingLoadoutMod PROPERTIES OUTPUT_NAME "erloadout")
 

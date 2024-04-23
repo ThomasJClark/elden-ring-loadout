@@ -4,10 +4,10 @@
 #include <string>
 #include <thread>
 
-#include "../saveslot/LoadoutSaveSlot.hpp"
-#include "../shop/LoadoutShop.hpp"
-#include "../utils/ModUtils.hpp"
-#include "LoadoutMessages.hpp"
+#include "erloadout_messages.hpp"
+#include "erloadout_saveslot.hpp"
+#include "erloadout_shop.hpp"
+#include "utils/modutils.hpp"
 
 using namespace erloadout;
 using namespace std;

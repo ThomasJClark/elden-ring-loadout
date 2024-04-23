@@ -1,14 +1,14 @@
 #include <cstdint>
 #include <spdlog/spdlog.h>
 
-#include "../internal/EzState.hpp"
-#include "../messages/LoadoutMessages.hpp"
-#include "../saveslot/LoadoutSaveSlot.hpp"
-#include "../shop/LoadoutShop.hpp"
-#include "../utils/ModUtils.hpp"
-#include "../utils/ParamUtils.hpp"
-#include "CustomEzStates.hpp"
-#include "LoadoutTalkScript.hpp"
+#include "erloadout_messages.hpp"
+#include "erloadout_saveslot.hpp"
+#include "erloadout_shop.hpp"
+#include "erloadout_talkscript.hpp"
+#include "erloadout_talkscript_states.hpp"
+#include "internal/EzState.hpp"
+#include "utils/modutils.hpp"
+#include "utils/params.hpp"
 
 using namespace std;
 using namespace erloadout;

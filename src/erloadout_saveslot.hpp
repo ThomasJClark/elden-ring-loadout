@@ -4,8 +4,8 @@
 #include <string>
 #include <tga/paramdefs.h>
 
-#include "../internal/WorldChrMan.hpp"
-#include "../utils/PlayerUtils.hpp"
+#include "internal/WorldChrMan.hpp"
+#include "utils/players.hpp"
 
 namespace erloadout
 {

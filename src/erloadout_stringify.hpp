@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "LoadoutSaveSlot.hpp"
+#include "erloadout_saveslot.hpp"
 
 namespace erloadout
 {

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../internal/EzState.hpp"
-#include "../messages/LoadoutMessages.hpp"
+#include "erloadout_messages.hpp"
+#include "internal/EzState.hpp"
 
 #pragma pack(push, 1)
 

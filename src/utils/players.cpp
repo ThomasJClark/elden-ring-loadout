@@ -1,7 +1,7 @@
 #pragma once
 
-#include "PlayerUtils.hpp"
-#include "ModUtils.hpp"
+#include "players.hpp"
+#include "modutils.hpp"
 
 using namespace std;
 

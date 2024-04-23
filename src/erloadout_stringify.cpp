@@ -3,10 +3,10 @@
 #include <iomanip>
 #include <sstream>
 
-#include "../messages/LoadoutMessages.hpp"
-#include "../utils/ParamUtils.hpp"
-#include "../utils/PlayerUtils.hpp"
-#include "StringifyLoadout.hpp"
+#include "erloadout_messages.hpp"
+#include "erloadout_stringify.hpp"
+#include "utils/params.hpp"
+#include "utils/players.hpp"
 
 using namespace std;
 using namespace erloadout;

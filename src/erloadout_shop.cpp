@@ -3,12 +3,12 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "../messages/LoadoutMessages.hpp"
-#include "../saveslot/LoadoutSaveSlot.hpp"
-#include "../utils/ModUtils.hpp"
-#include "../utils/ParamUtils.hpp"
-#include "../utils/PlayerUtils.hpp"
-#include "LoadoutShop.hpp"
+#include "erloadout_messages.hpp"
+#include "erloadout_saveslot.hpp"
+#include "erloadout_shop.hpp"
+#include "utils/modutils.hpp"
+#include "utils/params.hpp"
+#include "utils/players.hpp"
 
 using namespace erloadout;
 using namespace std;

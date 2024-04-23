@@ -1,12 +1,12 @@
 #include <algorithm>
 #include <spdlog/spdlog.h>
 
-#include "../messages/LoadoutMessages.hpp"
-#include "../shop/LoadoutShop.hpp"
-#include "../utils/ParamUtils.hpp"
-#include "../utils/PlayerUtils.hpp"
-#include "LoadoutSaveSlot.hpp"
-#include "StringifyLoadout.hpp"
+#include "erloadout_messages.hpp"
+#include "erloadout_saveslot.hpp"
+#include "erloadout_shop.hpp"
+#include "erloadout_stringify.hpp"
+#include "utils/params.hpp"
+#include "utils/players.hpp"
 
 using namespace std;
 using namespace erloadout;

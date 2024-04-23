@@ -9,13 +9,13 @@
 #include <thread>
 #include <windows.h>
 
-#include "messages/LoadoutMessages.hpp"
-#include "saveslot/LoadoutSaveSlot.hpp"
-#include "shop/LoadoutShop.hpp"
-#include "talkscript/LoadoutTalkScript.hpp"
-#include "utils/ModUtils.hpp"
-#include "utils/ParamUtils.hpp"
-#include "utils/PlayerUtils.hpp"
+#include "erloadout_messages.hpp"
+#include "erloadout_saveslot.hpp"
+#include "erloadout_shop.hpp"
+#include "erloadout_talkscript.hpp"
+#include "utils/modutils.hpp"
+#include "utils/params.hpp"
+#include "utils/players.hpp"
 
 using namespace std;
 
