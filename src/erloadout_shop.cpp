@@ -1,13 +1,13 @@
 #include <cstdint>
-#include <tga/paramdefs.h>
 #include <unordered_map>
 #include <unordered_set>
+
+#include <paramdefs/SHOP_LINEUP_PARAM.hpp>
 
 #include "erloadout_messages.hpp"
 #include "erloadout_saveslot.hpp"
 #include "erloadout_shop.hpp"
 #include "utils/modutils.hpp"
-#include "utils/params.hpp"
 #include "utils/players.hpp"
 
 using namespace erloadout;
@@ -22,7 +22,7 @@ struct FindShopMenuResult
     byte shop_type;
     byte padding[3];
     int32_t id;
-    ShopLineupParam *row;
+    from::paramdefs::SHOP_LINEUP_PARAM *row;
 };
 
 struct FindShopLineupParamResult
@@ -30,14 +30,14 @@ struct FindShopLineupParamResult
     byte shop_type;
     byte padding[3];
     int32_t id;
-    ShopLineupParam *row;
+    from::paramdefs::SHOP_LINEUP_PARAM *row;
 };
 
 struct FindEquipParamAccessoryResult
 {
     int32_t id;
     int32_t unknown;
-    EquipParamAccessory *row;
+    from::paramdefs::EQUIP_PARAM_ACCESSORY_ST *row;
 };
 #pragma pack(pop)
 
@@ -49,8 +49,10 @@ FindShopMenuResult *get_shop_menu_detour(FindShopMenuResult *result, byte shop_t
 {
     if (begin_id == shop::save_loadout_shop_id)
     {
-        static ShopLineupParam save_loadout_shop_menu = {
-            .menuTitleMsgId = msg::menu_text_save_loadout, .menuIconId = 5};
+        static from::paramdefs::SHOP_LINEUP_PARAM save_loadout_shop_menu = {
+            .menuTitleMsgId = msg::menu_text_save_loadout,
+            .menuIconId = 5,
+        };
 
         result->shop_type = (byte)0;
         result->id = shop::save_loadout_shop_id;
@@ -58,8 +60,10 @@ FindShopMenuResult *get_shop_menu_detour(FindShopMenuResult *result, byte shop_t
     }
     else if (begin_id == shop::apply_loadout_shop_id)
     {
-        static ShopLineupParam apply_loadout_shop_menu = {
-            .menuTitleMsgId = msg::menu_text_apply_loadout, .menuIconId = 5};
+        static from::paramdefs::SHOP_LINEUP_PARAM apply_loadout_shop_menu = {
+            .menuTitleMsgId = msg::menu_text_apply_loadout,
+            .menuIconId = 5,
+        };
 
         result->shop_type = (byte)0;
         result->id = shop::apply_loadout_shop_id;

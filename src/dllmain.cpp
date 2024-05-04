@@ -14,7 +14,6 @@
 #include "erloadout_shop.hpp"
 #include "erloadout_talkscript.hpp"
 #include "utils/modutils.hpp"
-#include "utils/params.hpp"
 #include "utils/players.hpp"
 
 using namespace std;
@@ -60,7 +59,6 @@ bool WINAPI DllMain(HINSTANCE dll_instance, uint32_t fdw_reason, void *lpv_reser
             try
             {
                 modutils::initialize();
-                params::initialize();
                 players::initialize();
 
                 this_thread::sleep_for(chrono::milliseconds(11000));

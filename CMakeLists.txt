@@ -15,12 +15,6 @@ FetchContent_Declare(minhook
   GIT_REPOSITORY        https://github.com/TsudaKageyu/minhook.git
   GIT_TAG               f5485b8454544c2f034c78f8f127c1d03dea3636)
 
-FetchContent_Declare(ertga
-  GIT_REPOSITORY        https://github.com/The-Grand-Archives/Elden-Ring-CT-TGA.git
-  GIT_TAG               v1.7.1
-  CONFIGURE_COMMAND     ""
-  BUILD_COMMAND         "")
-
 FetchContent_Declare(pattern16
   GIT_REPOSITORY        https://github.com/Dasaav-dsv/Pattern16.git
   GIT_TAG               728eac543cee7e7bf6fda445d7db06e3dc8a61d0
@@ -39,10 +33,12 @@ FetchContent_Declare(spdlog
   GIT_REPOSITORY        https://github.com/gabime/spdlog.git
   GIT_TAG               v1.13.0)
 
-FetchContent_MakeAvailable(minhook ertga pattern16 mini spdlog)
+# Set iterator debug level to 0 for ELDEN RING ABI compatibility
+add_definitions(-D_ITERATOR_DEBUG_LEVEL=0)
+FetchContent_Declare(liber
+  SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/../libER")
 
-add_library(ertga INTERFACE)
-target_include_directories(ertga INTERFACE ${ertga_SOURCE_DIR}/resources/include)
+FetchContent_MakeAvailable(minhook pattern16 mini spdlog liber)
 
 add_library(pattern16 INTERFACE)
 target_include_directories(pattern16 INTERFACE ${pattern16_SOURCE_DIR}/include)
@@ -75,8 +71,6 @@ add_library(EldenRingLoadoutMod SHARED
   src/internal/WorldChrMan.hpp
   src/utils/modutils.cpp
   src/utils/modutils.hpp
-  src/utils/params.cpp
-  src/utils/params.hpp
   src/utils/players.cpp
   src/utils/players.hpp)
 
@@ -90,8 +84,8 @@ add_custom_command(TARGET EldenRingLoadoutMod POST_BUILD
 
 target_link_libraries(EldenRingLoadoutMod
   minhook
-  ertga
   pattern16
   mini
   spdlog
+  libER_static
   ${CMAKE_SOURCE_DIR}/steam_api64.lib)

@@ -2,7 +2,9 @@
 
 #include <array>
 #include <string>
-#include <tga/paramdefs.h>
+
+#include <paramdefs/EQUIP_PARAM_ACCESSORY_ST.hpp>
+#include <paramdefs/SHOP_LINEUP_PARAM.hpp>
 
 #include "internal/WorldChrMan.hpp"
 #include "utils/players.hpp"
@@ -35,10 +37,10 @@ struct SaveSlot
     std::wstring caption;
 
     // Params used for the loadout shop
-    EquipParamAccessory save_accessory_param;
-    EquipParamAccessory apply_accessory_param;
-    ShopLineupParam save_shop_lineup_param;
-    ShopLineupParam apply_shop_lineup_param;
+    from::paramdefs::EQUIP_PARAM_ACCESSORY_ST save_accessory_param;
+    from::paramdefs::EQUIP_PARAM_ACCESSORY_ST apply_accessory_param;
+    from::paramdefs::SHOP_LINEUP_PARAM save_shop_lineup_param;
+    from::paramdefs::SHOP_LINEUP_PARAM apply_shop_lineup_param;
 
     // Update the slot to contain the player's current equipment
     void save_from_player();

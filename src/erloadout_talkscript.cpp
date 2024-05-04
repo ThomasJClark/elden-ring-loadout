@@ -8,7 +8,6 @@
 #include "erloadout_talkscript_states.hpp"
 #include "internal/EzState.hpp"
 #include "utils/modutils.hpp"
-#include "utils/params.hpp"
 
 using namespace std;
 using namespace erloadout;

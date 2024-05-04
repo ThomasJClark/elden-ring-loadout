@@ -1,11 +1,15 @@
 #include <algorithm>
+
+#include <coresystem/param.hpp>
+#include <paramdefs/EQUIP_PARAM_ACCESSORY_ST.hpp>
+#include <paramdefs/EQUIP_PARAM_PROTECTOR_ST.hpp>
+#include <paramdefs/EQUIP_PARAM_WEAPON_ST.hpp>
 #include <spdlog/spdlog.h>
 
 #include "erloadout_messages.hpp"
 #include "erloadout_saveslot.hpp"
 #include "erloadout_shop.hpp"
 #include "erloadout_stringify.hpp"
-#include "utils/params.hpp"
 #include "utils/players.hpp"
 
 using namespace std;
@@ -29,28 +33,16 @@ static array<string, gear_slot::count> gear_slot_debug_names;
 
 void saveslots::initialize()
 {
-    ShopLineupParam initial_shop_lineup_param = {.value = -1,
-                                                 .mtrlId = -1,
-                                                 .sellQuantity = -1,
-                                                 .equipType = 2, // accessory
-                                                 .setNum = 1,
-                                                 .iconId = -1,
-                                                 .nameMsgId = -1};
-
-    EquipParamAccessory initial_accessory_param = {.sfxVariationId = -1,
-                                                   .weight = 0,
-                                                   .shopLv = -1,
-                                                   .trophySGradeId = -1,
-                                                   .trophySeqId = -1,
-                                                   .vagrantItemLotId = -1,
-                                                   .vagrantBonusEneDropItemLotId = -1,
-                                                   .vagrantItemEneDropItemLotId = -1,
-                                                   .isDeposit = 1,
-                                                   .isDiscard = 1,
-                                                   .isDrop = 1,
-                                                   .showLogCondType = 1,
-                                                   .showDialogCondType = 2,
-                                                   .compTrophySedId = -1};
+    from::paramdefs::SHOP_LINEUP_PARAM initial_shop_lineup_param = {.value = -1,
+                                                                    .mtrlId = -1,
+                                                                    .sellQuantity = -1,
+                                                                    .equipType = 2, // accessory
+                                                                    .setNum = 1,
+                                                                    .value_Magnification = 0,
+                                                                    .iconId = -1,
+                                                                    .nameMsgId = -1,
+                                                                    .menuTitleMsgId = 0,
+                                                                    .menuIconId = 0};
 
     default_gear[gear_slot::right_weapon1_id] = unarmed_weapon_id;
     default_gear[gear_slot::right_weapon2_id] = unarmed_weapon_id;
@@ -128,8 +120,8 @@ void saveslots::initialize()
             .index = index,
             .empty = true,
             .gear = {0},
-            .save_accessory_param = initial_accessory_param,
-            .apply_accessory_param = initial_accessory_param,
+            .save_accessory_param = {.saleValue = 0},
+            .apply_accessory_param = {.saleValue = 0},
             .save_shop_lineup_param = initial_shop_lineup_param,
             .apply_shop_lineup_param = initial_shop_lineup_param,
         };
@@ -213,30 +205,41 @@ void saveslots::SaveSlot::refresh()
         // Count the total weight of the gear in this save slot, to display in the loadout shop
         auto weight = 0.0f;
 
-        auto equip_param_weapon = params::get_param<EquipParamWeapon>(L"EquipParamWeapon");
+        auto params_ref = from::CS::SoloParamRepositoryImp::instance();
+        if (!params_ref)
+        {
+            spdlog::error("No CS::SoloParamRepositoryImp instance");
+            return;
+        }
+        auto &params = params_ref.reference();
+
         for (auto gear_slot :
              {gear_slot::left_weapon1_id, gear_slot::right_weapon1_id, gear_slot::left_weapon2_id,
               gear_slot::right_weapon2_id, gear_slot::left_weapon3_id, gear_slot::right_weapon3_id})
         {
             auto weapon_id = gear[gear_slot];
-            weight += equip_param_weapon[weapon_id - (weapon_id % 100)].weight;
+            auto weapon =
+                params.get_equip_param_weapon()->get_row_by_id(weapon_id - (weapon_id % 100));
+            if (weapon != nullptr)
+                weight += weapon->weight;
         }
 
-        auto equip_param_protector = params::get_param<EquipParamProtector>(L"EquipParamProtector");
         for (auto gear_slot : {gear_slot::head_protector_id, gear_slot::chest_protector_id,
                                gear_slot::arms_protector_id, gear_slot::legs_protector_id})
         {
             auto protector_id = gear[gear_slot];
-            weight += equip_param_protector[protector_id].weight;
+            auto protector = params.get_equip_param_protector()->get_row_by_id(protector_id);
+            if (protector)
+                weight += protector->weight;
         }
 
-        auto equip_param_accessory = params::get_param<EquipParamAccessory>(L"EquipParamAccessory");
         for (auto gear_slot : {gear_slot::accessory1_id, gear_slot::accessory2_id,
                                gear_slot::accessory3_id, gear_slot::accessory4_id})
         {
             auto accessory_id = gear[gear_slot];
-            if (accessory_id != empty_accessory_id)
-                weight += equip_param_accessory[accessory_id].weight;
+            auto accessory = params.get_equip_param_accessory()->get_row_by_id(accessory_id);
+            if (accessory)
+                weight += accessory->weight;
         }
 
         save_accessory_param.weight = weight;

@@ -2,7 +2,7 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <tga/paramdefs.h>
+#include <paramdefs/SP_EFFECT_PARAM_ST.hpp>
 #include <utility>
 
 #include "List.hpp"
@@ -60,6 +60,7 @@ static inline std::pair<uint32_t, uint32_t> get_weapon_id_upgrade_level(uint32_t
 
 namespace CS
 {
+
 struct EquipMagicData;
 struct EquipItemData;
 struct ChrIns;
@@ -115,7 +116,7 @@ struct PlayerGameData
 
 struct SpEffectEntry
 {
-    SpEffectParam *param;
+    from::paramdefs::SP_EFFECT_PARAM_ST *param;
     int32_t id;
     std::byte unk1[0x24];
     SpEffectEntry *next;

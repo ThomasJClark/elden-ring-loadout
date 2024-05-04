@@ -3,9 +3,11 @@
 #include <iomanip>
 #include <sstream>
 
+#include <coresystem/param.hpp>
+#include <spdlog/spdlog.h>
+
 #include "erloadout_messages.hpp"
 #include "erloadout_stringify.hpp"
-#include "utils/params.hpp"
 #include "utils/players.hpp"
 
 using namespace std;
@@ -164,22 +166,40 @@ static wstring item_icon(int icon_id)
 
 wstring saveslots::iconify_loadout(saveslots::SaveSlot const &slot)
 {
+
     auto &gear = slot.gear;
 
     wstringstream stream;
 
     stream << L"<font size='4'>\n</font>";
 
-    auto equip_param_weapon = params::get_param<EquipParamWeapon>(L"EquipParamWeapon");
-    auto equip_param_protector = params::get_param<EquipParamProtector>(L"EquipParamProtector");
-    auto equip_param_accessory = params::get_param<EquipParamAccessory>(L"EquipParamAccessory");
+    auto params_ref = from::CS::SoloParamRepositoryImp::instance();
+    if (!params_ref)
+    {
+        spdlog::error("No CS::SoloParamRepositoryImp instance");
+        return L"";
+    }
+    auto &params = params_ref.reference();
+
+    auto get_weapon_icon_id = [&params](unsigned long long weapon_id) {
+        auto row = params.get_equip_param_weapon()->get_row_by_id(weapon_id);
+        return row == nullptr ? -1 : row->iconId;
+    };
+    auto get_protector_icon_id = [&params](unsigned long long protector_id) {
+        auto row = params.get_equip_param_protector()->get_row_by_id(protector_id);
+        return row == nullptr ? -1 : row->iconIdM;
+    };
+    auto get_accessory_icon_id = [&params](unsigned long long accessory_id) {
+        auto row = params.get_equip_param_accessory()->get_row_by_id(accessory_id);
+        return row == nullptr ? -1 : row->iconId;
+    };
 
     for (auto gear_slot :
          {gear_slot::right_weapon1_id, gear_slot::right_weapon2_id, gear_slot::right_weapon3_id})
     {
         auto weapon_id = gear[gear_slot];
         if (weapon_id != unarmed_weapon_id)
-            stream << item_icon(equip_param_weapon[weapon_id - (weapon_id % 100)].iconId);
+            stream << item_icon(get_weapon_icon_id(weapon_id - (weapon_id % 100)));
         else
             stream << right_weapon_placeholder;
     }
@@ -188,7 +208,7 @@ wstring saveslots::iconify_loadout(saveslots::SaveSlot const &slot)
     {
         auto weapon_id = gear[gear_slot];
         if (weapon_id != empty_ammo_id)
-            stream << item_icon(equip_param_weapon[weapon_id].iconId);
+            stream << item_icon(get_weapon_icon_id(weapon_id));
         else
             stream << arrow_placeholder;
     }
@@ -200,7 +220,7 @@ wstring saveslots::iconify_loadout(saveslots::SaveSlot const &slot)
     {
         auto weapon_id = gear[gear_slot];
         if (weapon_id != unarmed_weapon_id)
-            stream << item_icon(equip_param_weapon[weapon_id - (weapon_id % 100)].iconId);
+            stream << item_icon(get_weapon_icon_id(weapon_id - (weapon_id % 100)));
         else
             stream << left_weapon_placeholder;
     }
@@ -209,7 +229,7 @@ wstring saveslots::iconify_loadout(saveslots::SaveSlot const &slot)
     {
         auto weapon_id = gear[gear_slot];
         if (weapon_id != empty_ammo_id)
-            stream << item_icon(equip_param_weapon[weapon_id].iconId);
+            stream << item_icon(get_weapon_icon_id(weapon_id));
         else
             stream << bolt_placeholder;
     }
@@ -217,22 +237,22 @@ wstring saveslots::iconify_loadout(saveslots::SaveSlot const &slot)
     stream << L"\n";
 
     if (gear[gear_slot::head_protector_id] != bare_head_protector_id)
-        stream << item_icon(equip_param_protector[gear[gear_slot::head_protector_id]].iconIdM);
+        stream << item_icon(get_protector_icon_id(gear[gear_slot::head_protector_id]));
     else
         stream << head_placeholder;
 
     if (gear[gear_slot::chest_protector_id] != bare_chest_protector_id)
-        stream << item_icon(equip_param_protector[gear[gear_slot::chest_protector_id]].iconIdM);
+        stream << item_icon(get_protector_icon_id(gear[gear_slot::chest_protector_id]));
     else
         stream << body_placeholder;
 
     if (gear[gear_slot::arms_protector_id] != bare_arms_protector_id)
-        stream << item_icon(equip_param_protector[gear[gear_slot::arms_protector_id]].iconIdM);
+        stream << item_icon(get_protector_icon_id(gear[gear_slot::arms_protector_id]));
     else
         stream << hand_placeholder;
 
     if (gear[gear_slot::legs_protector_id] != bare_legs_protector_id)
-        stream << item_icon(equip_param_protector[gear[gear_slot::legs_protector_id]].iconIdM);
+        stream << item_icon(get_protector_icon_id(gear[gear_slot::legs_protector_id]));
     else
         stream << foot_placeholder;
 
@@ -243,7 +263,7 @@ wstring saveslots::iconify_loadout(saveslots::SaveSlot const &slot)
     {
         auto accessory_id = gear[gear_slot];
         if (accessory_id != empty_accessory_id)
-            stream << item_icon(equip_param_accessory[accessory_id].iconId);
+            stream << item_icon(get_protector_icon_id(accessory_id));
         else
             stream << talisman_placeholder;
     }
