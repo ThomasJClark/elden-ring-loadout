@@ -13,39 +13,50 @@
 using namespace erloadout;
 using namespace std;
 
-typedef void AddRemoveItemFn(uint64_t item_type, uint32_t item_id, int32_t quantity);
-static AddRemoveItemFn *add_remove_item = nullptr;
+namespace from
+{
+namespace CS
+{
 
-#pragma pack(push, 1)
+enum class shop_type : unsigned char
+{
+    regular = 0
+};
+
 struct FindShopMenuResult
 {
-    byte shop_type;
-    byte padding[3];
-    int32_t id;
+    shop_type shop_type;
+    int id;
     from::paramdefs::SHOP_LINEUP_PARAM *row;
 };
 
 struct FindShopLineupParamResult
 {
-    byte shop_type;
-    byte padding[3];
-    int32_t id;
+    shop_type shop_type;
+    int id;
     from::paramdefs::SHOP_LINEUP_PARAM *row;
 };
 
 struct FindEquipParamAccessoryResult
 {
-    int32_t id;
-    int32_t unknown;
+    int id;
+    int unknown;
     from::paramdefs::EQUIP_PARAM_ACCESSORY_ST *row;
 };
-#pragma pack(pop)
 
-static FindShopMenuResult *(*get_shop_menu)(FindShopMenuResult *result, byte shop_type,
-                                            int32_t begin_id, int32_t end_id);
+}
+}
 
-FindShopMenuResult *get_shop_menu_detour(FindShopMenuResult *result, byte shop_type,
-                                         int32_t begin_id, int32_t end_id)
+typedef void AddRemoveItemFn(unsigned long long item_type, unsigned int item_id, int quantity);
+static AddRemoveItemFn *add_remove_item = nullptr;
+
+static from::CS::FindShopMenuResult *(*get_shop_menu)(from::CS::FindShopMenuResult *result,
+                                                      from::CS::shop_type shop_type, int begin_id,
+                                                      int end_id);
+
+from::CS::FindShopMenuResult *get_shop_menu_detour(from::CS::FindShopMenuResult *result,
+                                                   from::CS::shop_type shop_type, int begin_id,
+                                                   int end_id)
 {
     if (begin_id == shop::save_loadout_shop_id)
     {
@@ -54,7 +65,7 @@ FindShopMenuResult *get_shop_menu_detour(FindShopMenuResult *result, byte shop_t
             .menuIconId = 5,
         };
 
-        result->shop_type = (byte)0;
+        result->shop_type = from::CS::shop_type::regular;
         result->id = shop::save_loadout_shop_id;
         result->row = &save_loadout_shop_menu;
     }
@@ -65,7 +76,7 @@ FindShopMenuResult *get_shop_menu_detour(FindShopMenuResult *result, byte shop_t
             .menuIconId = 5,
         };
 
-        result->shop_type = (byte)0;
+        result->shop_type = from::CS::shop_type::regular;
         result->id = shop::apply_loadout_shop_id;
         result->row = &apply_loadout_shop_menu;
     }
@@ -77,10 +88,11 @@ FindShopMenuResult *get_shop_menu_detour(FindShopMenuResult *result, byte shop_t
     return result;
 }
 
-static void (*get_shop_lineup_param)(FindShopLineupParamResult *result, byte shop_type, int32_t id);
+static void (*get_shop_lineup_param)(from::CS::FindShopLineupParamResult *, from::CS::shop_type,
+                                     int id);
 
-static void get_shop_lineup_param_detour(FindShopLineupParamResult *result, byte shop_type,
-                                         int32_t id)
+static void get_shop_lineup_param_detour(from::CS::FindShopLineupParamResult *result,
+                                         from::CS::shop_type shop_type, int id)
 {
     if (id >= shop::save_loadout_shop_id &&
         id < shop::save_loadout_shop_id + saveslots::slots.size())
@@ -104,9 +116,10 @@ static void get_shop_lineup_param_detour(FindShopLineupParamResult *result, byte
     get_shop_lineup_param(result, shop_type, id);
 }
 
-static void (*get_equip_param_accessory)(FindEquipParamAccessoryResult *result, int32_t id);
+static void (*get_equip_param_accessory)(from::CS::FindEquipParamAccessoryResult *result, int id);
 
-static void get_equip_param_accessory_detour(FindEquipParamAccessoryResult *result, int32_t id)
+static void get_equip_param_accessory_detour(from::CS::FindEquipParamAccessoryResult *result,
+                                             int id)
 {
     if (id >= shop::save_loadout_accessory_base_id &&
         id < shop::save_loadout_accessory_base_id + saveslots::slots.size())
@@ -135,9 +148,10 @@ static void get_equip_param_accessory_detour(FindEquipParamAccessoryResult *resu
     get_equip_param_accessory(result, id);
 }
 
-static void (*open_regular_shop)(void *, uint64_t, uint64_t);
+static void (*open_regular_shop)(void *, unsigned long long, unsigned long long);
 
-static void open_regular_shop_detour(void *unk, uint64_t begin_id, uint64_t end_id)
+static void open_regular_shop_detour(void *unk, unsigned long long begin_id,
+                                     unsigned long long end_id)
 {
     if (begin_id == shop::save_loadout_shop_id || begin_id == shop::apply_loadout_shop_id)
     {
@@ -154,9 +168,9 @@ static void open_regular_shop_detour(void *unk, uint64_t begin_id, uint64_t end_
     open_regular_shop(unk, begin_id, end_id);
 }
 
-static bool (*add_inventory_from_shop)(int32_t *new_item_id, int32_t quantity) = nullptr;
+static bool (*add_inventory_from_shop)(int *new_item_id, int quantity) = nullptr;
 
-static bool add_inventory_from_shop_detour(int32_t *item_id_address, int32_t quantity)
+static bool add_inventory_from_shop_detour(int *item_id_address, int quantity)
 {
     auto item_id = *item_id_address;
     if (item_id >= shop::item_type_accessory_begin && item_id < shop::item_type_accessory_end)
