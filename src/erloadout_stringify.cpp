@@ -13,6 +13,19 @@
 using namespace std;
 using namespace erloadout;
 
+static bool main_player_has_item(unsigned int item_type, int id)
+{
+    auto player = from::CS::WorldChrManImp::instance().reference().get_main_player();
+    if (player == nullptr)
+    {
+        return false;
+    }
+
+    auto &equip_game_data = player->get_game_data()->get_equip_game_data();
+    auto item_id = (int)item_type + id;
+    return players::get_inventory_id(&equip_game_data.get_equip_inventory_data(), &item_id) != -1;
+}
+
 static const wstring begin_line =
     L"<img src='img://MENU_DummyTransparent.dds' width='22' height='1'/>";
 
@@ -94,7 +107,7 @@ static bool write_weapons(wstringstream &stream, initializer_list<const int> wea
 
             write_item_name(stream,
                             msg::get_message(msgbnd::weapon_name, weapon_id - upgrade_level),
-                            is_first, players::has_item_in_inventory(item_type::weapon, weapon_id));
+                            is_first, main_player_has_item(item_type::weapon, weapon_id));
 
             if (upgrade_level != 0)
             {
@@ -122,8 +135,7 @@ static bool write_protectors(wstringstream &stream, initializer_list<const int> 
             protector_id != saveslots::bare_legs_protector_id)
         {
             write_item_name(stream, msg::get_message(msgbnd::protector_name, protector_id),
-                            is_first,
-                            players::has_item_in_inventory(item_type::protector, protector_id));
+                            is_first, main_player_has_item(item_type::protector, protector_id));
 
             is_first = false;
         }
@@ -143,8 +155,7 @@ static bool write_accessories(wstringstream &stream, initializer_list<const int>
         if (accessory_id != saveslots::empty_accessory_id)
         {
             write_item_name(stream, msg::get_message(msgbnd::accessory_name, accessory_id),
-                            is_first,
-                            players::has_item_in_inventory(item_type::accessory, accessory_id));
+                            is_first, main_player_has_item(item_type::accessory, accessory_id));
 
             is_first = false;
         }

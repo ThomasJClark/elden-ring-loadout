@@ -10,10 +10,23 @@
 #include "erloadout_saveslot.hpp"
 #include "erloadout_shop.hpp"
 #include "erloadout_stringify.hpp"
+#include "from/WorldChrManImp.hpp"
 #include "utils/players.hpp"
 
 using namespace std;
 using namespace erloadout;
+
+static inline unsigned int get_item_type(unsigned int item_id)
+{
+    return item_id & 0x70000000;
+}
+
+static inline std::pair<unsigned int, unsigned int> get_weapon_id_upgrade_level(
+    unsigned int weapon_id)
+{
+    auto upgrade_level = weapon_id % 100;
+    return {weapon_id - upgrade_level, upgrade_level};
+}
 
 array<saveslots::SaveSlot, saveslots::max_slots> saveslots::slots;
 
@@ -249,14 +262,14 @@ void saveslots::SaveSlot::refresh()
 
 void saveslots::SaveSlot::save_from_player()
 {
-    auto main_player = players::get_main_player();
+    auto main_player = from::CS::WorldChrManImp::instance().reference().get_main_player();
     if (main_player == nullptr)
     {
         spdlog::error("Can't save loadout, main player is null");
         return;
     }
 
-    auto &chr_asm = main_player->player_game_data->equip_game_data.chr_asm;
+    auto &chr_asm = main_player->get_game_data()->get_equip_game_data().get_chr_asm();
     copy(begin(chr_asm.gear), end(chr_asm.gear), begin(gear));
     empty = false;
 
@@ -267,17 +280,17 @@ void saveslots::SaveSlot::save_from_player()
 
 void saveslots::SaveSlot::apply_to_player()
 {
-    auto main_player = players::get_main_player();
-    if (main_player == nullptr || main_player->player_game_data == nullptr)
+    auto main_player = from::CS::WorldChrManImp::instance().reference().get_main_player();
+    if (main_player == nullptr || main_player->get_game_data() == nullptr)
     {
-        spdlog::error("Can't apply loadout, main player is null");
+        spdlog::error("Can't apply loadout, main player is missing");
         return;
     }
 
     spdlog::info("Applying loadout {} to player", index + 1);
 
-    auto &equip_game_data = main_player->player_game_data->equip_game_data;
-    auto &inventory_entries = equip_game_data.equip_inventory_data.entries;
+    auto &equip_game_data = main_player->get_game_data()->get_equip_game_data();
+    auto &inventory_entries = equip_game_data.get_equip_inventory_data().entries;
 
     auto find_inventory_index = [this, &inventory_entries](unsigned int gear_slot) {
         auto item_type = gear_item_types[gear_slot];
@@ -362,7 +375,7 @@ void saveslots::SaveSlot::apply_to_player()
                          inventory_entry.item_id - get_item_type(inventory_entry.item_id));
 
             auto ga_item_id = inventory_entry.ga_item_id;
-            auto index = equip_game_data.equip_inventory_data.start_index + inventory_index;
+            auto index = equip_game_data.get_equip_inventory_data().start_index + inventory_index;
             players::equip_gear(&equip_game_data, gear_slot, &ga_item_id, index, true, true, false);
         }
     }

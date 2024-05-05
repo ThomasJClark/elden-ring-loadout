@@ -5,27 +5,13 @@
 
 using namespace std;
 
-static from::CS::WorldChrManImp **world_chr_man_addr = nullptr;
-
-typedef int GetInventoryIdFn(from::CS::EquipInventoryData *, int *item_id);
-static GetInventoryIdFn *get_inventory_id = nullptr;
-
-players::ApplySpEffectFn *players::apply_speffect = nullptr;
-players::ClearSpEffectFn *players::clear_speffect = nullptr;
 players::SpawnOneShotVFXOnChrFn *players::spawn_one_shot_sfx_on_chr = nullptr;
 players::EquipGearFn *players::equip_gear;
 players::EquipGoodsFn *players::equip_goods;
+players::GetInventoryIdFn *players::get_inventory_id = nullptr;
 
 void players::initialize()
 {
-    world_chr_man_addr = modutils::scan<from::CS::WorldChrManImp *>({
-        .aob = "48 8b 05 ?? ?? ?? ??"  // mov rax, [WorldChrMan]
-               "48 85 c0"              // test rax, rax
-               "74 0f"                 // jz end_label
-               "48 39 88 08 e5 01 00", // cmp [rax + 0x1e508], rcx
-        .relative_offsets = {{3, 7}},
-    });
-
     get_inventory_id = modutils::scan<GetInventoryIdFn>({
         .aob = "48 8d 8f 58 01 00 00" // lea rcx, [rdi + 0x158] ;
                                       // &equipGameData->equipInventoryData
@@ -34,32 +20,6 @@ void players::initialize()
                "85 c0"                // test eax, eax
                "78 6a",               // js label
         .offset = 7,
-        .relative_offsets = {{1, 5}},
-    });
-
-    // Locate both ChrIns::ApplyEffect() and ChrIns::ClearSpEffect() from this snippet that manages
-    // speffect 4270 (Disable Grace Warp)
-    auto disable_enable_grace_warp_address = modutils::scan<unsigned char>({
-        .aob = "45 33 c0"        // xor r8d, r8d
-               "ba ae 10 00 00"  // mov edx, 4270 ; Disable Grace Warp
-               "48 8b cf"        // mov rcx, rdi
-               "e8 ?? ?? ?? ??"  // call ChrIns::ApplyEffect
-               "eb 16"           // jmp end_label
-               "e8 ?? ?? ?? ??"  // call HasSpEffect
-               "84 c0"           // test al, al
-               "74 0d"           // jz end_label
-               "ba ae 10 00 00"  // mov edx, 4270 ; Disable Grace Warp
-               "48 8b cf"        // mov rcx, rdi
-               "e8 ?? ?? ?? ??", // call ChrIns::ClearSpEffect});
-    });
-
-    apply_speffect = modutils::scan<ApplySpEffectFn>({
-        .address = disable_enable_grace_warp_address + 11,
-        .relative_offsets = {{1, 5}},
-    });
-
-    clear_speffect = modutils::scan<ClearSpEffectFn>({
-        .address = disable_enable_grace_warp_address + 35,
         .relative_offsets = {{1, 5}},
     });
 
@@ -92,46 +52,4 @@ void players::initialize()
             "?? 8b c1"             // mov item_id, index
             "e9 ?? ?? ?? ??",      // jmp ???
     });
-}
-
-from::CS::PlayerIns *players::get_main_player()
-{
-    auto world_chr_man = *world_chr_man_addr;
-    if (world_chr_man != nullptr)
-    {
-        return world_chr_man->get_main_player();
-    }
-
-    return nullptr;
-}
-
-bool players::has_item_in_inventory(unsigned int item_type, int id)
-{
-    auto player = get_main_player();
-    if (player == nullptr)
-    {
-        return false;
-    }
-
-    auto &equip_game_data = player->player_game_data->equip_game_data;
-    auto item_id = (int)item_type + id;
-    return get_inventory_id(&equip_game_data.equip_inventory_data, &item_id) != -1;
-}
-
-bool players::has_speffect(from::CS::PlayerIns *player, int speffect_id)
-{
-    if (player == nullptr)
-    {
-        return false;
-    }
-
-    for (auto entry = player->speffects->head; entry != nullptr; entry = entry->next)
-    {
-        if (entry->id == speffect_id)
-        {
-            return true;
-        }
-    }
-
-    return false;
 }

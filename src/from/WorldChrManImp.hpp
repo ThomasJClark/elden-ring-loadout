@@ -48,26 +48,16 @@ static constexpr unsigned int gem = 0x50000000;
 static constexpr unsigned int invalid = 0xfffffff;
 };
 
-static inline unsigned int get_item_type(unsigned int item_id)
-{
-    return item_id & 0x70000000;
-}
-
-static inline std::pair<unsigned int, unsigned int> get_weapon_id_upgrade_level(
-    unsigned int weapon_id)
-{
-    auto upgrade_level = weapon_id % 100;
-    return {weapon_id - upgrade_level, upgrade_level};
-}
-
 namespace from
 {
 namespace CS
 {
 
-struct EquipMagicData;
-struct EquipItemData;
-struct ChrIns;
+class IGameDataElem
+{
+  public:
+    virtual ~IGameDataElem() = default;
+};
 
 struct PlayerInventoryEntry
 {
@@ -75,85 +65,136 @@ struct PlayerInventoryEntry
     int item_id;
     unsigned int quantity;
     int display_id;
-    int unk;
+    int liber_unknown;
 };
 
-struct EquipInventoryData
+struct EquipInventoryData : public IGameDataElem
 {
-    void **vftable;
-    unsigned char unk1[0x8];
+    unsigned char liber_unknown[0x8];
     List<PlayerInventoryEntry> entries;
     int start_index;
-    unsigned char unk2[0x8];
+    unsigned char liber_unknown[0x8];
     int tail_data_index;
-    unsigned char unk3[0x54];
+    unsigned char liber_unknown[0x54];
     unsigned int length;
-    unsigned char unk6[0x1e];
+    unsigned char liber_unknown[0x8c];
 };
+
+LIBER_ASSERTS_BEGIN(EquipInventoryData);
+LIBER_ASSERT_OFFS(0x10, entries);
+LIBER_ASSERT_OFFS(0x1c, start_index);
+LIBER_ASSERT_SIZE(0x110);
+LIBER_ASSERTS_END;
 
 struct ChrAsm
 {
     void **vftable;
-    unsigned char unk1[0x74];
+    unsigned char liber_unknown[0x74];
     int gear[gear_slot::count];
 };
 
+LIBER_ASSERTS_BEGIN(ChrAsm);
+LIBER_ASSERT_OFFS(0x7c, gear);
+LIBER_ASSERT_SIZE(0xd4);
+LIBER_ASSERTS_END;
+
 struct EquipGameData
 {
-    unsigned char unk1[0x70];
+  public:
+    LIBER_CLASS(EquipGameData);
+
+    ChrAsm &get_chr_asm()
+    {
+        return chr_asm;
+    }
+
+    EquipInventoryData &get_equip_inventory_data()
+    {
+        return equip_inventory_data;
+    }
+
+  private:
+    unsigned char liber_unknown[0x70];
     ChrAsm chr_asm;
-    unsigned char unk2[0x14];
+    unsigned char liber_unknown[0x14];
     EquipInventoryData equip_inventory_data;
-    EquipMagicData *equip_magic_data;
-    EquipItemData *equip_item_data;
-    unsigned char unk3[0x218];
+    unsigned char liber_unknown[0x228];
 };
 
-struct PlayerGameData
+LIBER_ASSERTS_BEGIN(EquipGameData);
+LIBER_ASSERT_OFFS(0x70, chr_asm);
+LIBER_ASSERT_OFFS(0x158, equip_inventory_data);
+LIBER_ASSERT_SIZE(0x490);
+LIBER_ASSERTS_END;
+
+class PlayerGameData : public IGameDataElem
 {
-    unsigned char unk1[0x9c];
-    wchar_t *name;
-    unsigned char unk2[0x20c];
+  public:
+    LIBER_CLASS(PlayerGameData);
+
+    EquipGameData &get_equip_game_data()
+    {
+        return equip_game_data;
+    };
+
+  private:
+    unsigned char liber_unknown[0x2a8];
     EquipGameData equip_game_data;
-    unsigned char unk3[0x360];
+    unsigned char liber_unknown[0x370];
 };
 
-struct SpEffectEntry
+LIBER_ASSERTS_BEGIN(PlayerGameData);
+LIBER_ASSERT_OFFS(0x2b0, equip_game_data);
+LIBER_ASSERT_SIZE(0xab0);
+LIBER_ASSERTS_END;
+
+class FieldInsBase
 {
-    from::paramdefs::SP_EFFECT_PARAM_ST *param;
-    int id;
-    unsigned char unk1[0x24];
-    SpEffectEntry *next;
-    unsigned char unk2[0x8c];
+  public:
+    virtual ~FieldInsBase() = default;
+
+    int get_handle() const
+    {
+        return handle;
+    }
+
+    int get_map_id() const
+    {
+        return map_id;
+    }
+
+  private:
+    int handle;
+    int map_id;
 };
 
-struct SpEffectList
+class ChrIns : public FieldInsBase
 {
-    void **vftable;
-    SpEffectEntry *head;
+  private:
+    unsigned char liber_unknown[0x560];
 };
 
-struct ChrIns
+class PlayerIns : public ChrIns
 {
-    unsigned char unk1[0x6C];
-    unsigned char team_type;
-    unsigned char unk2[0x10b];
-    SpEffectList *speffects;
-    unsigned char unk3[0x3f0];
-};
+  public:
+    LIBER_CLASS(PlayerIns);
 
-struct PlayerIns : ChrIns
-{
-    unsigned char unk3[0x10];
+    PlayerGameData *get_game_data()
+    {
+        return player_game_data;
+    }
+
+  private:
+    void *liber_unknown;
+    void *liber_unknown;
     PlayerGameData *player_game_data;
-    unsigned char unk4[0x1b8];
+    unsigned char liber_unknown[0x1b8];
 };
 
-struct NetPlayer
-{
-    PlayerIns *player;
-    unsigned char unk[0x8];
-};
+LIBER_ASSERTS_BEGIN(PlayerIns);
+LIBER_ASSERT_OFFS(0x580, player_game_data);
+LIBER_ASSERT_SIZE(0x740);
+LIBER_ASSERTS_END;
 
 class WorldChrManImp : public FD4::FD4ComponentBase
 {
@@ -168,11 +209,15 @@ class WorldChrManImp : public FD4::FD4ComponentBase
     }
 
   private:
-    unsigned char liber_unknown[0x10EF0];
-    NetPlayer *net_players;
-    unsigned char liber_unknown[0xd608];
+    unsigned char liber_unknown[0x1e500];
     PlayerIns *main_player;
+    unsigned char liber_unknown[0xed0];
 };
+
+LIBER_ASSERTS_BEGIN(WorldChrManImp);
+LIBER_ASSERT_OFFS(0x1e508, main_player);
+LIBER_ASSERT_SIZE(0x1f3e0);
+LIBER_ASSERTS_END;
 
 }
 }
