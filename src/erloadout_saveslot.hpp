@@ -6,7 +6,7 @@
 #include <paramdefs/EQUIP_PARAM_ACCESSORY_ST.hpp>
 #include <paramdefs/SHOP_LINEUP_PARAM.hpp>
 
-#include "internal/WorldChrMan.hpp"
+#include "from/WorldChrManImp.hpp"
 #include "utils/players.hpp"
 
 namespace erloadout
@@ -15,21 +15,21 @@ namespace saveslots
 {
 static constexpr size_t max_slots = 25;
 
-static constexpr int32_t bare_head_protector_id = 10000;
-static constexpr int32_t bare_chest_protector_id = 10100;
-static constexpr int32_t bare_arms_protector_id = 10200;
-static constexpr int32_t bare_legs_protector_id = 10300;
-static constexpr int32_t unarmed_weapon_id = 110000;
-static constexpr int32_t empty_ammo_id = -1;
-static constexpr int32_t empty_accessory_id = -1;
+static constexpr int bare_head_protector_id = 10000;
+static constexpr int bare_chest_protector_id = 10100;
+static constexpr int bare_arms_protector_id = 10200;
+static constexpr int bare_legs_protector_id = 10300;
+static constexpr int unarmed_weapon_id = 110000;
+static constexpr int empty_ammo_id = -1;
+static constexpr int empty_accessory_id = -1;
 
-extern std::array<int32_t, gear_slot::count> default_gear;
+extern std::array<int, gear_slot::count> default_gear;
 
 struct SaveSlot
 {
     int index;
     bool empty;
-    std::array<int32_t, gear_slot::count> gear;
+    std::array<int, gear_slot::count> gear;
 
     // Info derived from the above equipment
     std::wstring name;

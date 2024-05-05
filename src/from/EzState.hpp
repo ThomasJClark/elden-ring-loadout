@@ -1,14 +1,14 @@
 #pragma once
 
-#include <cstddef>
-#include <cstdint>
-
 #include "List.hpp"
 
 #pragma pack(push, 1)
 
+namespace from
+{
 namespace EzState
 {
+
 struct StateGroup;
 struct State;
 struct Call;
@@ -16,17 +16,17 @@ struct Call;
 struct MachineImpl
 {
     void **vftable;
-    std::byte unk1[0x20];
+    unsigned char unk1[0x20];
     StateGroup *state_group;
-    std::byte unk2[0x110];
+    unsigned char unk2[0x110];
 };
 
 struct StateGroup
 {
-    int32_t id;
-    std::byte pad1[4];
+    int id;
+    unsigned char pad1[4];
     CS::List<State> states;
-    std::byte pad2[4];
+    unsigned char pad2[4];
     State *initial_state;
 };
 
@@ -34,17 +34,17 @@ struct Transition
 {
     State *target_state;
     CS::List<Call> pass_commands;
-    std::byte pad1[4];
+    unsigned char pad1[4];
     CS::List<Transition *> sub_transitions;
-    std::byte pad2[4];
-    CS::List<std::byte> evaluator;
-    std::byte pad3[4];
+    unsigned char pad2[4];
+    CS::List<unsigned char> evaluator;
+    unsigned char pad3[4];
 
     template <size_t evaluator_chars>
     inline Transition(State *target_state, const char (&evaluator_string)[evaluator_chars],
                       CS::List<Call> pass_commands = {})
         : target_state(target_state),
-          evaluator(reinterpret_cast<std::byte *>(const_cast<char *>(evaluator_string)),
+          evaluator(reinterpret_cast<unsigned char *>(const_cast<char *>(evaluator_string)),
                     evaluator_chars - 1),
           pass_commands(pass_commands)
     {
@@ -53,19 +53,19 @@ struct Transition
 
 struct IntValue
 {
-    std::byte start = std::byte(0x82);
-    int32_t value;
-    std::byte end = std::byte(0xa1);
+    unsigned char start{0x82};
+    int value;
+    unsigned char end{0xa1};
 
-    inline IntValue(int32_t value) : value(value)
+    inline IntValue(int value) : value(value)
     {
     }
 };
 
 struct Command
 {
-    int32_t bank;
-    int32_t id;
+    int bank;
+    int id;
 
     bool operator==(Command const &other)
     {
@@ -87,13 +87,13 @@ constexpr Command return_value = {.bank = 7, .id = -1};
 
 struct CommandArg
 {
-    const std::byte *data;
-    uint32_t size;
-    std::byte pad[4];
+    const unsigned char *data;
+    unsigned int size;
+    unsigned char pad[4];
 
     template <typename T>
     inline CommandArg(const T &value)
-        : data(reinterpret_cast<const std::byte *>(&value)), size(sizeof(value))
+        : data(reinterpret_cast<const unsigned char *>(&value)), size(sizeof(value))
     {
     }
 };
@@ -102,22 +102,24 @@ struct Call
 {
     Command command;
     CS::List<CommandArg> args;
-    std::byte pad[4];
+    unsigned char pad[4];
 };
 
 struct State
 {
-    int32_t id;
-    std::byte pad1[4];
+    int id;
+    unsigned char pad1[4];
     CS::List<Transition *> transitions;
-    std::byte pad2[4];
+    unsigned char pad2[4];
     CS::List<Call> entry_commands;
-    std::byte pad3[4];
+    unsigned char pad3[4];
     CS::List<Call> exit_commands;
-    std::byte pad4[4];
+    unsigned char pad4[4];
     CS::List<Call> while_commands;
-    std::byte pad5[4];
+    unsigned char pad5[4];
 };
-};
+
+}
+}
 
 #pragma pack(pop)

@@ -41,7 +41,7 @@ void setup_logger(const filesystem::path &logs_path)
     spdlog::set_default_logger(logger);
 }
 
-bool WINAPI DllMain(HINSTANCE dll_instance, uint32_t fdw_reason, void *lpv_reserved)
+bool WINAPI DllMain(HINSTANCE dll_instance, unsigned int fdw_reason, void *lpv_reserved)
 {
     if (fdw_reason == DLL_PROCESS_ATTACH)
     {

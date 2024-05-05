@@ -29,13 +29,17 @@ static string get_steam_language()
     return steam_language != nullptr ? steam_language : "";
 }
 
+namespace from
+{
 namespace CS
 {
 struct MsgRepository;
 }
-static CS::MsgRepository *msg_repository = nullptr;
+}
 
-static int32_t active_shop_id = -1;
+static from::CS::MsgRepository *msg_repository = nullptr;
+
+static int active_shop_id = -1;
 
 inline bool is_save_loadout_shop_open()
 {
@@ -47,9 +51,9 @@ inline bool is_apply_loadout_shop_open()
     return active_shop_id == shop::apply_loadout_shop_id;
 }
 
-static const wchar_t *(*get_message)(CS::MsgRepository *, uint32_t, msgbnd, int32_t);
-static const wchar_t *get_message_detour(CS::MsgRepository *msg_repository, uint32_t unknown,
-                                         msgbnd bnd_id, int32_t msg_id)
+static const wchar_t *(*get_message)(from::CS::MsgRepository *, unsigned int, msgbnd, int);
+static const wchar_t *get_message_detour(from::CS::MsgRepository *msg_repository,
+                                         unsigned int unknown, msgbnd bnd_id, int msg_id)
 {
     switch (bnd_id)
     {
@@ -141,14 +145,14 @@ static const wchar_t *get_message_detour(CS::MsgRepository *msg_repository, uint
 }
 
 // Set a flag to adjust some UI strings for the loadout shops, but not other shops
-void erloadout::msg::set_active_shop(int32_t shop_id)
+void erloadout::msg::set_active_shop(int shop_id)
 {
     active_shop_id = shop_id;
 }
 
 void erloadout::msg::initialize()
 {
-    auto msg_repository_address = modutils::scan<CS::MsgRepository *>({
+    auto msg_repository_address = modutils::scan<from::CS::MsgRepository *>({
         .aob = "48 8B 3D ?? ?? ?? ?? 44 0F B6 30 48 85 FF 75",
         .relative_offsets = {{3, 7}},
     });
@@ -194,7 +198,7 @@ void erloadout::msg::initialize()
     }
 }
 
-const wchar_t *msg::get_message(msgbnd msgbnd_id, int32_t id)
+const wchar_t *msg::get_message(msgbnd msgbnd_id, int id)
 {
     return ::get_message(msg_repository, 0, msgbnd_id, id);
 }

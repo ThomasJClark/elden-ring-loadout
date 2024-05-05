@@ -1,17 +1,16 @@
-#define WIN32_LEAN_AND_MEAN
+#include <span>
+#include <stdexcept>
 
 #include <MinHook.h>
 #include <Pattern16.h>
-#include <cstdint>
-#include <span>
-#include <stdexcept>
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
 #include "modutils.hpp"
 
 using namespace std;
 
-static span<byte> memory;
+static span<unsigned char> memory;
 
 void modutils::initialize()
 {
@@ -34,7 +33,8 @@ void modutils::initialize()
     if ((dos_header->e_magic == IMAGE_DOS_SIGNATURE) &&
         (nt_headers->Signature == IMAGE_NT_SIGNATURE))
     {
-        memory = {(byte *)memory_info.AllocationBase, nt_headers->OptionalHeader.SizeOfImage};
+        memory = {(unsigned char *)memory_info.AllocationBase,
+                  nt_headers->OptionalHeader.SizeOfImage};
     }
 
     auto mh_status = MH_Initialize();
@@ -51,14 +51,15 @@ void modutils::deinitialize()
 
 void *modutils::scan(const ScanArgs &args)
 {
-    byte *match;
+    unsigned char *match;
     if (args.address != nullptr)
     {
-        match = reinterpret_cast<byte *>(args.address);
+        match = reinterpret_cast<unsigned char *>(args.address);
     }
     else if (!args.aob.empty())
     {
-        match = reinterpret_cast<byte *>(Pattern16::scan(&memory.front(), memory.size(), args.aob));
+        match = reinterpret_cast<unsigned char *>(
+            Pattern16::scan(&memory.front(), memory.size(), args.aob));
     }
     else
     {
@@ -71,7 +72,7 @@ void *modutils::scan(const ScanArgs &args)
 
         for (auto [first, second] : args.relative_offsets)
         {
-            ptrdiff_t offset = *reinterpret_cast<const int32_t *>(&match[first]) + second;
+            ptrdiff_t offset = *reinterpret_cast<const int *>(&match[first]) + second;
             match += offset;
         }
 

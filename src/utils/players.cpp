@@ -5,9 +5,9 @@
 
 using namespace std;
 
-static CS::WorldChrManImp **world_chr_man_addr = nullptr;
+static from::CS::WorldChrManImp **world_chr_man_addr = nullptr;
 
-typedef int GetInventoryIdFn(CS::EquipInventoryData *, int32_t *item_id);
+typedef int GetInventoryIdFn(from::CS::EquipInventoryData *, int *item_id);
 static GetInventoryIdFn *get_inventory_id = nullptr;
 
 players::ApplySpEffectFn *players::apply_speffect = nullptr;
@@ -18,7 +18,7 @@ players::EquipGoodsFn *players::equip_goods;
 
 void players::initialize()
 {
-    world_chr_man_addr = modutils::scan<CS::WorldChrManImp *>({
+    world_chr_man_addr = modutils::scan<from::CS::WorldChrManImp *>({
         .aob = "48 8b 05 ?? ?? ?? ??"  // mov rax, [WorldChrMan]
                "48 85 c0"              // test rax, rax
                "74 0f"                 // jz end_label
@@ -39,7 +39,7 @@ void players::initialize()
 
     // Locate both ChrIns::ApplyEffect() and ChrIns::ClearSpEffect() from this snippet that manages
     // speffect 4270 (Disable Grace Warp)
-    auto disable_enable_grace_warp_address = modutils::scan<byte>({
+    auto disable_enable_grace_warp_address = modutils::scan<unsigned char>({
         .aob = "45 33 c0"        // xor r8d, r8d
                "ba ae 10 00 00"  // mov edx, 4270 ; Disable Grace Warp
                "48 8b cf"        // mov rcx, rdi
@@ -94,7 +94,7 @@ void players::initialize()
     });
 }
 
-CS::PlayerIns *players::get_main_player()
+from::CS::PlayerIns *players::get_main_player()
 {
     auto world_chr_man = *world_chr_man_addr;
     if (world_chr_man != nullptr)
@@ -105,7 +105,7 @@ CS::PlayerIns *players::get_main_player()
     return nullptr;
 }
 
-bool players::has_item_in_inventory(uint32_t item_type, int32_t id)
+bool players::has_item_in_inventory(unsigned int item_type, int id)
 {
     auto player = get_main_player();
     if (player == nullptr)
@@ -114,11 +114,11 @@ bool players::has_item_in_inventory(uint32_t item_type, int32_t id)
     }
 
     auto &equip_game_data = player->player_game_data->equip_game_data;
-    auto item_id = (int32_t)item_type + id;
+    auto item_id = (int)item_type + id;
     return get_inventory_id(&equip_game_data.equip_inventory_data, &item_id) != -1;
 }
 
-bool players::has_speffect(CS::PlayerIns *player, int32_t speffect_id)
+bool players::has_speffect(from::CS::PlayerIns *player, int speffect_id)
 {
     if (player == nullptr)
     {

@@ -1,4 +1,3 @@
-#include <cstdint>
 #include <spdlog/spdlog.h>
 
 #include "erloadout_messages.hpp"
@@ -6,7 +5,7 @@
 #include "erloadout_shop.hpp"
 #include "erloadout_talkscript.hpp"
 #include "erloadout_talkscript_states.hpp"
-#include "internal/EzState.hpp"
+#include "from/EzState.hpp"
 #include "utils/modutils.hpp"
 
 using namespace std;
@@ -29,58 +28,59 @@ OpenShopState apply_loadout_state(68003, shop::apply_loadout_shop_id,
 };
 
 // AddTalkListData(68, "Manage loadouts", -1)
-static EzState::IntValue loadout_talk_list_index = 68;
-static EzState::IntValue loadout_menu_text_id = msg::event_text_for_talk_manage_loadouts;
-static EzState::IntValue unk = -1;
-static EzState::CommandArg loadout_arg_list[] = {loadout_talk_list_index, loadout_menu_text_id,
-                                                 unk};
-static EzState::Call main_menu_loadout_command(EzState::Commands::add_talk_list_data,
-                                               loadout_arg_list);
+static from::EzState::IntValue loadout_talk_list_index = 68;
+static from::EzState::IntValue loadout_menu_text_id = msg::event_text_for_talk_manage_loadouts;
+static from::EzState::IntValue unk = -1;
+static from::EzState::CommandArg loadout_arg_list[] = {loadout_talk_list_index,
+                                                       loadout_menu_text_id, unk};
+static from::EzState::Call main_menu_loadout_command(from::EzState::Commands::add_talk_list_data,
+                                                     loadout_arg_list);
 
 // GetTalkListEntryResult() == 68
-static EzState::Transition main_menu_loadout_transition(&loadout_menu_state,
-                                                        "\x57\x84\x82\x44\x00\x00\x00\x95\xa1");
+static from::EzState::Transition main_menu_loadout_transition(
+    &loadout_menu_state, "\x57\x84\x82\x44\x00\x00\x00\x95\xa1");
 
-static EzState::Call patched_commands[100];
-static EzState::Transition *patched_transitions[100];
+static from::EzState::Call patched_commands[100];
+static from::EzState::Transition *patched_transitions[100];
 
 /**
  * Return true if the given EzState call is AddTalkListData(??, message_id, ??)
  */
-static bool is_add_talk_list_data_call(EzState::Call &call, int32_t message_id)
+static bool is_add_talk_list_data_call(from::EzState::Call &call, int message_id)
 {
-    return call.command == EzState::Commands::add_talk_list_data && call.args.count == 3 &&
-           *reinterpret_cast<const int32_t *>(call.args[1].data + 1) == message_id;
+    return call.command == from::EzState::Commands::add_talk_list_data && call.args.count == 3 &&
+           *reinterpret_cast<const int *>(call.args[1].data + 1) == message_id;
 }
 
 /**
  * Return true if the given EzState transition goes to a state that opens the storage chest
  */
-static bool is_sort_chest_transition(const EzState::Transition *transition)
+static bool is_sort_chest_transition(const from::EzState::Transition *transition)
 {
     auto target_state = transition->target_state;
     return target_state != nullptr && target_state->entry_commands.count != 0 &&
-           target_state->entry_commands[0].command == EzState::Commands::open_repository;
+           target_state->entry_commands[0].command == from::EzState::Commands::open_repository;
 }
 
-static EzState::StateGroup *state_group = nullptr;
+static from::EzState::StateGroup *state_group = nullptr;
 
-static void (*ezstate_enter_state)(EzState::State *state, EzState::MachineImpl *machine, void *unk);
+static void (*ezstate_enter_state)(from::EzState::State *state, from::EzState::MachineImpl *machine,
+                                   void *unk);
 
 /**
  * Patch the site of grace menu to contain a "Manage loadouts" option
  */
-static void ezstate_enter_state_detour(EzState::State *state, EzState::MachineImpl *machine,
-                                       void *unk)
+static void ezstate_enter_state_detour(from::EzState::State *state,
+                                       from::EzState::MachineImpl *machine, void *unk)
 {
     auto state_group = machine->state_group;
     if (state == state_group->initial_state)
     {
-        EzState::State *add_menu_state = nullptr;
-        EzState::Call *call_iter = nullptr;
+        from::EzState::State *add_menu_state = nullptr;
+        from::EzState::Call *call_iter = nullptr;
 
-        EzState::State *menu_transition_state = nullptr;
-        EzState::Transition **transition_iter = nullptr;
+        from::EzState::State *menu_transition_state = nullptr;
+        from::EzState::Transition **transition_iter = nullptr;
 
         // Look for a state that adds a "Sort chest" menu option, and a state that opens the storage
         // chest.
@@ -155,7 +155,7 @@ void erloadout::talkscript::initialize()
                    "4c 8d 44 24 40"  // lea r8=>local_4c8, [rsp + 0x40]
                    "48 8b d6"        // mov rdx,rsi
                    "48 8b 4e 20"     // mov rcx,qword ptr [rsi + 0x20]
-                   "e8 ?? ?? ?? ??", // call EzState::EnterState
+                   "e8 ?? ?? ?? ??", // call from::EzState::EnterState
             .offset = 18,
             .relative_offsets = {{1, 5}},
         },

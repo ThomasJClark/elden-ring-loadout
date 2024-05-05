@@ -1,11 +1,10 @@
 #pragma once
-#include <cstdint>
 #include <map>
 #include <string>
 
 namespace erloadout
 {
-enum class msgbnd : uint32_t
+enum class msgbnd : unsigned int
 {
     goods_name = 10,
     weapon_name = 11,
@@ -23,17 +22,17 @@ enum class msgbnd : uint32_t
 
 namespace msg
 {
-static constexpr int32_t event_text_for_talk_manage_loadouts = 68000000;
-static constexpr int32_t event_text_for_talk_save_loadout = 68000001;
-static constexpr int32_t event_text_for_talk_apply_loadout = 68000002;
-static constexpr int32_t event_text_for_talk_cancel = 15000372;
-static constexpr int32_t event_text_for_talk_sort_chest = 15000395;
-static constexpr int32_t menu_text_number_held = 11004;
-static constexpr int32_t menu_text_stored = 11005;
-static constexpr int32_t menu_text_save_loadout = 680000;
-static constexpr int32_t menu_text_apply_loadout = 680001;
-static constexpr int32_t line_help_select_item_for_purchase = 231000;
-static constexpr int32_t dialogues_purchase_item_for_runes = 231000;
+static constexpr int event_text_for_talk_manage_loadouts = 68000000;
+static constexpr int event_text_for_talk_save_loadout = 68000001;
+static constexpr int event_text_for_talk_apply_loadout = 68000002;
+static constexpr int event_text_for_talk_cancel = 15000372;
+static constexpr int event_text_for_talk_sort_chest = 15000395;
+static constexpr int menu_text_number_held = 11004;
+static constexpr int menu_text_stored = 11005;
+static constexpr int menu_text_save_loadout = 680000;
+static constexpr int menu_text_apply_loadout = 680001;
+static constexpr int line_help_select_item_for_purchase = 231000;
+static constexpr int dialogues_purchase_item_for_runes = 231000;
 
 union LoadoutMessages {
     struct
@@ -59,9 +58,9 @@ union LoadoutMessages {
 
 void initialize();
 
-void set_active_shop(int32_t shop_id);
+void set_active_shop(int shop_id);
 
-const wchar_t *get_message(msgbnd msgbnd_id, int32_t id);
+const wchar_t *get_message(msgbnd msgbnd_id, int id);
 
 /**
  * Map of Steam language names to messages used by the mod

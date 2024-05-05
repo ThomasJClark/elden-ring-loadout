@@ -17,18 +17,18 @@ using namespace erloadout;
 
 array<saveslots::SaveSlot, saveslots::max_slots> saveslots::slots;
 
-static constexpr array<uint16_t, saveslots::max_slots> icon_ids = {
+static constexpr array<unsigned short, saveslots::max_slots> icon_ids = {
     361, 362, 363, 364, 365, 366, 367, 368,  369,  370,  371,  372,  373,
     374, 375, 377, 378, 379, 380, 359, 3504, 3505, 3508, 3531, 3538,
 };
 
-static constexpr array<uint16_t, saveslots::max_slots> empty_icon_ids = {
+static constexpr array<unsigned short, saveslots::max_slots> empty_icon_ids = {
     653, 654, 655, 656, 657, 658, 659, 660,  661,  662,  663,  664, 665,
     666, 667, 669, 670, 671, 672, 651, 3704, 3705, 3708, 3732, 3739};
 
-array<int32_t, gear_slot::count> saveslots::default_gear;
+array<int, gear_slot::count> saveslots::default_gear;
 
-static array<uint32_t, gear_slot::count> gear_item_types;
+static array<unsigned int, gear_slot::count> gear_item_types;
 static array<string, gear_slot::count> gear_slot_debug_names;
 
 void saveslots::initialize()
@@ -279,7 +279,7 @@ void saveslots::SaveSlot::apply_to_player()
     auto &equip_game_data = main_player->player_game_data->equip_game_data;
     auto &inventory_entries = equip_game_data.equip_inventory_data.entries;
 
-    auto find_inventory_index = [this, &inventory_entries](uint32_t gear_slot) {
+    auto find_inventory_index = [this, &inventory_entries](unsigned int gear_slot) {
         auto item_type = gear_item_types[gear_slot];
         auto item_id = gear[gear_slot];
 
@@ -307,7 +307,7 @@ void saveslots::SaveSlot::apply_to_player()
             auto best_index = -1;
             auto best_upgrade = 0;
 
-            for (int32_t i = 0; i < inventory_entries.count; i++)
+            for (int i = 0; i < inventory_entries.count; i++)
             {
                 if (get_item_type(inventory_entries[i].item_id) == item_type::weapon)
                 {
@@ -345,7 +345,7 @@ void saveslots::SaveSlot::apply_to_player()
         return -1;
     };
 
-    for (uint32_t gear_slot = 0; gear_slot < gear_slot::count; gear_slot++)
+    for (unsigned int gear_slot = 0; gear_slot < gear_slot::count; gear_slot++)
     {
         auto item_type = gear_item_types[gear_slot];
         if (item_type == item_type::invalid)
