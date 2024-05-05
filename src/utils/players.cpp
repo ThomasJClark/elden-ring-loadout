@@ -99,7 +99,7 @@ from::CS::PlayerIns *players::get_main_player()
     auto world_chr_man = *world_chr_man_addr;
     if (world_chr_man != nullptr)
     {
-        return world_chr_man->main_player;
+        return world_chr_man->get_main_player();
     }
 
     return nullptr;

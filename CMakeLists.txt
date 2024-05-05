@@ -68,6 +68,7 @@ add_library(EldenRingLoadoutMod SHARED
   src/erloadout_talkscript.hpp
   src/from/EzState.hpp
   src/from/List.hpp
+  src/from/WorldChrManImp.cpp
   src/from/WorldChrManImp.hpp
   src/utils/modutils.cpp
   src/utils/modutils.hpp

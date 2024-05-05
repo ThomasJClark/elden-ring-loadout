@@ -2,6 +2,8 @@
 
 #include <utility>
 
+#include <fd4/component.hpp>
+#include <fd4/detail/singleton.hpp>
 #include <paramdefs/SP_EFFECT_PARAM_ST.hpp>
 
 #include "List.hpp"
@@ -153,11 +155,22 @@ struct NetPlayer
     unsigned char unk[0x8];
 };
 
-struct WorldChrManImp
+class WorldChrManImp : public FD4::FD4ComponentBase
 {
-    unsigned char unk1[0x10EF8];
+  public:
+    FD4_SINGLETON_CLASS(WorldChrManImp);
+
+    virtual ~WorldChrManImp() = 0;
+
+    PlayerIns *get_main_player()
+    {
+        return main_player;
+    }
+
+  private:
+    unsigned char liber_unknown[0x10EF0];
     NetPlayer *net_players;
-    unsigned char unk2[0xd608];
+    unsigned char liber_unknown[0xd608];
     PlayerIns *main_player;
 };
 
