@@ -16,6 +16,8 @@
 using namespace std;
 using namespace erloadout;
 
+static filesystem::path file_path;
+
 static inline unsigned int get_item_type(unsigned int item_id)
 {
     return item_id & 0x70000000;
@@ -44,8 +46,10 @@ array<int, gear_slot::count> saveslots::default_gear;
 static array<unsigned int, gear_slot::count> gear_item_types;
 static array<string, gear_slot::count> gear_slot_debug_names;
 
-void saveslots::initialize()
+void saveslots::initialize(filesystem::path file_path)
 {
+    ::file_path = file_path;
+
     from::paramdefs::SHOP_LINEUP_PARAM initial_shop_lineup_param = {.value = -1,
                                                                     .mtrlId = -1,
                                                                     .sellQuantity = -1,
@@ -171,6 +175,8 @@ void saveslots::initialize()
     slots[1].gear[gear_slot::accessory2_id] = 2200;        // Curved Sword Talisman
     slots[1].gear[gear_slot::accessory3_id] = 2050;        // Ritual Sword Talisman
     slots[1].gear[gear_slot::accessory4_id] = 4003;        // Dragoncrest Greatshield Talisman
+
+    load_from_file();
 }
 
 void saveslots::SaveSlot::refresh()
@@ -272,9 +278,8 @@ void saveslots::SaveSlot::save_from_player()
     auto &chr_asm = main_player->get_game_data()->get_equip_game_data().get_chr_asm();
     copy(begin(chr_asm.gear), end(chr_asm.gear), begin(gear));
 
-    spdlog::info("TODO: save slot {}", index + 1);
-
     refresh();
+    save_to_file();
 }
 
 void saveslots::SaveSlot::apply_to_player()
@@ -381,4 +386,14 @@ void saveslots::SaveSlot::apply_to_player()
 
     // Show a cool effect on the player
     players::spawn_one_shot_sfx_on_chr(main_player, 900, 8020, nullptr);
+}
+
+void saveslots::load_from_file()
+{
+    spdlog::warn("TOOD: load from file");
+}
+
+void saveslots::save_to_file()
+{
+    spdlog::warn("TOOD: save to file");
 }

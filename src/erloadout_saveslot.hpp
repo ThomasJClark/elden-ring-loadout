@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <filesystem>
 #include <string>
 
 #include <paramdefs/EQUIP_PARAM_ACCESSORY_ST.hpp>
@@ -54,6 +55,12 @@ struct SaveSlot
 
 extern std::array<SaveSlot, max_slots> slots;
 
-void initialize();
+void initialize(std::filesystem::path file_path);
+
+// Load saved loadout slots from the JSON file on disk
+void load_from_file();
+
+// Save loadout slots in memory to the JSON file on disk
+void save_to_file();
 }
 }

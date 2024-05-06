@@ -55,7 +55,7 @@ bool WINAPI DllMain(HINSTANCE dll_instance, unsigned int fdw_reason, void *lpv_r
         spdlog::info("Loadout version {}", PROJECT_VERSION);
 #endif
 
-        mod_thread = thread([]() {
+        mod_thread = thread([folder]() {
             try
             {
                 modutils::initialize();
@@ -69,7 +69,7 @@ bool WINAPI DllMain(HINSTANCE dll_instance, unsigned int fdw_reason, void *lpv_r
                 spdlog::info("Hooking loadout messages...");
                 erloadout::msg::initialize();
 
-                erloadout::saveslots::initialize();
+                erloadout::saveslots::initialize(folder / "erloadout.json");
 
                 spdlog::info("Adding loadout shops...");
                 erloadout::shop::initialize();
