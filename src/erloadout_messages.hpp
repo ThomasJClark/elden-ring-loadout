@@ -34,26 +34,23 @@ static constexpr int menu_text_apply_loadout = 680001;
 static constexpr int line_help_select_item_for_purchase = 231000;
 static constexpr int dialogues_purchase_item_for_runes = 231000;
 
-union LoadoutMessages {
-    struct
-    {
-        const wchar_t *manage_loadouts;
-        const wchar_t *save_loadout;
-        const wchar_t *apply_loadout;
-        const wchar_t *select_loadout_to_save;
-        const wchar_t *select_loadout_to_apply;
-        const wchar_t *save_loadout_prompt;
-        const wchar_t *apply_loadout_prompt;
-        const wchar_t *loadout;
-        const wchar_t *empty_slot;
-        const wchar_t *armaments;
-        const wchar_t *arrows_bolts;
-        const wchar_t *armor;
-        const wchar_t *talismans;
-        const wchar_t *unarmed;
-        const wchar_t *none;
-    };
-    const wchar_t *all_messages;
+struct LoadoutMessages
+{
+    const wchar_t *manage_loadouts;
+    const wchar_t *save_loadout;
+    const wchar_t *apply_loadout;
+    const wchar_t *select_loadout_to_save;
+    const wchar_t *select_loadout_to_apply;
+    const wchar_t *save_loadout_prompt;
+    const wchar_t *apply_loadout_prompt;
+    const wchar_t *loadout;
+    const wchar_t *empty_slot;
+    const wchar_t *armaments;
+    const wchar_t *arrows_bolts;
+    const wchar_t *armor;
+    const wchar_t *talismans;
+    const wchar_t *unarmed;
+    const wchar_t *none;
 };
 
 void initialize();

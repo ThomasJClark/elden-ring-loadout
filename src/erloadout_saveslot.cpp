@@ -271,7 +271,6 @@ void saveslots::SaveSlot::save_from_player()
 
     auto &chr_asm = main_player->get_game_data()->get_equip_game_data().get_chr_asm();
     copy(begin(chr_asm.gear), end(chr_asm.gear), begin(gear));
-    empty = false;
 
     spdlog::info("TODO: save slot {}", index + 1);
 

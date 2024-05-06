@@ -183,18 +183,7 @@ void erloadout::msg::initialize()
     else
     {
         spdlog::warn("Unknown language \"{}\", defaulting to English", language);
-    }
-
-    // Default untranslated messages to English
-    auto default_messages = loadout_messages_by_lang.at("english");
-    for (int i = 0; i < sizeof(LoadoutMessages) / sizeof(const wchar_t *); i++)
-    {
-        auto &str = (&loadout_messages.all_messages)[i];
-        auto &default_str = (&default_messages.all_messages)[i];
-        if (str == nullptr)
-        {
-            str = default_str;
-        }
+        loadout_messages = loadout_messages_by_lang.at("english");
     }
 }
 
