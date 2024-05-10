@@ -1,6 +1,8 @@
 #include <algorithm>
+#include <fstream>
 
 #include <coresystem/param.hpp>
+#include <nlohmann/json.hpp>
 #include <paramdefs/EQUIP_PARAM_ACCESSORY_ST.hpp>
 #include <paramdefs/EQUIP_PARAM_PROTECTOR_ST.hpp>
 #include <paramdefs/EQUIP_PARAM_WEAPON_ST.hpp>
@@ -15,8 +17,10 @@
 
 using namespace std;
 using namespace erloadout;
+using json = nlohmann::json;
+namespace fs = std::filesystem;
 
-static filesystem::path file_path;
+static fs::path file_path;
 
 static inline unsigned int get_item_type(unsigned int item_id)
 {
@@ -46,7 +50,7 @@ array<int, gear_slot::count> saveslots::default_gear;
 static array<unsigned int, gear_slot::count> gear_item_types;
 static array<string, gear_slot::count> gear_slot_debug_names;
 
-void saveslots::initialize(filesystem::path file_path)
+void saveslots::initialize(fs::path file_path)
 {
     ::file_path = file_path;
 
@@ -390,10 +394,35 @@ void saveslots::SaveSlot::apply_to_player()
 
 void saveslots::load_from_file()
 {
-    spdlog::warn("TOOD: load from file");
+    try
+    {
+        ifstream stream(file_path);
+        json slots_json = json::parse(stream);
+        slots_json.items()
+    }
+    catch (json::exception &e)
+    {
+        spdlog::error("{}: {}", file_path, e.what());
+    }
 }
 
 void saveslots::save_to_file()
 {
-    spdlog::warn("TOOD: save to file");
+    json slots_json = json::array();
+    for (auto &slot : slots)
+    {
+        if (slot.empty)
+            slots_json.push_back(json{});
+        else
+            slots_json.push_back({{"gear", slot.gear}});
+    }
+
+    json data_json = {{"slots", slots_json}};
+
+    ofstream stream;
+    stream.open(file_path);
+    stream << data_json.dump();
+    stream.close();
+
+    spdlog::info("Saved to {}", file_path.string());
 }

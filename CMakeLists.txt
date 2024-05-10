@@ -33,12 +33,17 @@ FetchContent_Declare(spdlog
   GIT_REPOSITORY        https://github.com/gabime/spdlog.git
   GIT_TAG               v1.13.0)
 
+FetchContent_Declare(nlohmann_json
+  GIT_REPOSITORY        https://github.com/nlohmann/json.git
+  GIT_TAG               v3.11.3)
+
 # Set iterator debug level to 0 for ELDEN RING ABI compatibility
 add_definitions(-D_ITERATOR_DEBUG_LEVEL=0)
 FetchContent_Declare(liber
-  SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/../libER")
+  GIT_REPOSITORY        https://github.com/Dasaav-dsv/libER.git
+  GIT_TAG               8249033051ee1c1c7d4e7ad861cf98ac90951225)
 
-FetchContent_MakeAvailable(minhook pattern16 mini spdlog liber)
+FetchContent_MakeAvailable(minhook pattern16 mini spdlog nlohmann_json liber)
 
 add_library(pattern16 INTERFACE)
 target_include_directories(pattern16 INTERFACE ${pattern16_SOURCE_DIR}/include)
@@ -83,10 +88,14 @@ add_custom_command(TARGET EldenRingLoadoutMod POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy -t $<TARGET_FILE_DIR:EldenRingLoadoutMod> ${CMAKE_SOURCE_DIR}/erloadout.ini
   COMMAND_EXPAND_LISTS)
 
+# Allow importing internal symbols using libER
+target_include_directories(EldenRingLoadoutMod PUBLIC ${liber_SOURCE_DIR}/symbols)
+
 target_link_libraries(EldenRingLoadoutMod
   minhook
   pattern16
   mini
   spdlog
+  nlohmann_json
   libER_static
   ${CMAKE_SOURCE_DIR}/steam_api64.lib)
