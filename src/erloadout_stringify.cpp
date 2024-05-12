@@ -6,6 +6,7 @@
 #include <coresystem/param.hpp>
 #include <spdlog/spdlog.h>
 
+#include "erloadout_gear_info.hpp"
 #include "erloadout_messages.hpp"
 #include "erloadout_stringify.hpp"
 #include "utils/players.hpp"
@@ -57,22 +58,22 @@ static const wstring head_placeholder =
     L"<img src='img://MENU_SL_Head' width='33' height='48'/>"
     L"<img src='img://MENU_DummyTransparent.dds' width='6' height='48'/>";
 
-static const wstring body_placeholder =
+static const wstring chest_placeholder =
     L"<img src='img://MENU_DummyTransparent.dds' width='5' height='48'/>"
     L"<img src='img://MENU_SL_Body' width='33' height='48'/>"
     L"<img src='img://MENU_DummyTransparent.dds' width='6' height='48'/>";
 
-static const wstring hand_placeholder =
+static const wstring arms_placeholder =
     L"<img src='img://MENU_DummyTransparent.dds' width='7' height='48'/>"
     L"<img src='img://MENU_SL_Hand' width='29' height='48'/>"
     L"<img src='img://MENU_DummyTransparent.dds' width='8' height='48'/>";
 
-static const wstring foot_placeholder =
+static const wstring legs_placeholder =
     L"<img src='img://MENU_DummyTransparent.dds' width='13' height='48'/>"
     L"<img src='img://MENU_SL_Foot' width='18' height='48'/>"
     L"<img src='img://MENU_DummyTransparent.dds' width='13' height='48'/>";
 
-static const wstring talisman_placeholder =
+static const wstring accessory_placeholder =
     L"<img src='img://MENU_SL_Talisman' width='44' height='48'/>"
     L"<img src='img://MENU_DummyTransparent.dds' width='2' height='48'/>";
 
@@ -173,7 +174,7 @@ static wstring item_icon(int icon_id)
     return ss.str();
 }
 
-wstring erloadout::iconify_loadout(loadouts::loadout const &loadout)
+wstring erloadout::iconify_loadout(loadout const &loadout)
 {
 
     auto &gear = loadout.gear;
@@ -207,7 +208,7 @@ wstring erloadout::iconify_loadout(loadouts::loadout const &loadout)
          {gear_slot::right_weapon1_id, gear_slot::right_weapon2_id, gear_slot::right_weapon3_id})
     {
         auto weapon_id = gear[gear_slot];
-        if (weapon_id != unarmed_weapon_id)
+        if (weapon_id != gearinfo[gear_slot].default_value)
             stream << item_icon(get_weapon_icon_id(weapon_id - (weapon_id % 100)));
         else
             stream << right_weapon_placeholder;
@@ -216,7 +217,7 @@ wstring erloadout::iconify_loadout(loadouts::loadout const &loadout)
     for (auto gear_slot : {gear_slot::arrow1_id, gear_slot::arrow2_id})
     {
         auto weapon_id = gear[gear_slot];
-        if (weapon_id != empty_ammo_id)
+        if (weapon_id != gearinfo[gear_slot].default_value)
             stream << item_icon(get_weapon_icon_id(weapon_id));
         else
             stream << arrow_placeholder;
@@ -228,7 +229,7 @@ wstring erloadout::iconify_loadout(loadouts::loadout const &loadout)
          {gear_slot::left_weapon1_id, gear_slot::left_weapon2_id, gear_slot::left_weapon3_id})
     {
         auto weapon_id = gear[gear_slot];
-        if (weapon_id != unarmed_weapon_id)
+        if (weapon_id != gearinfo[gear_slot].default_value)
             stream << item_icon(get_weapon_icon_id(weapon_id - (weapon_id % 100)));
         else
             stream << left_weapon_placeholder;
@@ -237,7 +238,7 @@ wstring erloadout::iconify_loadout(loadouts::loadout const &loadout)
     for (auto gear_slot : {gear_slot::bolt1_id, gear_slot::bolt2_id})
     {
         auto weapon_id = gear[gear_slot];
-        if (weapon_id != empty_ammo_id)
+        if (weapon_id != gearinfo[gear_slot].default_value)
             stream << item_icon(get_weapon_icon_id(weapon_id));
         else
             stream << bolt_placeholder;
@@ -245,25 +246,20 @@ wstring erloadout::iconify_loadout(loadouts::loadout const &loadout)
 
     stream << L"\n";
 
-    if (gear[gear_slot::head_protector_id] != bare_head_protector_id)
-        stream << item_icon(get_protector_icon_id(gear[gear_slot::head_protector_id]));
-    else
-        stream << head_placeholder;
-
-    if (gear[gear_slot::chest_protector_id] != bare_chest_protector_id)
-        stream << item_icon(get_protector_icon_id(gear[gear_slot::chest_protector_id]));
-    else
-        stream << body_placeholder;
-
-    if (gear[gear_slot::arms_protector_id] != bare_arms_protector_id)
-        stream << item_icon(get_protector_icon_id(gear[gear_slot::arms_protector_id]));
-    else
-        stream << hand_placeholder;
-
-    if (gear[gear_slot::legs_protector_id] != bare_legs_protector_id)
-        stream << item_icon(get_protector_icon_id(gear[gear_slot::legs_protector_id]));
-    else
-        stream << foot_placeholder;
+    for (auto gear_slot : {gear_slot::head_protector_id, gear_slot::chest_protector_id,
+                           gear_slot::arms_protector_id, gear_slot::legs_protector_id})
+    {
+        if (gear[gear_slot] != gearinfo[gear_slot].default_value)
+            stream << item_icon(get_protector_icon_id(gear[gear_slot]));
+        else if (gear_slot == gear_slot::head_protector_id)
+            stream << head_placeholder;
+        else if (gear_slot == gear_slot::chest_protector_id)
+            stream << chest_placeholder;
+        else if (gear_slot == gear_slot::arms_protector_id)
+            stream << arms_placeholder;
+        else if (gear_slot == gear_slot::legs_protector_id)
+            stream << legs_placeholder;
+    }
 
     stream << L"\n";
 
@@ -271,17 +267,17 @@ wstring erloadout::iconify_loadout(loadouts::loadout const &loadout)
                            gear_slot::accessory3_id, gear_slot::accessory4_id})
     {
         auto accessory_id = gear[gear_slot];
-        if (accessory_id != empty_accessory_id)
-            stream << item_icon(get_protector_icon_id(accessory_id));
+        if (accessory_id != gearinfo[gear_slot].default_value)
+            stream << item_icon(get_accessory_icon_id(accessory_id));
         else
-            stream << talisman_placeholder;
+            stream << accessory_placeholder;
     }
 
     return stream.str();
 }
 
 // Generates a string with a list of equipment in the given loadout
-wstring erloadout::stringify_loadout(loadouts::loadout const &loadout)
+wstring erloadout::stringify_loadout(loadout const &loadout)
 {
     auto &gear = loadout.gear;
 

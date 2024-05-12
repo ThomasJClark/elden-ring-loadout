@@ -69,7 +69,7 @@ bool WINAPI DllMain(HINSTANCE dll_instance, unsigned int fdw_reason, void *lpv_r
                 spdlog::info("Hooking loadout messages...");
                 erloadout::msg::initialize();
 
-                erloadout::loadouts::initialize(folder / "erloadout.json");
+                erloadout::initialize_loadouts(folder / "erloadout.json");
 
                 spdlog::info("Adding loadout shops...");
                 erloadout::shop::initialize();

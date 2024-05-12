@@ -2,10 +2,12 @@
 #include <unordered_set>
 
 #include <paramdefs/SHOP_LINEUP_PARAM.hpp>
+#include <spdlog/spdlog.h>
 
 #include "erloadout_loadout.hpp"
 #include "erloadout_messages.hpp"
 #include "erloadout_shop.hpp"
+#include "erloadout_to_player.hpp"
 #include "utils/modutils.hpp"
 #include "utils/players.hpp"
 
@@ -93,22 +95,21 @@ static void (*get_shop_lineup_param)(from::CS::FindShopLineupParamResult *, from
 static void get_shop_lineup_param_detour(from::CS::FindShopLineupParamResult *result,
                                          from::CS::shop_type shop_type, int id)
 {
-    if (id >= shop::save_loadout_shop_id &&
-        id < shop::save_loadout_shop_id + loadouts::loadouts.size())
+    if (id >= shop::save_loadout_shop_id && id < shop::save_loadout_shop_id + loadouts.size())
     {
         auto loadout_slot = id - shop::save_loadout_shop_id;
         result->shop_type = shop_type;
         result->id = id;
-        result->row = &loadouts::loadouts[loadout_slot].save_shop_lineup_param;
+        result->row = &loadouts[loadout_slot].save_shop_lineup_param;
         return;
     }
     else if (id >= shop::apply_loadout_shop_id &&
-             id < shop::apply_loadout_shop_id + loadouts::loadouts.size())
+             id < shop::apply_loadout_shop_id + loadouts.size())
     {
         auto loadout_slot = id - shop::apply_loadout_shop_id;
         result->shop_type = shop_type;
         result->id = id;
-        result->row = &loadouts::loadouts[loadout_slot].apply_shop_lineup_param;
+        result->row = &loadouts[loadout_slot].apply_shop_lineup_param;
         return;
     }
 
@@ -121,18 +122,18 @@ static void get_equip_param_accessory_detour(from::CS::FindEquipParamAccessoryRe
                                              int id)
 {
     if (id >= shop::save_loadout_accessory_base_id &&
-        id < shop::save_loadout_accessory_base_id + loadouts::loadouts.size())
+        id < shop::save_loadout_accessory_base_id + loadouts.size())
     {
-        auto &slot = loadouts::loadouts[id - shop::save_loadout_accessory_base_id];
+        auto &slot = loadouts[id - shop::save_loadout_accessory_base_id];
         result->id = id;
         result->row = &slot.save_accessory_param;
         result->unknown = 3;
         return;
     }
     if (id >= shop::apply_loadout_accessory_base_id &&
-        id < shop::apply_loadout_accessory_base_id + loadouts::loadouts.size())
+        id < shop::apply_loadout_accessory_base_id + loadouts.size())
     {
-        auto &slot = loadouts::loadouts[id - shop::apply_loadout_accessory_base_id];
+        auto &slot = loadouts[id - shop::apply_loadout_accessory_base_id];
 
         // Only show non-empty slots in the "Apply loadout" menu
         if (!slot.empty)
@@ -156,7 +157,7 @@ static void open_regular_shop_detour(void *unk, unsigned long long begin_id,
     {
         msg::set_active_shop(begin_id);
 
-        for (auto &slot : loadouts::loadouts)
+        for (auto &slot : loadouts)
             slot.refresh();
     }
     else
@@ -176,18 +177,36 @@ static bool add_inventory_from_shop_detour(int *item_id_address, int quantity)
     {
         auto accessory_id = item_id - shop::item_type_accessory_begin;
         if (accessory_id >= shop::save_loadout_accessory_base_id &&
-            accessory_id < shop::save_loadout_accessory_base_id + loadouts::loadouts.size())
+            accessory_id < shop::save_loadout_accessory_base_id + loadouts.size())
         {
-            auto &loadout = loadouts::loadouts[accessory_id - shop::save_loadout_accessory_base_id];
-            loadout.save_from_player();
+            auto main_player = from::CS::WorldChrManImp::instance().reference().get_main_player();
+            if (main_player != nullptr)
+            {
+                auto &loadout = loadouts[accessory_id - shop::save_loadout_accessory_base_id];
+                erloadout::save_from_player(loadout, *main_player);
+                erloadout::save_to_file();
+            }
+            else
+            {
+                spdlog::error("Can't save loadout, main player isn't initialized");
+            }
+
             return false;
         }
-        if (accessory_id >= shop::apply_loadout_accessory_base_id &&
-            accessory_id < shop::apply_loadout_accessory_base_id + loadouts::loadouts.size())
+        else if (accessory_id >= shop::apply_loadout_accessory_base_id &&
+                 accessory_id < shop::apply_loadout_accessory_base_id + loadouts.size())
         {
-            auto &loadout =
-                loadouts::loadouts[accessory_id - shop::apply_loadout_accessory_base_id];
-            loadout.apply_to_player();
+            auto main_player = from::CS::WorldChrManImp::instance().reference().get_main_player();
+            if (main_player != nullptr)
+            {
+                auto &loadout = loadouts[accessory_id - shop::apply_loadout_accessory_base_id];
+                erloadout::apply_to_player(loadout, *main_player);
+            }
+            else
+            {
+                spdlog::error("Can't apply loadout, main player isn't initialized");
+            }
+
             return false;
         }
     }
