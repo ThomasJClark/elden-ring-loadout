@@ -3,8 +3,8 @@
 
 #include <paramdefs/SHOP_LINEUP_PARAM.hpp>
 
+#include "erloadout_loadout.hpp"
 #include "erloadout_messages.hpp"
-#include "erloadout_saveslot.hpp"
 #include "erloadout_shop.hpp"
 #include "utils/modutils.hpp"
 #include "utils/players.hpp"
@@ -94,21 +94,21 @@ static void get_shop_lineup_param_detour(from::CS::FindShopLineupParamResult *re
                                          from::CS::shop_type shop_type, int id)
 {
     if (id >= shop::save_loadout_shop_id &&
-        id < shop::save_loadout_shop_id + saveslots::slots.size())
+        id < shop::save_loadout_shop_id + loadouts::loadouts.size())
     {
         auto loadout_slot = id - shop::save_loadout_shop_id;
         result->shop_type = shop_type;
         result->id = id;
-        result->row = &saveslots::slots[loadout_slot].save_shop_lineup_param;
+        result->row = &loadouts::loadouts[loadout_slot].save_shop_lineup_param;
         return;
     }
     else if (id >= shop::apply_loadout_shop_id &&
-             id < shop::apply_loadout_shop_id + saveslots::slots.size())
+             id < shop::apply_loadout_shop_id + loadouts::loadouts.size())
     {
         auto loadout_slot = id - shop::apply_loadout_shop_id;
         result->shop_type = shop_type;
         result->id = id;
-        result->row = &saveslots::slots[loadout_slot].apply_shop_lineup_param;
+        result->row = &loadouts::loadouts[loadout_slot].apply_shop_lineup_param;
         return;
     }
 
@@ -121,18 +121,18 @@ static void get_equip_param_accessory_detour(from::CS::FindEquipParamAccessoryRe
                                              int id)
 {
     if (id >= shop::save_loadout_accessory_base_id &&
-        id < shop::save_loadout_accessory_base_id + saveslots::slots.size())
+        id < shop::save_loadout_accessory_base_id + loadouts::loadouts.size())
     {
-        auto &slot = saveslots::slots[id - shop::save_loadout_accessory_base_id];
+        auto &slot = loadouts::loadouts[id - shop::save_loadout_accessory_base_id];
         result->id = id;
         result->row = &slot.save_accessory_param;
         result->unknown = 3;
         return;
     }
     if (id >= shop::apply_loadout_accessory_base_id &&
-        id < shop::apply_loadout_accessory_base_id + saveslots::slots.size())
+        id < shop::apply_loadout_accessory_base_id + loadouts::loadouts.size())
     {
-        auto &slot = saveslots::slots[id - shop::apply_loadout_accessory_base_id];
+        auto &slot = loadouts::loadouts[id - shop::apply_loadout_accessory_base_id];
 
         // Only show non-empty slots in the "Apply loadout" menu
         if (!slot.empty)
@@ -156,7 +156,7 @@ static void open_regular_shop_detour(void *unk, unsigned long long begin_id,
     {
         msg::set_active_shop(begin_id);
 
-        for (auto &slot : saveslots::slots)
+        for (auto &slot : loadouts::loadouts)
             slot.refresh();
     }
     else
@@ -176,16 +176,17 @@ static bool add_inventory_from_shop_detour(int *item_id_address, int quantity)
     {
         auto accessory_id = item_id - shop::item_type_accessory_begin;
         if (accessory_id >= shop::save_loadout_accessory_base_id &&
-            accessory_id < shop::save_loadout_accessory_base_id + saveslots::slots.size())
+            accessory_id < shop::save_loadout_accessory_base_id + loadouts::loadouts.size())
         {
-            auto &loadout = saveslots::slots[accessory_id - shop::save_loadout_accessory_base_id];
+            auto &loadout = loadouts::loadouts[accessory_id - shop::save_loadout_accessory_base_id];
             loadout.save_from_player();
             return false;
         }
         if (accessory_id >= shop::apply_loadout_accessory_base_id &&
-            accessory_id < shop::apply_loadout_accessory_base_id + saveslots::slots.size())
+            accessory_id < shop::apply_loadout_accessory_base_id + loadouts::loadouts.size())
         {
-            auto &loadout = saveslots::slots[accessory_id - shop::apply_loadout_accessory_base_id];
+            auto &loadout =
+                loadouts::loadouts[accessory_id - shop::apply_loadout_accessory_base_id];
             loadout.apply_to_player();
             return false;
         }

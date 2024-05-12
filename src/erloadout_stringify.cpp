@@ -101,7 +101,7 @@ static bool write_weapons(wstringstream &stream, initializer_list<const int> wea
     bool is_first = true;
     for (auto weapon_id : weapon_ids)
     {
-        if (weapon_id != saveslots::unarmed_weapon_id && weapon_id != -1)
+        if (weapon_id != unarmed_weapon_id && weapon_id != -1)
         {
             auto upgrade_level = weapon_id % 100;
 
@@ -129,10 +129,8 @@ static bool write_protectors(wstringstream &stream, initializer_list<const int> 
     bool is_first = true;
     for (auto protector_id : protector_ids)
     {
-        if (protector_id != saveslots::bare_head_protector_id &&
-            protector_id != saveslots::bare_chest_protector_id &&
-            protector_id != saveslots::bare_arms_protector_id &&
-            protector_id != saveslots::bare_legs_protector_id)
+        if (protector_id != bare_head_protector_id && protector_id != bare_chest_protector_id &&
+            protector_id != bare_arms_protector_id && protector_id != bare_legs_protector_id)
         {
             write_item_name(stream, msg::get_message(msgbnd::protector_name, protector_id),
                             is_first, main_player_has_item(item_type::protector, protector_id));
@@ -152,7 +150,7 @@ static bool write_accessories(wstringstream &stream, initializer_list<const int>
     bool is_first = true;
     for (auto accessory_id : accessory_ids)
     {
-        if (accessory_id != saveslots::empty_accessory_id)
+        if (accessory_id != empty_accessory_id)
         {
             write_item_name(stream, msg::get_message(msgbnd::accessory_name, accessory_id),
                             is_first, main_player_has_item(item_type::accessory, accessory_id));
@@ -175,10 +173,10 @@ static wstring item_icon(int icon_id)
     return ss.str();
 }
 
-wstring saveslots::iconify_loadout(saveslots::SaveSlot const &slot)
+wstring erloadout::iconify_loadout(loadouts::loadout const &loadout)
 {
 
-    auto &gear = slot.gear;
+    auto &gear = loadout.gear;
 
     wstringstream stream;
 
@@ -283,9 +281,9 @@ wstring saveslots::iconify_loadout(saveslots::SaveSlot const &slot)
 }
 
 // Generates a string with a list of equipment in the given loadout
-wstring saveslots::stringify_loadout(saveslots::SaveSlot const &slot)
+wstring erloadout::stringify_loadout(loadouts::loadout const &loadout)
 {
-    auto &gear = slot.gear;
+    auto &gear = loadout.gear;
 
     wstringstream stream;
 
@@ -303,8 +301,7 @@ wstring saveslots::stringify_loadout(saveslots::SaveSlot const &slot)
     if (!any_right_weapons && !any_left_weapons)
     {
         // Unarmed
-        stream << begin_line << msg::get_message(msgbnd::weapon_name, saveslots::unarmed_weapon_id)
-               << L"\n";
+        stream << begin_line << msg::get_message(msgbnd::weapon_name, unarmed_weapon_id) << L"\n";
     }
 
     stream << vertical_spacer;

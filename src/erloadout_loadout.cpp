@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <fstream>
+#include <tuple>
 
 #include <coresystem/param.hpp>
 #include <nlohmann/json.hpp>
@@ -8,8 +9,8 @@
 #include <paramdefs/EQUIP_PARAM_WEAPON_ST.hpp>
 #include <spdlog/spdlog.h>
 
+#include "erloadout_loadout.hpp"
 #include "erloadout_messages.hpp"
-#include "erloadout_saveslot.hpp"
 #include "erloadout_shop.hpp"
 #include "erloadout_stringify.hpp"
 #include "from/WorldChrManImp.hpp"
@@ -34,23 +35,23 @@ static inline std::pair<unsigned int, unsigned int> get_weapon_id_upgrade_level(
     return {weapon_id - upgrade_level, upgrade_level};
 }
 
-array<saveslots::SaveSlot, saveslots::max_slots> saveslots::slots;
+array<loadouts::loadout, loadouts::max_slots> loadouts::loadouts;
 
-static constexpr array<unsigned short, saveslots::max_slots> icon_ids = {
+static constexpr array<unsigned short, loadouts::max_slots> icon_ids = {
     361, 362, 363, 364, 365, 366, 367, 368,  369,  370,  371,  372,  373,
     374, 375, 377, 378, 379, 380, 359, 3504, 3505, 3508, 3531, 3538,
 };
 
-static constexpr array<unsigned short, saveslots::max_slots> empty_icon_ids = {
+static constexpr array<unsigned short, loadouts::max_slots> empty_icon_ids = {
     653, 654, 655, 656, 657, 658, 659, 660,  661,  662,  663,  664, 665,
     666, 667, 669, 670, 671, 672, 651, 3704, 3705, 3708, 3732, 3739};
 
-array<int, gear_slot::count> saveslots::default_gear;
+array<int, gear_slot::count> loadouts::default_gear;
 
 static array<unsigned int, gear_slot::count> gear_item_types;
 static array<string, gear_slot::count> gear_slot_debug_names;
 
-void saveslots::initialize(fs::path file_path)
+void loadouts::initialize(fs::path file_path)
 {
     ::file_path = file_path;
 
@@ -135,9 +136,9 @@ void saveslots::initialize(fs::path file_path)
     gear_slot_debug_names[gear_slot::unk4] = "unk4";
 
     int index = 0;
-    for (auto &slot : slots)
+    for (auto &loadout : loadouts)
     {
-        slot = {
+        loadout = {
             .index = index,
             .empty = true,
             .gear = {0},
@@ -147,43 +148,43 @@ void saveslots::initialize(fs::path file_path)
             .apply_shop_lineup_param = initial_shop_lineup_param,
         };
 
-        slot.save_shop_lineup_param.equipId = shop::save_loadout_accessory_base_id + index;
-        slot.save_shop_lineup_param.nameMsgId = shop::save_loadout_accessory_base_id + index;
-        slot.apply_shop_lineup_param.equipId = shop::apply_loadout_accessory_base_id + index;
-        slot.apply_shop_lineup_param.equipId = shop::apply_loadout_accessory_base_id + index;
+        loadout.save_shop_lineup_param.equipId = shop::save_loadout_accessory_base_id + index;
+        loadout.save_shop_lineup_param.nameMsgId = shop::save_loadout_accessory_base_id + index;
+        loadout.apply_shop_lineup_param.equipId = shop::apply_loadout_accessory_base_id + index;
+        loadout.apply_shop_lineup_param.equipId = shop::apply_loadout_accessory_base_id + index;
 
         index++;
     }
 
-    slots[0].gear[gear_slot::right_weapon1_id] = 11050025; // Morning Star +25
-    slots[0].gear[gear_slot::left_weapon1_id] = 31340000;  // Black Leather Shield
-    slots[0].gear[gear_slot::arrow1_id] = 50020000;        // Serpent Arrow
-    slots[0].gear[gear_slot::arrow2_id] = 50040000;        // St. Trina's Arrow
-    slots[0].gear[gear_slot::bolt1_id] = 52030000;         // Black-Key Bolt
-    slots[0].gear[gear_slot::head_protector_id] = 1840000; // Foot Soldier Helm
-    slots[0].gear[gear_slot::chest_protector_id] = 290100; // Nox Monk Armor
-    slots[0].gear[gear_slot::arms_protector_id] = 630200;  // Astrologer Gloves
-    slots[0].gear[gear_slot::legs_protector_id] = 740300;  // Noble's Trousers
-    slots[0].gear[gear_slot::accessory1_id] = 1150;        // Green Turtle Talisman
-    slots[0].gear[gear_slot::accessory2_id] = 2160;        // Lord of Blood's Exultation
-    slots[0].gear[gear_slot::accessory3_id] = 2170;        // Kindred of Rot's Exultation
-    slots[0].gear[gear_slot::accessory4_id] = 1210;        // Bull-Goat's Talisman
+    loadouts[0].gear[gear_slot::right_weapon1_id] = 11050025; // Morning Star +25
+    loadouts[0].gear[gear_slot::left_weapon1_id] = 31340000;  // Black Leather Shield
+    loadouts[0].gear[gear_slot::arrow1_id] = 50020000;        // Serpent Arrow
+    loadouts[0].gear[gear_slot::arrow2_id] = 50040000;        // St. Trina's Arrow
+    loadouts[0].gear[gear_slot::bolt1_id] = 52030000;         // Black-Key Bolt
+    loadouts[0].gear[gear_slot::head_protector_id] = 1840000; // Foot Soldier Helm
+    loadouts[0].gear[gear_slot::chest_protector_id] = 290100; // Nox Monk Armor
+    loadouts[0].gear[gear_slot::arms_protector_id] = 630200;  // Astrologer Gloves
+    loadouts[0].gear[gear_slot::legs_protector_id] = 740300;  // Noble's Trousers
+    loadouts[0].gear[gear_slot::accessory1_id] = 1150;        // Green Turtle Talisman
+    loadouts[0].gear[gear_slot::accessory2_id] = 2160;        // Lord of Blood's Exultation
+    loadouts[0].gear[gear_slot::accessory3_id] = 2170;        // Kindred of Rot's Exultation
+    loadouts[0].gear[gear_slot::accessory4_id] = 1210;        // Bull-Goat's Talisman
 
-    slots[1].gear[gear_slot::right_weapon1_id] = 23050010; // Axe of Godfrey +10
-    slots[1].gear[gear_slot::left_weapon1_id] = 32130025;  // Fingerprint Stone Shield +25
-    slots[1].gear[gear_slot::head_protector_id] = 140000;  // Bull-Goat Helm
-    slots[1].gear[gear_slot::chest_protector_id] = 140100; // Bull-Goat Armor
-    slots[1].gear[gear_slot::arms_protector_id] = 140200;  // Bull-Goat Gauntlets
-    slots[1].gear[gear_slot::legs_protector_id] = 140300;  // Bull-Goat Greaves
-    slots[1].gear[gear_slot::accessory1_id] = 4100;        // Greatshield Talisman
-    slots[1].gear[gear_slot::accessory2_id] = 2200;        // Curved Sword Talisman
-    slots[1].gear[gear_slot::accessory3_id] = 2050;        // Ritual Sword Talisman
-    slots[1].gear[gear_slot::accessory4_id] = 4003;        // Dragoncrest Greatshield Talisman
+    loadouts[1].gear[gear_slot::right_weapon1_id] = 23050010; // Axe of Godfrey +10
+    loadouts[1].gear[gear_slot::left_weapon1_id] = 32130025;  // Fingerprint Stone Shield +25
+    loadouts[1].gear[gear_slot::head_protector_id] = 140000;  // Bull-Goat Helm
+    loadouts[1].gear[gear_slot::chest_protector_id] = 140100; // Bull-Goat Armor
+    loadouts[1].gear[gear_slot::arms_protector_id] = 140200;  // Bull-Goat Gauntlets
+    loadouts[1].gear[gear_slot::legs_protector_id] = 140300;  // Bull-Goat Greaves
+    loadouts[1].gear[gear_slot::accessory1_id] = 4100;        // Greatshield Talisman
+    loadouts[1].gear[gear_slot::accessory2_id] = 2200;        // Curved Sword Talisman
+    loadouts[1].gear[gear_slot::accessory3_id] = 2050;        // Ritual Sword Talisman
+    loadouts[1].gear[gear_slot::accessory4_id] = 4003;        // Dragoncrest Greatshield Talisman
 
     load_from_file();
 }
 
-void saveslots::SaveSlot::refresh()
+void loadouts::loadout::refresh()
 {
     empty = true;
 
@@ -270,7 +271,7 @@ void saveslots::SaveSlot::refresh()
     }
 }
 
-void saveslots::SaveSlot::save_from_player()
+void loadouts::loadout::save_from_player()
 {
     auto main_player = from::CS::WorldChrManImp::instance().reference().get_main_player();
     if (main_player == nullptr)
@@ -286,7 +287,7 @@ void saveslots::SaveSlot::save_from_player()
     save_to_file();
 }
 
-void saveslots::SaveSlot::apply_to_player()
+void loadouts::loadout::apply_to_player()
 {
     auto main_player = from::CS::WorldChrManImp::instance().reference().get_main_player();
     if (main_player == nullptr || main_player->get_game_data() == nullptr)
@@ -392,37 +393,46 @@ void saveslots::SaveSlot::apply_to_player()
     players::spawn_one_shot_sfx_on_chr(main_player, 900, 8020, nullptr);
 }
 
-void saveslots::load_from_file()
+void loadouts::load_from_file()
 {
     try
     {
-        ifstream stream(file_path);
-        json slots_json = json::parse(stream);
-        slots_json.items()
+        json data_json = json::parse(ifstream(file_path));
+        json loadouts_json = data_json["loadouts"];
+
+        for (int i = 0; i < loadouts.size(); i++)
+        {
+            auto &loadout_json = loadouts_json[i];
+
+            if (!loadout_json.is_object())
+                continue;
+
+            auto &gear_json = loadout_json["gear"];
+            if (!gear_json.is_array())
+                continue;
+
+            loadouts[i].gear = gear_json;
+        }
     }
-    catch (json::exception &e)
+    catch (const json::exception &e)
     {
-        spdlog::error("{}: {}", file_path, e.what());
+        spdlog::error("{} {}", file_path.string(), e.what());
     }
 }
 
-void saveslots::save_to_file()
+void loadouts::save_to_file()
 {
-    json slots_json = json::array();
-    for (auto &slot : slots)
+    json loadouts_json = json::array();
+
+    for (int i = 0; i < loadouts.size(); i++)
     {
-        if (slot.empty)
-            slots_json.push_back(json{});
-        else
-            slots_json.push_back({{"gear", slot.gear}});
+        auto &slot = loadouts[i];
+        loadouts_json[i] = slot.empty ? json{} : json{{"gear", slot.gear}};
     }
 
-    json data_json = {{"slots", slots_json}};
+    json data_json = {{"loadouts", loadouts_json}};
 
-    ofstream stream;
-    stream.open(file_path);
-    stream << data_json.dump();
-    stream.close();
+    ofstream(file_path) << data_json;
 
     spdlog::info("Saved to {}", file_path.string());
 }

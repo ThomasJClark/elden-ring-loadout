@@ -4,8 +4,8 @@
 #include <string>
 #include <thread>
 
+#include "erloadout_loadout.hpp"
 #include "erloadout_messages.hpp"
-#include "erloadout_saveslot.hpp"
 #include "erloadout_shop.hpp"
 #include "utils/modutils.hpp"
 
@@ -103,40 +103,42 @@ static const wchar_t *get_message_detour(from::CS::MsgRepository *msg_repository
 
     case msgbnd::accessory_name:
         if (msg_id >= shop::save_loadout_accessory_base_id &&
-            msg_id < shop::save_loadout_accessory_base_id + saveslots::slots.size())
+            msg_id < shop::save_loadout_accessory_base_id + loadouts::loadouts.size())
         {
-            return saveslots::slots[msg_id - shop::save_loadout_accessory_base_id].name.c_str();
+            return loadouts::loadouts[msg_id - shop::save_loadout_accessory_base_id].name.c_str();
         }
         if (msg_id >= shop::apply_loadout_accessory_base_id &&
-            msg_id < shop::apply_loadout_accessory_base_id + saveslots::slots.size())
+            msg_id < shop::apply_loadout_accessory_base_id + loadouts::loadouts.size())
         {
-            return saveslots::slots[msg_id - shop::apply_loadout_accessory_base_id].name.c_str();
+            return loadouts::loadouts[msg_id - shop::apply_loadout_accessory_base_id].name.c_str();
         }
         break;
 
     case msgbnd::accessory_caption:
         if (msg_id >= shop::save_loadout_accessory_base_id &&
-            msg_id < shop::save_loadout_accessory_base_id + saveslots::slots.size())
+            msg_id < shop::save_loadout_accessory_base_id + loadouts::loadouts.size())
         {
-            return saveslots::slots[msg_id - shop::save_loadout_accessory_base_id].caption.c_str();
+            return loadouts::loadouts[msg_id - shop::save_loadout_accessory_base_id]
+                .caption.c_str();
         }
         if (msg_id >= shop::apply_loadout_accessory_base_id &&
-            msg_id < shop::apply_loadout_accessory_base_id + saveslots::slots.size())
+            msg_id < shop::apply_loadout_accessory_base_id + loadouts::loadouts.size())
         {
-            return saveslots::slots[msg_id - shop::apply_loadout_accessory_base_id].caption.c_str();
+            return loadouts::loadouts[msg_id - shop::apply_loadout_accessory_base_id]
+                .caption.c_str();
         }
         break;
 
     case msgbnd::accessory_info:
         if (msg_id >= shop::save_loadout_accessory_base_id &&
-            msg_id < shop::save_loadout_accessory_base_id + saveslots::slots.size())
+            msg_id < shop::save_loadout_accessory_base_id + loadouts::loadouts.size())
         {
-            return saveslots::slots[msg_id - shop::save_loadout_accessory_base_id].info.c_str();
+            return loadouts::loadouts[msg_id - shop::save_loadout_accessory_base_id].info.c_str();
         }
         if (msg_id >= shop::apply_loadout_accessory_base_id &&
-            msg_id < shop::apply_loadout_accessory_base_id + saveslots::slots.size())
+            msg_id < shop::apply_loadout_accessory_base_id + loadouts::loadouts.size())
         {
-            return saveslots::slots[msg_id - shop::apply_loadout_accessory_base_id].info.c_str();
+            return loadouts::loadouts[msg_id - shop::apply_loadout_accessory_base_id].info.c_str();
         }
         break;
     }

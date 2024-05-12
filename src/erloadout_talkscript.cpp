@@ -1,7 +1,7 @@
 #include <spdlog/spdlog.h>
 
+#include "erloadout_loadout.hpp"
 #include "erloadout_messages.hpp"
-#include "erloadout_saveslot.hpp"
 #include "erloadout_shop.hpp"
 #include "erloadout_talkscript.hpp"
 #include "erloadout_talkscript_states.hpp"
@@ -20,10 +20,10 @@ extern OpenShopState apply_loadout_state;
 LoadoutMenuState loadout_menu_state(68000, &loadout_menu_next_state);
 LoadoutMenuNextState loadout_menu_next_state(68001, &save_loadout_state, &apply_loadout_state);
 OpenShopState save_loadout_state(68002, shop::save_loadout_shop_id,
-                                 shop::save_loadout_shop_id + saveslots::slots.size() - 1,
+                                 shop::save_loadout_shop_id + loadouts::loadouts.size() - 1,
                                  &loadout_menu_state);
 OpenShopState apply_loadout_state(68003, shop::apply_loadout_shop_id,
-                                  shop::apply_loadout_shop_id + saveslots::slots.size() - 1,
+                                  shop::apply_loadout_shop_id + loadouts::loadouts.size() - 1,
                                   &loadout_menu_state);
 };
 

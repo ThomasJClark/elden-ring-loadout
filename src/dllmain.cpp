@@ -9,8 +9,8 @@
 #include <thread>
 #include <windows.h>
 
+#include "erloadout_loadout.hpp"
 #include "erloadout_messages.hpp"
-#include "erloadout_saveslot.hpp"
 #include "erloadout_shop.hpp"
 #include "erloadout_talkscript.hpp"
 #include "utils/modutils.hpp"
@@ -28,7 +28,7 @@ void setup_logger(const filesystem::path &logs_path)
         make_shared<spdlog::sinks::daily_file_sink_st>(logs_path.string(), 0, 0, false, 5));
     logger->flush_on(spdlog::level::info);
 
-#if _DEBUG
+#if _DEBUG || 1
     AllocConsole();
     FILE *stream;
     freopen_s(&stream, "CONOUT$", "w", stdout);
@@ -69,7 +69,7 @@ bool WINAPI DllMain(HINSTANCE dll_instance, unsigned int fdw_reason, void *lpv_r
                 spdlog::info("Hooking loadout messages...");
                 erloadout::msg::initialize();
 
-                erloadout::saveslots::initialize(folder / "erloadout.json");
+                erloadout::loadouts::initialize(folder / "erloadout.json");
 
                 spdlog::info("Adding loadout shops...");
                 erloadout::shop::initialize();

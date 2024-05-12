@@ -12,10 +12,6 @@
 
 namespace erloadout
 {
-namespace saveslots
-{
-static constexpr size_t max_slots = 25;
-
 static constexpr int bare_head_protector_id = 10000;
 static constexpr int bare_chest_protector_id = 10100;
 static constexpr int bare_arms_protector_id = 10200;
@@ -24,9 +20,13 @@ static constexpr int unarmed_weapon_id = 110000;
 static constexpr int empty_ammo_id = -1;
 static constexpr int empty_accessory_id = -1;
 
+namespace loadouts
+{
+static constexpr size_t max_slots = 25;
+
 extern std::array<int, gear_slot::count> default_gear;
 
-struct SaveSlot
+struct loadout
 {
     int index;
     bool empty;
@@ -53,7 +53,7 @@ struct SaveSlot
     void refresh();
 };
 
-extern std::array<SaveSlot, max_slots> slots;
+extern std::array<loadout, max_slots> loadouts;
 
 void initialize(std::filesystem::path file_path);
 

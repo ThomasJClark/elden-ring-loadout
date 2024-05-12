@@ -62,8 +62,8 @@ add_library(EldenRingLoadoutMod SHARED
   src/erloadout_messages_by_lang.cpp
   src/erloadout_messages.cpp
   src/erloadout_messages.hpp
-  src/erloadout_saveslot.cpp
-  src/erloadout_saveslot.hpp
+  src/erloadout_loadout.cpp
+  src/erloadout_loadout.hpp
   src/erloadout_shop.cpp
   src/erloadout_shop.hpp
   src/erloadout_stringify.cpp
