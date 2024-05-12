@@ -59,19 +59,25 @@ set_target_properties(steamapi PROPERTIES
 
 add_library(EldenRingLoadoutMod SHARED
   src/dllmain.cpp
+  src/erloadout_config.cpp
+  src/erloadout_config.hpp
   src/erloadout_gear_info.hpp
-  src/erloadout_messages_by_lang.cpp
-  src/erloadout_messages.cpp
-  src/erloadout_messages.hpp
   src/erloadout_loadout.cpp
   src/erloadout_loadout.hpp
+  src/erloadout_logging.cpp
+  src/erloadout_logging.hpp
+  src/erloadout_messages.cpp
+  src/erloadout_messages.hpp
+  src/erloadout_messages_by_lang.cpp
+  src/erloadout_save_file.cpp
+  src/erloadout_save_file.hpp
   src/erloadout_shop.cpp
   src/erloadout_shop.hpp
   src/erloadout_stringify.cpp
   src/erloadout_stringify.hpp
-  src/erloadout_talkscript_states.hpp
   src/erloadout_talkscript.cpp
   src/erloadout_talkscript.hpp
+  src/erloadout_talkscript_states.hpp
   src/erloadout_to_player.cpp
   src/erloadout_to_player.hpp
   src/from/EzState.hpp
@@ -79,7 +85,7 @@ add_library(EldenRingLoadoutMod SHARED
   src/from/WorldChrManImp.cpp
   src/from/WorldChrManImp.hpp
   src/utils/modutils.cpp
-  src/utils/modutils.hpp
+  src/utils/ModUtils.hpp
   src/utils/players.cpp
   src/utils/players.hpp)
 

@@ -6,6 +6,7 @@
 
 #include "erloadout_loadout.hpp"
 #include "erloadout_messages.hpp"
+#include "erloadout_save_file.hpp"
 #include "erloadout_shop.hpp"
 #include "erloadout_to_player.hpp"
 #include "utils/modutils.hpp"

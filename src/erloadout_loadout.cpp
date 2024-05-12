@@ -1,9 +1,6 @@
 #include <algorithm>
-#include <fstream>
-#include <tuple>
 
 #include <coresystem/param.hpp>
-#include <nlohmann/json.hpp>
 #include <paramdefs/EQUIP_PARAM_ACCESSORY_ST.hpp>
 #include <paramdefs/EQUIP_PARAM_PROTECTOR_ST.hpp>
 #include <paramdefs/EQUIP_PARAM_WEAPON_ST.hpp>
@@ -15,14 +12,9 @@
 #include "erloadout_shop.hpp"
 #include "erloadout_stringify.hpp"
 #include "from/WorldChrManImp.hpp"
-#include "utils/players.hpp"
 
 using namespace std;
 using namespace erloadout;
-using json = nlohmann::json;
-namespace fs = std::filesystem;
-
-static fs::path file_path;
 
 array<erloadout::loadout, 25> erloadout::loadouts;
 
@@ -35,10 +27,8 @@ static constexpr array<unsigned short, erloadout::loadouts.size()> empty_icon_id
     653, 654, 655, 656, 657, 658, 659, 660,  661,  662,  663,  664, 665,
     666, 667, 669, 670, 671, 672, 651, 3704, 3705, 3708, 3732, 3739};
 
-void erloadout::initialize_loadouts(fs::path file_path)
+void erloadout::initialize_loadouts()
 {
-    ::file_path = file_path;
-
     from::paramdefs::SHOP_LINEUP_PARAM initial_shop_lineup_param = {.value = -1,
                                                                     .mtrlId = -1,
                                                                     .sellQuantity = -1,
@@ -95,8 +85,6 @@ void erloadout::initialize_loadouts(fs::path file_path)
     loadouts[1].gear[gear_slot::accessory2_id] = 2200;        // Curved Sword Talisman
     loadouts[1].gear[gear_slot::accessory3_id] = 2050;        // Ritual Sword Talisman
     loadouts[1].gear[gear_slot::accessory4_id] = 4003;        // Dragoncrest Greatshield Talisman
-
-    load_from_file();
 }
 
 void erloadout::loadout::refresh()
@@ -180,48 +168,4 @@ void erloadout::loadout::refresh()
         save_accessory_param.weight = weight;
         apply_accessory_param.weight = weight;
     }
-}
-
-void erloadout::load_from_file()
-{
-    try
-    {
-        json data_json = json::parse(ifstream(file_path));
-        json loadouts_json = data_json["loadouts"];
-
-        for (int i = 0; i < loadouts.size(); i++)
-        {
-            auto &loadout_json = loadouts_json[i];
-
-            if (!loadout_json.is_object())
-                continue;
-
-            auto &gear_json = loadout_json["gear"];
-            if (!gear_json.is_array())
-                continue;
-
-            loadouts[i].gear = gear_json;
-        }
-    }
-    catch (const json::exception &e)
-    {
-        spdlog::error("{} {}", file_path.string(), e.what());
-    }
-}
-
-void erloadout::save_to_file()
-{
-    json loadouts_json = json::array();
-
-    for (int i = 0; i < loadouts.size(); i++)
-    {
-        auto &slot = loadouts[i];
-        loadouts_json[i] = slot.empty ? json{} : json{{"gear", slot.gear}};
-    }
-
-    json data_json = {{"loadouts", loadouts_json}};
-
-    ofstream(file_path) << data_json;
-
-    spdlog::info("Saved to {}", file_path.string());
 }
