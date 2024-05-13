@@ -16,6 +16,9 @@ namespace config
 extern bool debug;
 extern std::chrono::milliseconds initialize_delay;
 extern std::filesystem::path save_file_path;
+extern bool auto_upgrade;
+extern bool auto_gib;
+extern bool npc_loadouts;
 }
 
 /**
