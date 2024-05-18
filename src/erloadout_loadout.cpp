@@ -29,62 +29,28 @@ static constexpr array<unsigned short, erloadout::loadouts.size()> empty_icon_id
 
 void erloadout::initialize_loadouts()
 {
-    from::paramdefs::SHOP_LINEUP_PARAM initial_shop_lineup_param = {.value = -1,
-                                                                    .mtrlId = -1,
-                                                                    .sellQuantity = -1,
-                                                                    .equipType = 2, // accessory
-                                                                    .setNum = 1,
-                                                                    .value_Magnification = 0,
-                                                                    .iconId = -1,
-                                                                    .nameMsgId = -1,
-                                                                    .menuTitleMsgId = 0,
-                                                                    .menuIconId = 0};
+    constexpr unsigned char equip_type_accessory = 2;
 
-    int index = 0;
-    for (auto &loadout : loadouts)
+    for (int index = 0; index < loadouts.size(); index++)
     {
-        loadout = {
+        loadouts[index] = {
             .index = index,
-            .gear = {0},
-            .empty = true,
             .save_accessory_param = {.saleValue = 0},
             .apply_accessory_param = {.saleValue = 0},
-            .save_shop_lineup_param = initial_shop_lineup_param,
-            .apply_shop_lineup_param = initial_shop_lineup_param,
+            .save_shop_lineup_param =
+                {
+                    .equipId = shop::save_loadout_accessory_base_id + index,
+                    .equipType = equip_type_accessory,
+                    .value_Magnification = 0,
+                },
+            .apply_shop_lineup_param =
+                {
+                    .equipId = shop::apply_loadout_accessory_base_id + index,
+                    .equipType = equip_type_accessory,
+                    .value_Magnification = 0,
+                },
         };
-
-        loadout.save_shop_lineup_param.equipId = shop::save_loadout_accessory_base_id + index;
-        loadout.save_shop_lineup_param.nameMsgId = shop::save_loadout_accessory_base_id + index;
-        loadout.apply_shop_lineup_param.equipId = shop::apply_loadout_accessory_base_id + index;
-        loadout.apply_shop_lineup_param.equipId = shop::apply_loadout_accessory_base_id + index;
-
-        index++;
     }
-
-    loadouts[0].gear[gear_slot::right_weapon1_id] = 11050025; // Morning Star +25
-    loadouts[0].gear[gear_slot::left_weapon1_id] = 31340000;  // Black Leather Shield
-    loadouts[0].gear[gear_slot::arrow1_id] = 50020000;        // Serpent Arrow
-    loadouts[0].gear[gear_slot::arrow2_id] = 50040000;        // St. Trina's Arrow
-    loadouts[0].gear[gear_slot::bolt1_id] = 52030000;         // Black-Key Bolt
-    loadouts[0].gear[gear_slot::head_protector_id] = 1840000; // Foot Soldier Helm
-    loadouts[0].gear[gear_slot::chest_protector_id] = 290100; // Nox Monk Armor
-    loadouts[0].gear[gear_slot::arms_protector_id] = 630200;  // Astrologer Gloves
-    loadouts[0].gear[gear_slot::legs_protector_id] = 740300;  // Noble's Trousers
-    loadouts[0].gear[gear_slot::accessory1_id] = 1150;        // Green Turtle Talisman
-    loadouts[0].gear[gear_slot::accessory2_id] = 2160;        // Lord of Blood's Exultation
-    loadouts[0].gear[gear_slot::accessory3_id] = 2170;        // Kindred of Rot's Exultation
-    loadouts[0].gear[gear_slot::accessory4_id] = 1210;        // Bull-Goat's Talisman
-
-    loadouts[1].gear[gear_slot::right_weapon1_id] = 23050010; // Axe of Godfrey +10
-    loadouts[1].gear[gear_slot::left_weapon1_id] = 32130025;  // Fingerprint Stone Shield +25
-    loadouts[1].gear[gear_slot::head_protector_id] = 140000;  // Bull-Goat Helm
-    loadouts[1].gear[gear_slot::chest_protector_id] = 140100; // Bull-Goat Armor
-    loadouts[1].gear[gear_slot::arms_protector_id] = 140200;  // Bull-Goat Gauntlets
-    loadouts[1].gear[gear_slot::legs_protector_id] = 140300;  // Bull-Goat Greaves
-    loadouts[1].gear[gear_slot::accessory1_id] = 4100;        // Greatshield Talisman
-    loadouts[1].gear[gear_slot::accessory2_id] = 2200;        // Curved Sword Talisman
-    loadouts[1].gear[gear_slot::accessory3_id] = 2050;        // Ritual Sword Talisman
-    loadouts[1].gear[gear_slot::accessory4_id] = 4003;        // Dragoncrest Greatshield Talisman
 }
 
 void erloadout::loadout::refresh()

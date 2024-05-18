@@ -6,6 +6,7 @@
 #include <coresystem/param.hpp>
 #include <spdlog/spdlog.h>
 
+#include "erloadout_config.hpp"
 #include "erloadout_gear_info.hpp"
 #include "erloadout_messages.hpp"
 #include "erloadout_stringify.hpp"
@@ -14,8 +15,19 @@
 using namespace std;
 using namespace erloadout;
 
-static bool main_player_has_item(unsigned int item_type, int id)
+/**
+ * @returns true if the given item cannot be equipped because the player doesn't have it, and
+ * auto_gib isn't enabled.
+ *
+ * @todo Use the same fallback logic as the actual equip code
+ */
+static bool is_missing_item(unsigned int item_type, int id)
 {
+    if (erloadout::config::auto_gib)
+    {
+        return false;
+    }
+
     auto player = from::CS::WorldChrManImp::instance().reference().get_main_player();
     if (player == nullptr)
     {
@@ -24,7 +36,7 @@ static bool main_player_has_item(unsigned int item_type, int id)
 
     auto &equip_game_data = player->get_game_data()->get_equip_game_data();
     auto item_id = (int)item_type + id;
-    return players::get_inventory_id(&equip_game_data.get_equip_inventory_data(), &item_id) != -1;
+    return players::get_inventory_id(&equip_game_data.get_equip_inventory_data(), &item_id) == -1;
 }
 
 static const wstring begin_line =
@@ -82,7 +94,8 @@ static void write_header(wstringstream &stream, wstring_view str)
     stream << L"<font color='#c0b194' size='22'>" << str << L"</font>\n";
 }
 
-static void write_item_name(wstringstream &stream, const wchar_t *str, bool is_first, bool has_item)
+static void write_item_name(wstringstream &stream, const wchar_t *str, bool is_first,
+                            bool is_missing_item)
 {
     if (is_first)
         stream << begin_line;
@@ -91,7 +104,7 @@ static void write_item_name(wstringstream &stream, const wchar_t *str, bool is_f
 
     if (str == nullptr)
         stream << L"<font color='#c5242a'>???";
-    else if (has_item)
+    else if (is_missing_item)
         stream << L"<font color='#ffffff'>" << str;
     else
         stream << L"<font color='#c5242a'>" << str;
@@ -108,7 +121,7 @@ static bool write_weapons(wstringstream &stream, initializer_list<const int> wea
 
             write_item_name(stream,
                             msg::get_message(msgbnd::weapon_name, weapon_id - upgrade_level),
-                            is_first, main_player_has_item(item_type::weapon, weapon_id));
+                            is_first, is_missing_item(item_type::weapon, weapon_id));
 
             if (upgrade_level != 0)
             {
@@ -134,7 +147,7 @@ static bool write_protectors(wstringstream &stream, initializer_list<const int> 
             protector_id != bare_arms_protector_id && protector_id != bare_legs_protector_id)
         {
             write_item_name(stream, msg::get_message(msgbnd::protector_name, protector_id),
-                            is_first, main_player_has_item(item_type::protector, protector_id));
+                            is_first, is_missing_item(item_type::protector, protector_id));
 
             is_first = false;
         }
@@ -154,7 +167,7 @@ static bool write_accessories(wstringstream &stream, initializer_list<const int>
         if (accessory_id != empty_accessory_id)
         {
             write_item_name(stream, msg::get_message(msgbnd::accessory_name, accessory_id),
-                            is_first, main_player_has_item(item_type::accessory, accessory_id));
+                            is_first, is_missing_item(item_type::accessory, accessory_id));
 
             is_first = false;
         }

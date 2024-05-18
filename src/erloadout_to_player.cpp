@@ -2,8 +2,10 @@
 
 #include <spdlog/spdlog.h>
 
+#include "erloadout_config.hpp"
 #include "erloadout_gear_info.hpp"
 #include "erloadout_to_player.hpp"
+#include "from/MapItemManImpl.hpp"
 #include "utils/players.hpp"
 
 using namespace erloadout;
@@ -81,7 +83,18 @@ void erloadout::apply_to_player(loadout const &loadout, from::CS::PlayerIns &pla
             return best_index;
         }
 
-        // If the item wasn't found, equip the default placeholder
+        // If the item wasn't found, put it in the player's inventory (if configured to do so)
+        if (erloadout::config::auto_gib)
+        {
+            unsigned char unk[100];
+
+            players::item_gib_list list{
+                1, {{.item_id = info.item_type + item_id, .quantity = 1, .unk = -1, .gem_id = -1}}};
+
+            players::item_gib(&from::CS::MapItemManImpl::instance().reference(), &list, unk, 0);
+        }
+
+        // Otherwise, equip the default placeholder
         for (auto i = 0; i < inventory_entries.count; i++)
         {
             if (inventory_entries[i].item_id == info.item_type + info.default_value)

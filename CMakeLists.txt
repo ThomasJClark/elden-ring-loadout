@@ -82,6 +82,8 @@ add_library(EldenRingLoadoutMod SHARED
   src/erloadout_to_player.hpp
   src/from/EzState.hpp
   src/from/List.hpp
+  src/from/MapItemManImpl.cpp
+  src/from/MapItemManImpl.hpp
   src/from/WorldChrManImp.cpp
   src/from/WorldChrManImp.hpp
   src/utils/modutils.cpp

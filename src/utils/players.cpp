@@ -1,20 +1,28 @@
 #pragma once
 
-#include "players.hpp"
+#include <spdlog/spdlog.h>
+
 #include "modutils.hpp"
+#include "players.hpp"
 
 using namespace std;
 
 players::SpawnOneShotVFXOnChrFn *players::spawn_one_shot_sfx_on_chr = nullptr;
-players::EquipGearFn *players::equip_gear;
-players::EquipGoodsFn *players::equip_goods;
+players::EquipGearFn *players::equip_gear = nullptr;
+players::EquipGoodsFn *players::equip_goods = nullptr;
 players::GetInventoryIdFn *players::get_inventory_id = nullptr;
+players::ItemGibFn *players::item_gib = nullptr;
 
 void players::initialize()
 {
+    item_gib = modutils::scan<ItemGibFn>({
+        .aob = "8B 02"     // mov eax, [item_gib_list]
+               "83 F8 0A", // cmp eax, 10
+        .offset = -82,
+    });
+
     get_inventory_id = modutils::scan<GetInventoryIdFn>({
-        .aob = "48 8d 8f 58 01 00 00" // lea rcx, [rdi + 0x158] ;
-                                      // &equipGameData->equipInventoryData
+        .aob = "48 8d 8f 58 01 00 00" // lea rcx, [rdi + 0x158] ; &equipGameData->equipInventoryData
                "e8 ?? ?? ?? ??"       // call GetInventoryId
                "8b d8"                // mov ebx, eax
                "85 c0"                // test eax, eax
