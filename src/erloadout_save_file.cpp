@@ -65,12 +65,27 @@ void erloadout::load_from_file()
 
     try
     {
-        json data_json = json::parse(file);
-        json loadouts_json = data_json["loadouts"];
-
-        for (int i = 0; i < loadouts.size(); i++)
+        const auto loadout_books_json = json::parse(file);
+        if (!loadout_books_json.is_array() || loadout_books_json.size() > loadout_book_count)
         {
-            loadouts_json[i].get_to(loadouts[i]);
+            spdlog::error("Error loading {}: Expected top-level array with at most {} elements",
+                          erloadout::config::save_file_path.string(), loadout_book_count);
+            return;
+        }
+
+        loadout_books.resize(loadout_books_json.size());
+
+        for (int i = 0; i < loadout_books_json.size(); i++)
+        {
+            auto &loadout_book_json = loadout_books_json[i];
+            if (loadout_book_json.is_object())
+            {
+                auto &loadouts_json = loadout_book_json["loadouts"];
+                if (loadouts_json.is_array())
+                {
+                    loadouts_json.get_to(loadout_books[i]);
+                }
+            }
         }
 
         spdlog::info("Save file loaded from {}", erloadout::config::save_file_path.string());
@@ -83,16 +98,14 @@ void erloadout::load_from_file()
 
 void erloadout::save_to_file()
 {
-    json loadouts_json = json::array();
+    json loadout_books_json = json::array();
 
-    for (int i = 0; i < loadouts.size(); i++)
+    for (auto &loadout_book : loadout_books)
     {
-        loadouts_json[i] = loadouts[i];
+        loadout_books_json.push_back({{"loadouts", loadout_book}});
     }
 
-    json data_json = {{"loadouts", loadouts_json}};
-
-    ofstream(erloadout::config::save_file_path) << data_json;
+    ofstream(erloadout::config::save_file_path) << loadout_books_json.dump(2);
 
     spdlog::info("Save file written to {}", erloadout::config::save_file_path.string());
 }

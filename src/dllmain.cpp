@@ -5,7 +5,6 @@
 #include <windows.h>
 
 #include "erloadout_config.hpp"
-#include "erloadout_loadout.hpp"
 #include "erloadout_logging.hpp"
 #include "erloadout_messages.hpp"
 #include "erloadout_save_file.hpp"
@@ -27,7 +26,6 @@ bool WINAPI DllMain(HINSTANCE dll_instance, unsigned int fdw_reason, void *lpv_r
         GetModuleFileNameW(dll_instance, dll_filename, MAX_PATH);
         auto dll_folder = fs::path(dll_filename).parent_path();
 
-        erloadout::initialize_loadouts();
         erloadout::initialize_config(dll_folder);
         erloadout::initialize_logging(dll_folder / "logs" / "erloadout.log");
 
@@ -55,7 +53,7 @@ bool WINAPI DllMain(HINSTANCE dll_instance, unsigned int fdw_reason, void *lpv_r
                 erloadout::msg::initialize();
 
                 spdlog::info("Adding loadout shops...");
-                erloadout::shop::initialize();
+                erloadout::initialize_shop();
 
                 modutils::enable_hooks();
 

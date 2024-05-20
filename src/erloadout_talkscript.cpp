@@ -1,8 +1,6 @@
 #include <spdlog/spdlog.h>
 
-#include "erloadout_loadout.hpp"
-#include "erloadout_messages.hpp"
-#include "erloadout_shop.hpp"
+#include "erloadout_ids.hpp"
 #include "erloadout_talkscript.hpp"
 #include "erloadout_talkscript_states.hpp"
 #include "from/EzState.hpp"
@@ -19,17 +17,15 @@ extern OpenShopState apply_loadout_state;
 
 LoadoutMenuState loadout_menu_state(68000, &loadout_menu_next_state);
 LoadoutMenuNextState loadout_menu_next_state(68001, &save_loadout_state, &apply_loadout_state);
-OpenShopState save_loadout_state(68002, shop::save_loadout_shop_id,
-                                 shop::save_loadout_shop_id + loadouts.size() - 1,
-                                 &loadout_menu_state);
-OpenShopState apply_loadout_state(68003, shop::apply_loadout_shop_id,
-                                  shop::apply_loadout_shop_id + loadouts.size() - 1,
-                                  &loadout_menu_state);
+OpenShopState save_loadout_state(68002, save_loadout_shop_id,
+                                 save_loadout_shop_id + loadout_count - 1, &loadout_menu_state);
+OpenShopState apply_loadout_state(68003, apply_loadout_shop_id,
+                                  apply_loadout_shop_id + loadout_count - 1, &loadout_menu_state);
 };
 
 // AddTalkListData(68, "Manage loadouts", -1)
 static from::EzState::IntValue loadout_talk_list_index = 68;
-static from::EzState::IntValue loadout_menu_text_id = msg::event_text_for_talk_manage_loadouts;
+static from::EzState::IntValue loadout_menu_text_id = event_text_for_talk_manage_loadouts;
 static from::EzState::IntValue unk = -1;
 static from::EzState::CommandArg loadout_arg_list[] = {loadout_talk_list_index,
                                                        loadout_menu_text_id, unk};
@@ -88,12 +84,12 @@ static void ezstate_enter_state_detour(from::EzState::State *state,
         {
             for (auto &call : state.entry_commands)
             {
-                if (is_add_talk_list_data_call(call, msg::event_text_for_talk_sort_chest))
+                if (is_add_talk_list_data_call(call, event_text_for_talk_sort_chest))
                 {
                     add_menu_state = &state;
                     call_iter = &call + 1;
                 }
-                else if (is_add_talk_list_data_call(call, msg::event_text_for_talk_manage_loadouts))
+                else if (is_add_talk_list_data_call(call, event_text_for_talk_manage_loadouts))
                 {
                     spdlog::debug("Not patching state group x{}, already patched",
                                   0x7fffffff - state_group->id);

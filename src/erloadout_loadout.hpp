@@ -2,15 +2,16 @@
 
 #include <array>
 #include <string>
+#include <vector>
 
 #include <paramdefs/EQUIP_PARAM_ACCESSORY_ST.hpp>
 #include <paramdefs/SHOP_LINEUP_PARAM.hpp>
 
+#include "erloadout_ids.hpp"
 #include "from/WorldChrManImp.hpp"
 
 namespace erloadout
 {
-
 /**
  * A single loadout slot that can be applied to the player
  */
@@ -36,8 +37,9 @@ struct loadout
     void refresh();
 };
 
-extern std::array<loadout, 25> loadouts;
+void refresh_loadouts();
 
-void initialize_loadouts();
+loadout &get_loadout(size_t pos);
 
+extern std::vector<std::array<loadout, loadout_count>> loadout_books;
 }

@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <map>
 
 #include <coresystem/param.hpp>
 #include <paramdefs/EQUIP_PARAM_ACCESSORY_ST.hpp>
@@ -9,47 +10,72 @@
 #include "erloadout_gear_info.hpp"
 #include "erloadout_loadout.hpp"
 #include "erloadout_messages.hpp"
-#include "erloadout_shop.hpp"
 #include "erloadout_stringify.hpp"
 #include "from/WorldChrManImp.hpp"
+#include "utils/players.hpp"
 
 using namespace std;
 using namespace erloadout;
 
-array<erloadout::loadout, 25> erloadout::loadouts;
+vector<array<loadout, loadout_count>> erloadout::loadout_books;
 
-static constexpr array<unsigned short, erloadout::loadouts.size()> icon_ids = {
-    361, 362, 363, 364, 365, 366, 367, 368,  369,  370,  371,  372,  373,
-    374, 375, 377, 378, 379, 380, 359, 3504, 3505, 3508, 3531, 3538,
-};
+static int book_id = -1;
 
-static constexpr array<unsigned short, erloadout::loadouts.size()> empty_icon_ids = {
-    653, 654, 655, 656, 657, 658, 659, 660,  661,  662,  663,  664, 665,
-    666, 667, 669, 670, 671, 672, 651, 3704, 3705, 3708, 3732, 3739};
+/**
+ * @return a key unique to this playthrough. Loadouts are stored in a separate JSON file from the
+ * actual save file, so this key allows us to determine which loadouts were created while this
+ * character was loaded. If there isn't one already, one will be created.
+ */
+int get_loadout_book_id()
+{
+    auto world_chr_man = from::CS::WorldChrManImp::instance();
+    if (!world_chr_man)
+        return -1;
 
-void erloadout::initialize_loadouts()
+    auto player = world_chr_man.reference().get_main_player();
+    if (!player)
+        return -1;
+
+    auto &equip_inventory_data =
+        player->get_game_data()->get_equip_game_data().get_equip_inventory_data();
+
+    // Determine the loadout key from the loadout book ID already in the player's inventory
+    for (int i = 0; i < loadout_book_count; i++)
+    {
+        int item_id = item_type::goods + loadout_book_goods_base_id + i;
+        if (players::get_inventory_id(&equip_inventory_data, &item_id) != -1)
+        {
+            spdlog::info("Determined book ID {} from key item {:x} in inventory", i, item_id);
+            return i;
+        }
+    }
+
+    // TODO give the player a book if not found
+    spdlog::warn("Couldn't find book ID");
+
+    return -1;
+}
+
+void erloadout::refresh_loadouts()
 {
     constexpr unsigned char equip_type_accessory = 2;
 
-    for (int index = 0; index < loadouts.size(); index++)
+    book_id = get_loadout_book_id();
+
+    auto &loadout_book = loadout_books[book_id];
+    for (int index = 0; index < loadout_book.size(); index++)
     {
-        loadouts[index] = {
-            .index = index,
-            .save_accessory_param = {.saleValue = 0},
-            .apply_accessory_param = {.saleValue = 0},
-            .save_shop_lineup_param =
-                {
-                    .equipId = shop::save_loadout_accessory_base_id + index,
-                    .equipType = equip_type_accessory,
-                    .value_Magnification = 0,
-                },
-            .apply_shop_lineup_param =
-                {
-                    .equipId = shop::apply_loadout_accessory_base_id + index,
-                    .equipType = equip_type_accessory,
-                    .value_Magnification = 0,
-                },
-        };
+        auto &loadout = loadout_book[index];
+        loadout.index = index;
+        loadout.save_accessory_param = {.saleValue = 0},
+        loadout.apply_accessory_param = {.saleValue = 0},
+        loadout.save_shop_lineup_param.equipId = save_loadout_accessory_base_id + index;
+        loadout.save_shop_lineup_param.equipType = equip_type_accessory;
+        loadout.save_shop_lineup_param.value_Magnification = 0;
+        loadout.apply_shop_lineup_param.equipId = apply_loadout_accessory_base_id + index;
+        loadout.apply_shop_lineup_param.equipType = equip_type_accessory;
+        loadout.apply_shop_lineup_param.value_Magnification = 0;
+        loadout.refresh();
     }
 }
 
@@ -75,8 +101,8 @@ void erloadout::loadout::refresh()
         info = L"<img src='img://MENU_FL_Box.png' width='246' height='232'/>";
         caption = L"-";
 
-        save_accessory_param.iconId = empty_icon_ids[index];
-        apply_accessory_param.iconId = empty_icon_ids[index];
+        save_accessory_param.iconId = loadout_empty_slot_icon_ids[index];
+        apply_accessory_param.iconId = loadout_empty_slot_icon_ids[index];
         save_accessory_param.weight = 0;
         apply_accessory_param.weight = 0;
     }
@@ -88,8 +114,8 @@ void erloadout::loadout::refresh()
         caption = stringify_loadout(*this);
         info = iconify_loadout(*this);
 
-        save_accessory_param.iconId = icon_ids[index];
-        apply_accessory_param.iconId = icon_ids[index];
+        save_accessory_param.iconId = loadout_slot_icon_ids[index];
+        apply_accessory_param.iconId = loadout_slot_icon_ids[index];
 
         // Count the total weight of the gear in this save slot, to display in the loadout shop
         auto weight = 0.0f;
@@ -134,4 +160,9 @@ void erloadout::loadout::refresh()
         save_accessory_param.weight = weight;
         apply_accessory_param.weight = weight;
     }
+}
+
+loadout &erloadout::get_loadout(size_t pos)
+{
+    return loadout_books[book_id][pos];
 }

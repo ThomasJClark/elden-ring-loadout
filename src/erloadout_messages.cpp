@@ -4,9 +4,9 @@
 #include <string>
 #include <thread>
 
+#include "erloadout_ids.hpp"
 #include "erloadout_loadout.hpp"
 #include "erloadout_messages.hpp"
-#include "erloadout_shop.hpp"
 #include "utils/modutils.hpp"
 
 using namespace erloadout;
@@ -43,12 +43,12 @@ static int active_shop_id = -1;
 
 inline bool is_save_loadout_shop_open()
 {
-    return active_shop_id == shop::save_loadout_shop_id;
+    return active_shop_id == save_loadout_shop_id;
 }
 
 inline bool is_apply_loadout_shop_open()
 {
-    return active_shop_id == shop::apply_loadout_shop_id;
+    return active_shop_id == apply_loadout_shop_id;
 }
 
 static const wchar_t *(*get_message)(from::CS::MsgRepository *, unsigned int, msgbnd, int);
@@ -60,11 +60,11 @@ static const wchar_t *get_message_detour(from::CS::MsgRepository *msg_repository
     case msgbnd::event_text_for_talk:
         switch (msg_id)
         {
-        case msg::event_text_for_talk_manage_loadouts:
+        case event_text_for_talk_manage_loadouts:
             return msg::loadout_messages.manage_loadouts;
-        case msg::event_text_for_talk_save_loadout:
+        case event_text_for_talk_save_loadout:
             return msg::loadout_messages.save_loadout;
-        case msg::event_text_for_talk_apply_loadout:
+        case event_text_for_talk_apply_loadout:
             return msg::loadout_messages.apply_loadout;
         }
         break;
@@ -72,17 +72,17 @@ static const wchar_t *get_message_detour(from::CS::MsgRepository *msg_repository
     case msgbnd::menu_text:
         switch (msg_id)
         {
-        case msg::menu_text_save_loadout:
+        case menu_text_save_loadout:
             return msg::loadout_messages.save_loadout;
-        case msg::menu_text_apply_loadout:
+        case menu_text_apply_loadout:
             return msg::loadout_messages.apply_loadout;
         case 20006:
-            return L"Equipment";
+            return L"Equipment"; // TODO
         }
         break;
 
     case msgbnd::line_help:
-        if (msg_id == msg::line_help_select_item_for_purchase)
+        if (msg_id == line_help_select_item_for_purchase)
         {
             if (is_save_loadout_shop_open())
                 return msg::loadout_messages.select_loadout_to_save;
@@ -92,7 +92,7 @@ static const wchar_t *get_message_detour(from::CS::MsgRepository *msg_repository
         break;
 
     case msgbnd::dialogues:
-        if (msg_id == msg::dialogues_purchase_item_for_runes)
+        if (msg_id == dialogues_purchase_item_for_runes)
         {
             if (is_save_loadout_shop_open())
                 return msg::loadout_messages.save_loadout_prompt;
@@ -101,42 +101,50 @@ static const wchar_t *get_message_detour(from::CS::MsgRepository *msg_repository
         }
         break;
 
-    case msgbnd::accessory_name:
-        if (msg_id >= shop::save_loadout_accessory_base_id &&
-            msg_id < shop::save_loadout_accessory_base_id + loadouts.size())
+    case msgbnd::goods_name:
+        if (msg_id >= loadout_book_goods_base_id &&
+            msg_id < loadout_book_goods_base_id + loadout_book_count)
         {
-            return loadouts[msg_id - shop::save_loadout_accessory_base_id].name.c_str();
+            return msg::loadout_messages.loadout_book;
         }
-        if (msg_id >= shop::apply_loadout_accessory_base_id &&
-            msg_id < shop::apply_loadout_accessory_base_id + loadouts.size())
+        break;
+
+    case msgbnd::accessory_name:
+        if (msg_id >= save_loadout_accessory_base_id &&
+            msg_id < save_loadout_accessory_base_id + loadout_count)
         {
-            return loadouts[msg_id - shop::apply_loadout_accessory_base_id].name.c_str();
+            return get_loadout(msg_id - save_loadout_accessory_base_id).name.c_str();
+        }
+        if (msg_id >= apply_loadout_accessory_base_id &&
+            msg_id < apply_loadout_accessory_base_id + loadout_count)
+        {
+            return get_loadout(msg_id - apply_loadout_accessory_base_id).name.c_str();
         }
         break;
 
     case msgbnd::accessory_caption:
-        if (msg_id >= shop::save_loadout_accessory_base_id &&
-            msg_id < shop::save_loadout_accessory_base_id + loadouts.size())
+        if (msg_id >= save_loadout_accessory_base_id &&
+            msg_id < save_loadout_accessory_base_id + loadout_count)
         {
-            return loadouts[msg_id - shop::save_loadout_accessory_base_id].caption.c_str();
+            return get_loadout(msg_id - save_loadout_accessory_base_id).caption.c_str();
         }
-        if (msg_id >= shop::apply_loadout_accessory_base_id &&
-            msg_id < shop::apply_loadout_accessory_base_id + loadouts.size())
+        if (msg_id >= apply_loadout_accessory_base_id &&
+            msg_id < apply_loadout_accessory_base_id + loadout_count)
         {
-            return loadouts[msg_id - shop::apply_loadout_accessory_base_id].caption.c_str();
+            return get_loadout(msg_id - apply_loadout_accessory_base_id).caption.c_str();
         }
         break;
 
     case msgbnd::accessory_info:
-        if (msg_id >= shop::save_loadout_accessory_base_id &&
-            msg_id < shop::save_loadout_accessory_base_id + loadouts.size())
+        if (msg_id >= save_loadout_accessory_base_id &&
+            msg_id < save_loadout_accessory_base_id + loadout_count)
         {
-            return loadouts[msg_id - shop::save_loadout_accessory_base_id].info.c_str();
+            return get_loadout(msg_id - save_loadout_accessory_base_id).info.c_str();
         }
-        if (msg_id >= shop::apply_loadout_accessory_base_id &&
-            msg_id < shop::apply_loadout_accessory_base_id + loadouts.size())
+        if (msg_id >= apply_loadout_accessory_base_id &&
+            msg_id < apply_loadout_accessory_base_id + loadout_count)
         {
-            return loadouts[msg_id - shop::apply_loadout_accessory_base_id].info.c_str();
+            return get_loadout(msg_id - apply_loadout_accessory_base_id).info.c_str();
         }
         break;
     }

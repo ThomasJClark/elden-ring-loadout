@@ -1,18 +1,11 @@
 #include <array>
 #include <string>
 
+#include "erloadout_ids.hpp"
 #include "from/WorldChrManImp.hpp"
 
 namespace erloadout
 {
-static constexpr int bare_head_protector_id = 10000;
-static constexpr int bare_chest_protector_id = 10100;
-static constexpr int bare_arms_protector_id = 10200;
-static constexpr int bare_legs_protector_id = 10300;
-static constexpr int unarmed_weapon_id = 110000;
-static constexpr int empty_ammo_id = -1;
-static constexpr int empty_accessory_id = -1;
-
 struct gearinfotype
 {
     /**

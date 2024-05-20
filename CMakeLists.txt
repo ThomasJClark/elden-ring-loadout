@@ -62,6 +62,7 @@ add_library(EldenRingLoadoutMod SHARED
   src/erloadout_config.cpp
   src/erloadout_config.hpp
   src/erloadout_gear_info.hpp
+  src/erloadout_ids.hpp
   src/erloadout_loadout.cpp
   src/erloadout_loadout.hpp
   src/erloadout_logging.cpp

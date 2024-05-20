@@ -8,6 +8,7 @@
 
 #include "erloadout_config.hpp"
 #include "erloadout_gear_info.hpp"
+#include "erloadout_ids.hpp"
 #include "erloadout_messages.hpp"
 #include "erloadout_stringify.hpp"
 #include "utils/players.hpp"
@@ -105,9 +106,9 @@ static void write_item_name(wstringstream &stream, const wchar_t *str, bool is_f
     if (str == nullptr)
         stream << L"<font color='#c5242a'>???";
     else if (is_missing_item)
-        stream << L"<font color='#ffffff'>" << str;
-    else
         stream << L"<font color='#c5242a'>" << str;
+    else
+        stream << L"<font color='#ffffff'>" << str;
 }
 
 static bool write_weapons(wstringstream &stream, initializer_list<const int> weapon_ids)

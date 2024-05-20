@@ -1,6 +1,6 @@
 #pragma once
 
-#include "erloadout_messages.hpp"
+#include "erloadout_ids.hpp"
 #include "from/EzState.hpp"
 
 #pragma pack(push, 1)
@@ -80,19 +80,18 @@ class LoadoutMenuState : public from::EzState::State
     from::EzState::IntValue unk = -1;
 
     from::EzState::IntValue save_loadout_talk_list_index = 1;
-    from::EzState::IntValue save_loadout_menu_text_id =
-        erloadout::msg::event_text_for_talk_save_loadout;
+    from::EzState::IntValue save_loadout_menu_text_id = erloadout::event_text_for_talk_save_loadout;
     from::EzState::CommandArg save_loadout_arg_list[3] = {save_loadout_talk_list_index,
                                                           save_loadout_menu_text_id, unk};
 
     from::EzState::IntValue apply_loadout_talk_list_index = 2;
     from::EzState::IntValue apply_loadout_menu_text_id =
-        erloadout::msg::event_text_for_talk_apply_loadout;
+        erloadout::event_text_for_talk_apply_loadout;
     from::EzState::CommandArg apply_loadout_arg_list[3] = {apply_loadout_talk_list_index,
                                                            apply_loadout_menu_text_id, unk};
 
     from::EzState::IntValue cancel_talk_list_index = 99;
-    from::EzState::IntValue cancel_menu_text_id = erloadout::msg::event_text_for_talk_cancel;
+    from::EzState::IntValue cancel_menu_text_id = erloadout::event_text_for_talk_cancel;
     from::EzState::CommandArg cancel_arg_list[3] = {cancel_talk_list_index, cancel_menu_text_id,
                                                     unk};
 

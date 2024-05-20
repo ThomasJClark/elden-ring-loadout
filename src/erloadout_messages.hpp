@@ -22,18 +22,6 @@ enum class msgbnd : unsigned int
 
 namespace msg
 {
-static constexpr int event_text_for_talk_manage_loadouts = 68000000;
-static constexpr int event_text_for_talk_save_loadout = 68000001;
-static constexpr int event_text_for_talk_apply_loadout = 68000002;
-static constexpr int event_text_for_talk_cancel = 15000372;
-static constexpr int event_text_for_talk_sort_chest = 15000395;
-static constexpr int menu_text_number_held = 11004;
-static constexpr int menu_text_stored = 11005;
-static constexpr int menu_text_save_loadout = 680000;
-static constexpr int menu_text_apply_loadout = 680001;
-static constexpr int line_help_select_item_for_purchase = 231000;
-static constexpr int dialogues_purchase_item_for_runes = 231000;
-
 struct LoadoutMessages
 {
     const wchar_t *manage_loadouts;
@@ -51,6 +39,7 @@ struct LoadoutMessages
     const wchar_t *talismans;
     const wchar_t *unarmed;
     const wchar_t *none;
+    const wchar_t *loadout_book;
 };
 
 void initialize();
